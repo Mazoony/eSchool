@@ -1,32 +1,31 @@
-# Project Blueprint
+# eSchool: A Blueprint for English Language Learning
 
 ## Overview
 
-This document outlines the plan for creating a comprehensive English language learning platform. The platform will provide a variety of features to help users improve their English skills, including video lessons, interactive quizzes, personalized learning paths, and a social feed for practicing with other learners.
+eSchool is a web application designed to help users learn English through a variety of interactive tools and resources. The platform provides engaging video lessons, interactive quizzes, and a supportive social network to create a comprehensive and effective language-learning experience.
 
-## Implemented Features
+## Design and Styling
 
-### Core Features
+The application follows a modern and clean design aesthetic, with a focus on user-friendliness and visual appeal. The color palette is based on shades of blue and gray, creating a professional and trustworthy feel. The typography is clean and legible, with a clear hierarchy to guide the user's attention.
 
-*   **User Authentication:** Secure user login and registration system.
-*   **Video Lesson Integration:** A gallery of video lessons with thumbnails, titles, and descriptions.
-*   **Interactive Quizzes and Exercises:** Multiple-choice quizzes to test grammar and vocabulary knowledge.
-*   **Personalized Learning Paths:** A feature that generates a customized learning plan based on the user's goals.
-*   **Real-time Progress Tracking:** Visual representation of the user's progress with charts and statistics.
+## Key Features
 
-### Design and Styling
+*   **User Authentication:** Users can create an account and log in using their email and password or with their Google account.
+*   **Engaging Lessons:** The platform offers a library of video lessons covering grammar, vocabulary, and real-world conversations.
+*   **Interactive Quizzes:** Users can test their knowledge with interactive quizzes and track their progress.
+*   **Supportive Community:** A social feed allows users to connect with other learners, practice their skills, and get feedback from native speakers.
+*   **User Profile:** Users have a dedicated profile page where they can view and manage their information.
 
-*   **Modern Design:** A clean and modern design with a dark theme.
-*   **Responsive Layout:** The application is fully responsive and works on all screen sizes.
-*   **Custom Components:** Reusable components for the header, buttons, and other UI elements.
-*   **Navigation:** A clear and intuitive navigation bar to guide users through the application.
+## Project Structure
 
-## Current Plan
+The project is a Next.js application using the App Router. The main directories are:
 
-### Add Google Sign-In
-
-*   **Enable Google Sign-in in Firebase:** Use the `firebase_init` tool to enable Google Sign-In for the Firebase project.
-*   **Modify `src/app/login/page.tsx`:** Add a "Sign in with Google" button.
-*   **Modify `src/app/register/page.tsx`:** Add a "Sign up with Google" button.
-*   **Create a new file `src/app/auth.ts`:** This file will contain the logic for handling Google authentication.
-*   **Modify `src/app/AuthContext.tsx`:** Update the `AuthContext` to include the new Google Sign-In functionality.
+*   `/app`: Contains the core application, with file-based routing.
+    *   `page.tsx`: The main landing page.
+    *   `/lessons`: The page for video lessons.
+    *   `/social`: The social feed for community interaction.
+    *   `/profile`: The user profile page.
+    *   `/login`: The login page.
+    *   `/register`: The user registration page.
+*   `/public`: Contains static assets like images and icons.
+*   `/src`: Contains the source code of the application.

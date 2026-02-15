@@ -14,7 +14,7 @@ export default function Header() {
     <header className="bg-gray-900 text-white shadow-md">
       <div className="container mx-auto flex justify-between items-center p-4">
         <Link href="/" className="text-2xl font-bold">
-          Eng-Learn
+          eSchool
         </Link>
         <nav className="hidden md:flex space-x-4">
           <Link href="/" className="hover:text-gray-400">

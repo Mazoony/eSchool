@@ -1,28 +1,6 @@
 import Link from "next/link";
-import LessonCard from "@/components/lesson-card";
 
-const lessons = [
-  {
-    title: "Introduction to English Grammar",
-    description: "Learn the basics of English grammar, including parts of speech, tenses, and sentence structure.",
-    thumbnail: "/lesson-1.svg",
-    href: "/lessons/1",
-  },
-  {
-    title: "Intermediate English Conversation",
-    description: "Improve your conversational skills with this intermediate-level course.",
-    thumbnail: "/lesson-2.svg",
-    href: "/lessons/2",
-  },
-  {
-    title: "Advanced English Writing",
-    description: "Master the art of writing in English with this advanced course.",
-    thumbnail: "/lesson-3.svg",
-    href: "/lessons/3",
-  },
-];
-
-export default function Lessons() {
+export default function Profile() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
       <header className="px-4 lg:px-6 h-14 flex items-center bg-white dark:bg-gray-800">
@@ -45,11 +23,9 @@ export default function Lessons() {
         </nav>
       </header>
       <main className="flex-1 p-4 md:p-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">English Lessons</h1>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {lessons.map((lesson) => (
-            <LessonCard key={lesson.title} {...lesson} />
-          ))}
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">Profile</h1>
+        <div className="rounded-lg border bg-card text-card-foreground shadow-sm bg-white dark:bg-gray-800 p-6">
+          <p className="text-gray-500 dark:text-gray-400">This is where you'll be able to view and manage your profile, including your personal information, learning goals, and achievements. The profile page is coming soon!</p>
         </div>
       </main>
     </div>
