@@ -1,15 +1,30 @@
-
 'use client';
 
-import { useState } from 'react';
-import { storage, firestore } from '../../firebase';
+import { useState, useEffect } from 'react';
+import { storage, firestore, auth } from '../../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc } from 'firebase/firestore';
+import { onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 export default function UploadPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        router.push('/admin');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -48,8 +63,31 @@ export default function UploadPage() {
     }
   };
 
+  const handleSignOut = async () => {
+    await signOut(auth);
+    router.push('/admin');
+  };
+
+  if (!user) {
+    return null; // Or a loading spinner
+  }
+
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
+       <div className="absolute top-4 right-4 flex items-center space-x-4">
+        <button
+          onClick={() => router.push('/')}
+          className="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition duration-300"
+        >
+          Go to Dashboard
+        </button>
+        <button
+          onClick={handleSignOut}
+          className="bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300"
+        >
+          Sign Out
+        </button>
+      </div>
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Upload Video</h1>
         <form onSubmit={handleSubmit}>

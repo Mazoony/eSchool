@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '../AuthContext';
 import { auth } from '../auth';
 
@@ -39,10 +40,12 @@ export default function Header() {
         {user ? (
           <div className="flex items-center space-x-4">
             <span className="font-semibold">{user.displayName}</span>
-            <img
+            <Image
               src={user.photoURL || '/placeholder.svg'}
               alt="Profile"
               className="w-10 h-10 rounded-full"
+              width={40}
+              height={40}
             />
             <button
               onClick={handleLogout}

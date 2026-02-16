@@ -15,6 +15,10 @@ The application follows a modern and clean design aesthetic, with a focus on use
 *   **Interactive Quizzes:** Users can test their knowledge with interactive quizzes and track their progress.
 *   **Supportive Community:** A social feed allows users to connect with other learners, practice their skills, and get feedback from native speakers.
 *   **User Profile:** Users have a dedicated profile page where they can view and manage their information.
+*   **Admin Panel:** A dedicated section for administrators to manage the platform.
+    *   **Admin Registration:** A secure registration page for creating new admin accounts.
+    *   **Admin Login:** Secure login for administrators.
+    *   **Video Upload:** A tool for admins to upload and manage video lessons.
 
 ## Project Structure
 
@@ -27,13 +31,19 @@ The project is a Next.js application using the App Router. The main directories 
     *   `/profile`: The user profile page.
     *   `/login`: The login page.
     *   `/register`: The user registration page.
+    *   `/admin`: The admin section.
+        *   `page.tsx`: The admin login page.
+        *   `/register`: The admin registration page.
+        *   `/upload`: The video upload page for admins.
 *   `/public`: Contains static assets like images and icons.
 *   `/src`: Contains the source code of the application.
 
-## Current Task: Add Google Sign-in Button
+## Completed Task: Implement Admin Panel
 
-*   **Overview:** Add a Google Sign-in button to the login page to allow users to sign in with their Google account.
-*   **Steps:**
-    *   Add a "Sign in with Google" button to the login form.
-    *   Implement the `handleGoogleSignIn` function to handle the Google Sign-in flow using Firebase Authentication.
-    *   Update the `blueprint.md` file to reflect the changes.
+*   **Overview:** Created an admin panel with registration, login, and video upload functionality.
+*   **Steps Completed:**
+    *   Created a dedicated admin registration page at `/admin/register`.
+    *   Created a dedicated admin login page at `/admin`.
+    *   Created a video upload page for admins at `/admin/upload`.
+    *   Secured the admin section to ensure only authenticated admins can access it.
+    *   Updated the `blueprint.md` file to reflect the changes.

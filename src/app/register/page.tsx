@@ -20,7 +20,7 @@ export default function Register() {
         displayName: name,
       });
       router.push('/');
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
       }
