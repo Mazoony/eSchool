@@ -25,7 +25,7 @@ export default function Dashboard() {
       <main className="flex-1 p-4 md:p-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">Dashboard</h1>
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm bg-white dark:bg-gray-800 p-6">
-          <p className="text-gray-500 dark:text-gray-400">Welcome to your dashboard! This is where you'll be able to track your progress, see your recent activity, and view personalized recommendations. The dashboard is coming soon!</p>
+          <p className="text-gray-500 dark:text-gray-400">Welcome to your dashboard! This is where you&apos;ll be able to track your progress, see your recent activity, and view personalized recommendations. The dashboard is coming soon!</p>
         </div>
       </main>
     </div>

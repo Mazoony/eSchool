@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from "next/link";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../firebase";
 import { useRouter } from 'next/navigation';
 
@@ -16,8 +16,26 @@ export default function Login() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/');
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unknown error occurred.');
+      }
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      router.push('/');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unknown error occurred.');
+      }
     }
   };
 
@@ -50,8 +68,16 @@ export default function Login() {
           </button>
           {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
         </form>
+        <div className="mt-6">
+          <button
+            onClick={handleGoogleSignIn}
+            className="w-full py-2 px-4 font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            Sign in with Google
+          </button>
+        </div>
         <p className="mt-4 text-sm text-center text-gray-500 dark:text-gray-400">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/register" className="font-medium text-blue-600 hover:underline">
             Sign up
           </Link>

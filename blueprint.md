@@ -29,3 +29,11 @@ The project is a Next.js application using the App Router. The main directories 
     *   `/register`: The user registration page.
 *   `/public`: Contains static assets like images and icons.
 *   `/src`: Contains the source code of the application.
+
+## Current Task: Add Google Sign-in Button
+
+*   **Overview:** Add a Google Sign-in button to the login page to allow users to sign in with their Google account.
+*   **Steps:**
+    *   Add a "Sign in with Google" button to the login form.
+    *   Implement the `handleGoogleSignIn` function to handle the Google Sign-in flow using Firebase Authentication.
+    *   Update the `blueprint.md` file to reflect the changes.

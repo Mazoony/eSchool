@@ -11,13 +11,15 @@ export default function Register() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       router.push('/');
     } catch (error: any) {
-      setError(error.message);
+      if (error instanceof Error) {
+        setError(error.message);
+      }
     }
   };
 
@@ -25,7 +27,7 @@ export default function Register() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="w-full max-w-md px-8 py-10 bg-white rounded-lg shadow-md dark:bg-gray-800">
         <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-50">Create an Account</h1>
-        <form onSubmit={handleSignUp} className="mt-8 space-y-6">
+        <form onSubmit={handleRegister} className="mt-8 space-y-6">
           <input
             type="email"
             value={email}
