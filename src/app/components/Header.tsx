@@ -37,12 +37,20 @@ export default function Header() {
           </Link>
         </nav>
         {user ? (
-          <button
-            onClick={handleLogout}
-            className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Logout
-          </button>
+          <div className="flex items-center space-x-4">
+            <span className="font-semibold">{user.displayName}</span>
+            <img
+              src={user.photoURL || '/placeholder.svg'}
+              alt="Profile"
+              className="w-10 h-10 rounded-full"
+            />
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Logout
+            </button>
+          </div>
         ) : (
           <Link
             href="/login"
