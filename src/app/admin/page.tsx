@@ -1,23 +1,32 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase";
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(''); // Clear previous errors
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/admin/upload");
-    } catch (error) {
-      setError("Failed to log in");
-      console.error(error);
+      router.push('/admin/upload');
+    } catch (error: any) {
+      console.error(error.code, error.message);
+      if (
+        error.code === 'auth/user-not-found' ||
+        error.code === 'auth/wrong-password' ||
+        error.code === 'auth/invalid-credential'
+      ) {
+        setError('Invalid email or password. Please try again.');
+      } else {
+        setError('Failed to log in. Please try again later.');
+      }
     }
   };
 
@@ -64,7 +73,7 @@ export default function AdminLogin() {
           </button>
         </form>
         <p className="text-sm text-center text-gray-600">
-          Don't have an admin account?{" "}
+          Don't have an admin account?{' '}
           <a href="/admin/register" className="text-blue-500 hover:underline">
             Register here
           </a>

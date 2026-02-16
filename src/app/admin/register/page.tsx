@@ -12,12 +12,19 @@ export default function AdminRegister() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(""); // Clear previous errors
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       router.push("/admin");
-    } catch (error) {
-      setError("Failed to register");
-      console.error(error);
+    } catch (error: any) {
+      console.error(error.code, error.message);
+      if (error.code === 'auth/email-already-in-use') {
+        setError("This email address is already registered. Please use a different email or log in.");
+      } else if (error.code === 'auth/weak-password') {
+        setError("The password is too weak. Please use a password with at least 6 characters.");
+      } else {
+        setError("Failed to register. Please try again later.");
+      }
     }
   };
 

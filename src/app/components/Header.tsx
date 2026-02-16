@@ -36,6 +36,9 @@ export default function Header() {
           <Link href="/social" className="hover:text-gray-400">
             Social Feed
           </Link>
+          <Link href="/admin" className="hover:text-gray-400">
+            Admin
+          </Link>
         </nav>
         {user ? (
           <div className="flex items-center space-x-4">
@@ -55,12 +58,20 @@ export default function Header() {
             </button>
           </div>
         ) : (
-          <Link
-            href="/login"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Login
-          </Link>
+          <div className="flex items-center space-x-4">
+            <Link
+              href="/login"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/register"
+              className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Sign Up
+            </Link>
+          </div>
         )}
       </div>
     </header>

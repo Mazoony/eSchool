@@ -1370,3 +1370,286 @@
 [debug] [2026-02-16T17:21:00.643Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
 [debug] [2026-02-16T17:21:00.643Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
 [debug] [2026-02-16T17:21:08.770Z] No OAuth tokens found
+[debug] [2026-02-16T17:59:17.636Z] ----------------------------------------------------------------------
+[debug] [2026-02-16T17:59:17.639Z] Command:       /nix/store/ws50yvm6vzlzf7jzz6n7xh4szddrack1-nodejs-20.19.1/bin/node /nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/lib/bin/firebase.js setup:emulators:storage
+[debug] [2026-02-16T17:59:17.639Z] CLI Version:   15.1.0
+[debug] [2026-02-16T17:59:17.640Z] Platform:      linux
+[debug] [2026-02-16T17:59:17.640Z] Node Version:  v20.19.1
+[debug] [2026-02-16T17:59:17.640Z] Time:          Mon Feb 16 2026 17:59:17 GMT+0000 (Coordinated Universal Time)
+[debug] [2026-02-16T17:59:17.640Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-02-16T17:59:17.643Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-02-16T17:59:18.372Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"auth"}
+[debug] [2026-02-16T17:59:18.375Z] No OAuth tokens found
+[debug] [2026-02-16T17:59:18.376Z] No OAuth tokens found
+[error] Failed to fetch Firebase Project from current Studio Workspace: Unable to refresh auth: not yet authenticated.
+[info] i  storage: downloading cloud-storage-rules-runtime-v1.1.3.jar... {"metadata":{"emulator":{"name":"storage"},"message":"downloading cloud-storage-rules-runtime-v1.1.3.jar..."}}
+[debug] [2026-02-16T17:59:18.390Z] >>> [apiv2][query] GET https://storage.googleapis.com/firebase-preview-drop/emulator/cloud-storage-rules-runtime-v1.1.3.jar 
+[debug] [2026-02-16T17:59:18.577Z] <<< [apiv2][status] GET https://storage.googleapis.com/firebase-preview-drop/emulator/cloud-storage-rules-runtime-v1.1.3.jar 200
+[debug] [2026-02-16T17:59:18.578Z] <<< [apiv2][body] GET https://storage.googleapis.com/firebase-preview-drop/emulator/cloud-storage-rules-runtime-v1.1.3.jar [stream]
+[debug] [2026-02-16T17:59:18.638Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-02-16T17:59:18.639Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2026-02-16T17:59:20.513Z] Error: EROFS: read-only file system, unlink '/nix/store/v2ypszpb06mxv2ssw1bb89lg0nf8if0g-emulators/cloud-storage-rules-runtime-v1.1.3.jar'
+    at Object.unlinkSync (node:fs:1886:11)
+    at mayCopyFile (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/node_modules/fs-extra/lib/copy/copy-sync.js:65:8)
+    at onFile (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/node_modules/fs-extra/lib/copy/copy-sync.js:60:10)
+    at getStats (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/node_modules/fs-extra/lib/copy/copy-sync.js:51:44)
+    at handleFilterAndCopy (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/node_modules/fs-extra/lib/copy/copy-sync.js:36:10)
+    at Object.copySync (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/node_modules/fs-extra/lib/copy/copy-sync.js:29:10)
+    at downloadEmulator (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/lib/emulator/download.js:30:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[error] 
+[error] Error: An unexpected error has occurred.
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:12:19.069Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:12:19.072Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:12:19.151Z] Running auto auth
+[debug] [2026-02-16T18:12:19.152Z] Running auto auth
+[debug] [2026-02-16T18:12:19.196Z] No OAuth tokens found
+[debug] [2026-02-16T18:12:19.205Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo [none]
+[debug] [2026-02-16T18:12:19.266Z] No OAuth tokens found
+[debug] [2026-02-16T18:12:19.267Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo [none]
+[debug] [2026-02-16T18:12:19.464Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo 200
+[debug] [2026-02-16T18:12:19.470Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo {"name":"projects/learneng-20588/billingInfo","projectId":"learneng-20588","billingAccountName":"","billingEnabled":false}
+[debug] [2026-02-16T18:12:19.483Z] No OAuth tokens found
+[debug] [2026-02-16T18:12:19.484Z] No OAuth tokens found
+[debug] [2026-02-16T18:12:19.508Z] No OAuth tokens found
+[debug] [2026-02-16T18:12:19.509Z] No OAuth tokens found
+[debug] [2026-02-16T18:12:19.510Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com [none]
+[debug] [2026-02-16T18:12:19.510Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:12:19.513Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com [none]
+[debug] [2026-02-16T18:12:19.514Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:12:19.516Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com [none]
+[debug] [2026-02-16T18:12:19.516Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:12:19.519Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com [none]
+[debug] [2026-02-16T18:12:19.520Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:12:19.631Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo 200
+[debug] [2026-02-16T18:12:19.631Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo {"name":"projects/learneng-20588/billingInfo","projectId":"learneng-20588","billingAccountName":"","billingEnabled":false}
+[debug] [2026-02-16T18:12:19.635Z] No OAuth tokens found
+[debug] [2026-02-16T18:12:19.636Z] No OAuth tokens found
+[debug] [2026-02-16T18:12:19.653Z] No OAuth tokens found
+[debug] [2026-02-16T18:12:19.654Z] No OAuth tokens found
+[debug] [2026-02-16T18:12:19.654Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com [none]
+[debug] [2026-02-16T18:12:19.654Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:12:19.657Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com [none]
+[debug] [2026-02-16T18:12:19.657Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:12:19.660Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com [none]
+[debug] [2026-02-16T18:12:19.660Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:12:19.663Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com [none]
+[debug] [2026-02-16T18:12:19.663Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:12:20.194Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com 403
+[debug] [2026-02-16T18:12:20.194Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com [omitted]
+[debug] [2026-02-16T18:12:20.289Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com 200
+[debug] [2026-02-16T18:12:20.289Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2026-02-16T18:12:20.311Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com 200
+[debug] [2026-02-16T18:12:20.311Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2026-02-16T18:12:20.330Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com 200
+[debug] [2026-02-16T18:12:20.331Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com [omitted]
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:12:20.346Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:12:20.346Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:12:20.347Z] No OAuth tokens found
+[debug] [2026-02-16T18:12:20.347Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo [none]
+[debug] [2026-02-16T18:12:20.358Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com 403
+[debug] [2026-02-16T18:12:20.358Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com [omitted]
+[debug] [2026-02-16T18:12:20.446Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com 200
+[debug] [2026-02-16T18:12:20.447Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2026-02-16T18:12:20.465Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com 200
+[debug] [2026-02-16T18:12:20.465Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2026-02-16T18:12:20.486Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com 200
+[debug] [2026-02-16T18:12:20.486Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2026-02-16T18:12:20.513Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo 200
+[debug] [2026-02-16T18:12:20.513Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo {"name":"projects/learneng-20588/billingInfo","projectId":"learneng-20588","billingAccountName":"","billingEnabled":false}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:12:20.519Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:12:20.519Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:12:20.563Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:12:20.563Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:12:20.563Z] No OAuth tokens found
+[debug] [2026-02-16T18:12:20.564Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo [none]
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:12:20.573Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:12:20.573Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:12:20.575Z] No OAuth tokens found
+[debug] [2026-02-16T18:12:20.575Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo [none]
+[debug] [2026-02-16T18:12:20.706Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo 200
+[debug] [2026-02-16T18:12:20.707Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo {"name":"projects/learneng-20588/billingInfo","projectId":"learneng-20588","billingAccountName":"","billingEnabled":false}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:12:20.714Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:12:20.715Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:12:20.733Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo 200
+[debug] [2026-02-16T18:12:20.733Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo {"name":"projects/learneng-20588/billingInfo","projectId":"learneng-20588","billingAccountName":"","billingEnabled":false}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:12:20.740Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:12:20.740Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:13:55.868Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:55.869Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:55.871Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:55.872Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:55.872Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:55.873Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:55.873Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:55.874Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:55.875Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:55.875Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:55.875Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:55.876Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:55.878Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo [none]
+[debug] [2026-02-16T18:13:55.967Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo [none]
+[debug] [2026-02-16T18:13:56.175Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo 200
+[debug] [2026-02-16T18:13:56.175Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo {"name":"projects/learneng-20588/billingInfo","projectId":"learneng-20588","billingAccountName":"","billingEnabled":false}
+[debug] [2026-02-16T18:13:56.191Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.192Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.192Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:56.192Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:56.193Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.193Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.193Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:56.193Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:56.217Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.217Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.218Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:56.218Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:56.219Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.219Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.219Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:56.219Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:56.220Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com [none]
+[debug] [2026-02-16T18:13:56.220Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:13:56.223Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com [none]
+[debug] [2026-02-16T18:13:56.223Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:13:56.226Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com [none]
+[debug] [2026-02-16T18:13:56.226Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:13:56.228Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com [none]
+[debug] [2026-02-16T18:13:56.228Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:13:56.320Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo 200
+[debug] [2026-02-16T18:13:56.320Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo {"name":"projects/learneng-20588/billingInfo","projectId":"learneng-20588","billingAccountName":"","billingEnabled":false}
+[debug] [2026-02-16T18:13:56.329Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.330Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.332Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:56.332Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:56.333Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.333Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.333Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:56.333Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:56.344Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.344Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.345Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:56.345Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:56.345Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.345Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:56.345Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:56.345Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:56.346Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com [none]
+[debug] [2026-02-16T18:13:56.346Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:13:56.349Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com [none]
+[debug] [2026-02-16T18:13:56.349Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:13:56.351Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com [none]
+[debug] [2026-02-16T18:13:56.351Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:13:56.354Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com [none]
+[debug] [2026-02-16T18:13:56.354Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com  x-goog-user-project=learneng-20588
+[debug] [2026-02-16T18:13:56.921Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com 403
+[debug] [2026-02-16T18:13:56.922Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com [omitted]
+[debug] [2026-02-16T18:13:57.025Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com 403
+[debug] [2026-02-16T18:13:57.028Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseio.com [omitted]
+[debug] [2026-02-16T18:13:57.078Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com 200
+[debug] [2026-02-16T18:13:57.084Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2026-02-16T18:13:57.092Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com 200
+[debug] [2026-02-16T18:13:57.093Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2026-02-16T18:13:57.146Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com 200
+[debug] [2026-02-16T18:13:57.149Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com [omitted]
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:13:57.186Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:57.187Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:57.187Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:57.187Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:57.188Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:57.188Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:57.188Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo [none]
+[debug] [2026-02-16T18:13:57.196Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com 200
+[debug] [2026-02-16T18:13:57.196Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2026-02-16T18:13:57.202Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com 200
+[debug] [2026-02-16T18:13:57.202Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2026-02-16T18:13:57.210Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com 200
+[debug] [2026-02-16T18:13:57.210Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/learneng-20588/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2026-02-16T18:13:57.329Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo 200
+[debug] [2026-02-16T18:13:57.330Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo {"name":"projects/learneng-20588/billingInfo","projectId":"learneng-20588","billingAccountName":"","billingEnabled":false}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:13:57.342Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:57.342Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:13:57.396Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:57.396Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:57.399Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:57.399Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:57.400Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:57.400Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:57.400Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo [none]
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:13:57.412Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:57.416Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:57.417Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:57.417Z] No OAuth tokens found
+[debug] [2026-02-16T18:13:57.417Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:57.417Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:57.418Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo [none]
+[debug] [2026-02-16T18:13:57.546Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo 200
+[debug] [2026-02-16T18:13:57.546Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo {"name":"projects/learneng-20588/billingInfo","projectId":"learneng-20588","billingAccountName":"","billingEnabled":false}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:13:57.554Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:57.559Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:13:57.582Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo 200
+[debug] [2026-02-16T18:13:57.582Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo {"name":"projects/learneng-20588/billingInfo","projectId":"learneng-20588","billingAccountName":"","billingEnabled":false}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:13:57.590Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:13:57.591Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:14:02.367Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:14:02.367Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:14:02.367Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:14:02.368Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:14:02.368Z] No OAuth tokens found
+[debug] [2026-02-16T18:14:02.368Z] No OAuth tokens found
+[debug] [2026-02-16T18:14:02.368Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:14:02.368Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:14:02.369Z] No OAuth tokens found
+[debug] [2026-02-16T18:14:02.373Z] No OAuth tokens found
+[debug] [2026-02-16T18:14:02.373Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:14:02.373Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:14:02.374Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo [none]
+[debug] [2026-02-16T18:14:02.375Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo [none]
+[debug] [2026-02-16T18:14:02.517Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo 200
+[debug] [2026-02-16T18:14:02.519Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo {"name":"projects/learneng-20588/billingInfo","projectId":"learneng-20588","billingAccountName":"","billingEnabled":false}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:14:02.522Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:14:02.522Z] > authorizing via signed-in user (wadareaf@gmail.com)
+[debug] [2026-02-16T18:14:02.695Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo 200
+[debug] [2026-02-16T18:14:02.696Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/learneng-20588/billingInfo {"name":"projects/learneng-20588/billingInfo","projectId":"learneng-20588","billingAccountName":"","billingEnabled":false}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2026-02-16T18:14:02.717Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-16T18:14:02.723Z] > authorizing via signed-in user (wadareaf@gmail.com)
