@@ -16,16 +16,22 @@ export default function AdminLogin() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/admin/upload');
-    } catch (error: any) {
-      console.error(error.code, error.message);
-      if (
-        error.code === 'auth/user-not-found' ||
-        error.code === 'auth/wrong-password' ||
-        error.code === 'auth/invalid-credential'
-      ) {
-        setError('Invalid email or password. Please try again.');
-      } else {
-        setError('Failed to log in. Please try again later.');
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        // Narrowing the error type to FirebaseError
+        if ('code' in error) {
+            const firebaseError = error as { code: string; message: string };
+            if (
+                firebaseError.code === 'auth/user-not-found' ||
+                firebaseError.code === 'auth/wrong-password' ||
+                firebaseError.code === 'auth/invalid-credential'
+            ) {
+                setError('Invalid email or password. Please try again.');
+            } else {
+                setError('Failed to log in. Please try again later.');
+            }
+        }
       }
     }
   };
@@ -73,7 +79,7 @@ export default function AdminLogin() {
           </button>
         </form>
         <p className="text-sm text-center text-gray-600">
-          Don't have an admin account?{' '}
+          Don&apos;t have an admin account?{' '}
           <a href="/admin/register" className="text-blue-500 hover:underline">
             Register here
           </a>

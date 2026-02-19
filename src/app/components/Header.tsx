@@ -24,6 +24,9 @@ export default function Header() {
           <Link href="/lessons" className="hover:text-gray-400">
             Lessons
           </Link>
+          <Link href="/videos" className="hover:text-gray-400">
+            Videos
+          </Link>
           <Link href="/quiz" className="hover:text-gray-400">
             Quiz
           </Link>

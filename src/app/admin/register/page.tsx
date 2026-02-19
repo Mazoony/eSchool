@@ -16,15 +16,21 @@ export default function AdminRegister() {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       router.push("/admin");
-    } catch (error: any) {
-      console.error(error.code, error.message);
-      if (error.code === 'auth/email-already-in-use') {
-        setError("This email address is already registered. Please use a different email or log in.");
-      } else if (error.code === 'auth/weak-password') {
-        setError("The password is too weak. Please use a password with at least 6 characters.");
-      } else {
-        setError("Failed to register. Please try again later.");
-      }
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error(error.message);
+            // Narrowing the error type to FirebaseError
+            if ('code' in error) {
+                const firebaseError = error as { code: string; message: string };
+                if (firebaseError.code === 'auth/email-already-in-use') {
+                    setError("This email address is already registered. Please use a different email or log in.");
+                } else if (firebaseError.code === 'auth/weak-password') {
+                    setError("The password is too weak. Please use a password with at least 6 characters.");
+                } else {
+                    setError("Failed to register. Please try again later.");
+                }
+            }
+        }
     }
   };
 
