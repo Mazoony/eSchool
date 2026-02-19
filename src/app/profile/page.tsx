@@ -1,4 +1,5 @@
 'use client';
+import { useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase';
 import { useRouter } from 'next/navigation';
@@ -8,18 +9,19 @@ export default function Profile() {
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
 
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
   const handleSignOut = async () => {
     await auth.signOut();
     router.push('/login');
   };
 
-  if (loading) {
+  if (loading || !user) {
     return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    router.push('/login');
-    return null;
   }
 
   return (

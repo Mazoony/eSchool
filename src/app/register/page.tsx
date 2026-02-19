@@ -10,6 +10,8 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -18,6 +20,8 @@ export default function Register() {
         const result = await getRedirectResult(auth);
         if (result) {
           router.push('/profile');
+        } else {
+          setLoading(false);
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -25,6 +29,7 @@ export default function Register() {
         } else {
           setError('An unknown error occurred.');
         }
+        setLoading(false);
       }
     };
     handleRedirectResult();
@@ -32,6 +37,8 @@ export default function Register() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, {
@@ -41,12 +48,19 @@ export default function Register() {
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
+      } else {
+        setError('An unknown error occurred.');
       }
+      setIsSubmitting(false);
     }
   };
 
   const handleGoogleSignUp = async () => {
+    setIsSubmitting(true);
+    setError('');
     const provider = new GoogleAuthProvider();
+    provider.addScope('profile');
+    provider.addScope('email');
     try {
       await signInWithRedirect(auth, provider);
     } catch (error: unknown) {
@@ -55,8 +69,13 @@ export default function Register() {
       } else {
         setError('An unknown error occurred.');
       }
+      setIsSubmitting(false);
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -70,6 +89,7 @@ export default function Register() {
             placeholder="Name"
             required
             className="w-full px-4 py-2 text-gray-700 bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-700 dark:text-gray-300"
+            disabled={isSubmitting}
           />
           <input
             type="email"
@@ -78,6 +98,7 @@ export default function Register() {
             placeholder="Email"
             required
             className="w-full px-4 py-2 mt-4 text-gray-700 bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-700 dark:text-gray-300"
+            disabled={isSubmitting}
           />
           <input
             type="password"
@@ -86,21 +107,24 @@ export default function Register() {
             placeholder="Password"
             required
             className="w-full px-4 py-2 mt-4 text-gray-700 bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-700 dark:text-gray-300"
+            disabled={isSubmitting}
           />
           <button
             type="submit"
-            className="w-full py-2 px-4 mt-4 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="w-full py-2 px-4 mt-4 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            disabled={isSubmitting}
           >
-            Sign Up
+            {isSubmitting ? 'Creating Account...' : 'Sign Up'}
           </button>
           {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
         </form>
         <div className="mt-6">
           <button
             onClick={handleGoogleSignUp}
-            className="w-full py-2 px-4 font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            className="w-full py-2 px-4 font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+            disabled={isSubmitting}
           >
-            Sign up with Google
+            {isSubmitting ? 'Redirecting...' : 'Sign up with Google'}
           </button>
         </div>
         <p className="mt-4 text-sm text-center text-gray-500 dark:text-gray-400">
