@@ -1,7 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from "next/link";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { auth } from "../firebase";
 import { useRouter } from 'next/navigation';
 
@@ -11,11 +11,29 @@ export default function Login() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          router.push('/profile');
+        }
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setError(error.message);
+        } else {
+          setError('An unknown error occurred.');
+        }
+      }
+    };
+    handleRedirectResult();
+  }, [router]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push('/');
+      router.push('/profile');
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
@@ -28,8 +46,7 @@ export default function Login() {
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
-      router.push('/');
+      await signInWithRedirect(auth, provider);
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);

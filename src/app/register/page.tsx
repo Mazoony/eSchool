@@ -1,7 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from "next/link";
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { auth } from "../firebase";
 import { useRouter } from 'next/navigation';
 
@@ -12,6 +12,24 @@ export default function Register() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          router.push('/profile');
+        }
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setError(error.message);
+        } else {
+          setError('An unknown error occurred.');
+        }
+      }
+    };
+    handleRedirectResult();
+  }, [router]);
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -19,7 +37,7 @@ export default function Register() {
       await updateProfile(userCredential.user, {
         displayName: name,
       });
-      router.push('/');
+      router.push('/profile');
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
@@ -30,8 +48,7 @@ export default function Register() {
   const handleGoogleSignUp = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
-      router.push('/');
+      await signInWithRedirect(auth, provider);
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
