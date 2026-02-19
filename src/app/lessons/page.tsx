@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { firestore } from '../firebase';
+import SocialFeed from '../components/SocialFeed';
 
 interface Lesson {
   id: string;
@@ -60,6 +61,7 @@ export default function LessonsPage() {
                 <h2 className="text-xl font-bold text-gray-900 dark:text-gray-50 mb-2">{lesson.title}</h2>
                 <p className="text-gray-700 dark:text-gray-300">{lesson.description}</p>
               </div>
+              <SocialFeed lessonId={lesson.id} />
             </div>
           ))}
         </div>

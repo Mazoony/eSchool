@@ -1,15 +1,15 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
 import { auth } from "./firebase";
 
-export const signUp = (email, password) => {
+export const signUp = (email: string, password: string) => {
   return createUserWithEmailAndPassword(auth, email, password);
 };
 
-export const signIn = (email, password) => {
+export const signIn = (email: string, password: string) => {
   return signInWithEmailAndPassword(auth, email, password);
 };
 
-export const resetPassword = (email) => {
+export const resetPassword = (email: string) => {
   return sendPasswordResetEmail(auth, email);
 };
 

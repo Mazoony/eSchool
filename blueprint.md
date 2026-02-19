@@ -14,11 +14,14 @@ This document outlines the plan for a Next.js application with Firebase integrat
 * **Loading Indicators:** Implemented on login and registration pages for a smoother user experience.
 * **Unified Authentication Flow:** A consistent sign-in experience for both email and Google authentication, with immediate redirection to the profile page.
 * **Video Lessons:** Admins can upload video lessons, which are then displayed on a dedicated "Lessons" page for all users to see.
+* **Social Feed:** A comment and like system is integrated into each lesson page, allowing for user engagement.
+* **Admin-only Uploads:** Video uploads are restricted to a specific admin user.
+* **Firebase App Hosting:** The application is deployed and hosted using Firebase App Hosting.
 
 ## Current Plan
 
 * **Step 1:** Update Firestore security rules to be more permissive for development.
-* **Step 2:** Corrected Google Sign-I to use `signInWithRedirect` instead of `signInWithPopup` to prevent `auth/popup-blocked` errors.
+* **Step 2:** Corrected Google Sign-In to use `signInWithRedirect` instead of `signInWithPopup` to prevent `auth/popup-blocked` errors.
 * **Step 3:** Implemented redirect to `/profile` page after login/registration, including handling the redirect result from Google Sign-In.
 * **Step 4:** Implemented the user profile page at `src/app/profile/page.tsx`, using `react-firebase-hooks` to manage authentication state and display user information.
 * **Step 5:** Fixed a React error by moving the redirect logic in the profile page into a `useEffect` hook.
@@ -33,3 +36,9 @@ This document outlines the plan for a Next.js application with Firebase integrat
 * **Step 11:** Resolved a "Missing or insufficient permissions" error by:
     *   Creating `firestore.rules` and `storage.rules` files with policies that allow any authenticated user to read and write data.
     *   Updating `firebase.json` to apply these new security rules.
+* **Step 12:** Implemented a social feed on the lesson pages by:
+    *   Creating a `Comment` component to display individual comments.
+    *   Creating a `SocialFeed` component to manage comments and likes.
+    *   Integrating the `SocialFeed` component into the `lessons` page, allowing users to comment on and like lessons.
+* **Step 13:** Restricted video uploads to a specific admin user by updating the `storage.rules` file to only allow write access to the user with the email 'wadareaf@gmail.com'.
+* **Step 14:** Set up Firebase App Hosting by creating a `.idx/mcp.json` file to enable the Firebase MCP server.

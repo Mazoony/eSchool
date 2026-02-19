@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
-import { firestore } from "../../../firebase";
+import { firestore } from "../../firebase";
 import { useParams } from "next/navigation";
 
 interface Video {
