@@ -49,7 +49,7 @@ export default function UploadPage() {
     setSuccessMessage(null);
 
     try {
-      const storageRef = ref(storage, `videos/${videoFile.name}`);
+      const storageRef = ref(storage, `lessons/${videoFile.name}`);
       const uploadTask = uploadBytesResumable(storageRef, videoFile);
 
       uploadTask.on(
@@ -66,7 +66,7 @@ export default function UploadPage() {
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
 
-          await addDoc(collection(firestore, 'videos'), {
+          await addDoc(collection(firestore, 'lessons'), {
             title,
             description,
             videoUrl: downloadURL,

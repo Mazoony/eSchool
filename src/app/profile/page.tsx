@@ -3,7 +3,8 @@ import { useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { signOut } from 'firebase/auth';
+import Image from 'next/image';
 
 export default function Profile() {
   const [user, loading] = useAuthState(auth);
@@ -16,8 +17,11 @@ export default function Profile() {
   }, [user, loading, router]);
 
   const handleSignOut = async () => {
-    await auth.signOut();
-    router.push('/login');
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error signing out: ', error);
+    }
   };
 
   if (loading || !user) {
@@ -25,46 +29,28 @@ export default function Profile() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-      <header className="px-4 lg:px-6 h-14 flex items-center bg-white dark:bg-gray-800">
-        <Link href="#" className="flex items-center justify-center">
-          <span className="text-lg font-semibold text-gray-900 dark:text-gray-50">eSchool</span>
-        </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link href="/" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Home
-          </Link>
-          <Link href="/lessons" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Lessons
-          </Link>
-          <Link href="/social" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Social
-          </Link>
-          <Link href="/profile" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Profile
-          </Link>
-        </nav>
-      </header>
-      <main className="flex-1 p-4 md:p-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">Profile</h1>
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm bg-white dark:bg-gray-800 p-6">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <img src={user.photoURL || 'https://www.gravatar.com/avatar/'} alt="User avatar" className="w-16 h-16 rounded-full" />
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-50">{user.displayName}</h2>
-                <p className="text-gray-500 dark:text-gray-400">{user.email}</p>
-              </div>
-            </div>
-            <button
-              onClick={handleSignOut}
-              className="w-full py-2 px-4 mt-4 font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              Sign Out
-            </button>
-          </div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="w-full max-w-md px-8 py-10 bg-white rounded-lg shadow-md dark:bg-gray-800">
+        <div className="flex flex-col items-center">
+          <Image
+            src={user.photoURL || 'https://via.placeholder.com/150'}
+            alt="User Avatar"
+            width={128}
+            height={128}
+            className="rounded-full"
+          />
+          <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-gray-50">{user.displayName}</h1>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
         </div>
-      </main>
+        <div className="mt-6">
+          <button
+            onClick={handleSignOut}
+            className="w-full py-2 px-4 font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

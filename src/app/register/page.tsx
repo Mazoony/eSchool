@@ -4,36 +4,37 @@ import Link from "next/link";
 import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { auth } from "../firebase";
 import { useRouter } from 'next/navigation';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const [user, loading] = useAuthState(auth);
+
+  useEffect(() => {
+    if (user) {
+      router.push('/profile');
+    }
+  }, [user, router]);
 
   useEffect(() => {
     const handleRedirectResult = async () => {
       try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          router.push('/profile');
-        } else {
-          setLoading(false);
-        }
+        await getRedirectResult(auth);
       } catch (error: unknown) {
         if (error instanceof Error) {
           setError(error.message);
         } else {
-          setError('An unknown error occurred.');
+          setError('An unknown error occurred during Google Sign-In.');
         }
-        setLoading(false);
       }
     };
     handleRedirectResult();
-  }, [router]);
+  }, []);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +45,6 @@ export default function Register() {
       await updateProfile(userCredential.user, {
         displayName: name,
       });
-      router.push('/profile');
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
