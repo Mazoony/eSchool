@@ -66,7 +66,7 @@ export default function SocialFeed({ lessonId }: SocialFeedProps) {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto mt-8">
+    <div className="w-full">
       <div className="flex items-center justify-between mb-4">
         <button onClick={handleLike} className="flex items-center space-x-2 text-gray-500 hover:text-red-500">
           <FiHeart />
