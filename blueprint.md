@@ -32,12 +32,17 @@ eSchool is a modern, interactive online learning platform designed to provide a 
 *   **Next.js Upgrade**
     *   Upgraded Next.js to the latest version to patch a critical security vulnerability that was blocking Netlify deployments.
 
+### Content Updates
+
+*   **Footer Year**
+    *   Updated the copyright year in the footer from 2024 to 2026.
+
 ## Development Plan
 
-### Current Task: Resolve Security Vulnerability
+### Current Task: Update Footer
 
-*   **Objective:** Fix the security vulnerability in Next.js that was causing the Netlify build to fail.
+*   **Objective:** Update the copyright year in the application's footer.
 *   **Steps Taken:**
-    1.  **Analyzed the Build Logs:** Identified that the deployment was blocked due to a critical security vulnerability in the version of Next.js being used.
-    2.  **Upgraded Next.js:** Upgraded the `next` package to the latest version to incorporate the security patch.
+    1.  Located the footer component in `src/app/page.tsx`.
+    2.  Changed the year in the copyright notice from "2024" to "2026".
 *   **Status:** Completed.
