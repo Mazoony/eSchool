@@ -27,15 +27,17 @@ eSchool is a modern, interactive online learning platform designed to provide a 
     *   Resolved `no-explicit-any` errors in `src/app/admin/page.tsx` and `src/app/admin/register/page.tsx` by replacing the `any` type with `React.FormEvent`.
     *   Corrected an unescaped apostrophe in `src/app/admin/page.tsx` to prevent rendering issues.
 
+### Security Updates
+
+*   **Next.js Upgrade**
+    *   Upgraded Next.js to the latest version to patch a critical security vulnerability that was blocking Netlify deployments.
+
 ## Development Plan
 
-### Current Task: Resolve Build Errors
+### Current Task: Resolve Security Vulnerability
 
-*   **Objective:** Fix the linting errors that were causing the Netlify build to fail.
+*   **Objective:** Fix the security vulnerability in Next.js that was causing the Netlify build to fail.
 *   **Steps Taken:**
-    1.  **Analyzed the Build Logs:** Identified the root cause of the build failure, which was related to ESLint errors in the admin pages.
-    2.  **Corrected the Code:**
-        *   Replaced the `any` type with `React.FormEvent` in the `handleLogin` and `handleRegister` functions.
-        *   Escaped the apostrophe in the JSX of the admin login page.
-    3.  **Verified the Fixes:** Ran the linter locally to ensure that all errors were resolved.
+    1.  **Analyzed the Build Logs:** Identified that the deployment was blocked due to a critical security vulnerability in the version of Next.js being used.
+    2.  **Upgraded Next.js:** Upgraded the `next` package to the latest version to incorporate the security patch.
 *   **Status:** Completed.
