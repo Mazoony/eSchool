@@ -1,32 +1,28 @@
+import SocialFeed from "../components/SocialFeed";
 import Link from "next/link";
 
-export default function Social() {
+export default function SocialPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-      <header className="px-4 lg:px-6 h-14 flex items-center bg-white dark:bg-gray-800">
-        <Link href="#" className="flex items-center justify-center">
-          <span className="text-lg font-semibold text-gray-900 dark:text-gray-50">eSchool</span>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      <header className="px-4 lg:px-6 h-16 flex items-center bg-white dark:bg-gray-800 shadow-md">
+        <Link href="/" className="flex items-center justify-center">
+          <span className="text-2xl font-bold text-blue-600 dark:text-blue-500">eSchool</span>
         </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link href="/" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Home
-          </Link>
-          <Link href="/lessons" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
+        <nav className="ml-auto flex gap-6 sm:gap-8">
+          <Link href="/lessons" className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors">
             Lessons
           </Link>
-          <Link href="/social" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
+          <Link href="/social" className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors">
             Social
           </Link>
-          <Link href="/profile" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
+          <Link href="/profile" className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors">
             Profile
           </Link>
         </nav>
       </header>
-      <main className="flex-1 p-4 md:p-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">Social Feed</h1>
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm bg-white dark:bg-gray-800 p-6">
-          <p className="text-gray-500 dark:text-gray-400">The social feed is coming soon! This is where you&apos;ll be able to connect with other learners, practice your skills, and get feedback from native speakers.</p>
-        </div>
+      <main className="container mx-auto px-4 py-8">
+        <h1 className="text-4xl font-extrabold text-center text-gray-900 dark:text-gray-50 mb-12">Social Feed</h1>
+        <SocialFeed />
       </main>
     </div>
   );
