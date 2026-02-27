@@ -1,6 +1,10 @@
 
+'use client';
+
 import { supabase } from '../supabase';
 import Link from 'next/link';
+import { useAuth } from '../AuthContext';
+import { useEffect, useState } from 'react';
 
 interface Lesson {
   id: number;
@@ -23,27 +27,36 @@ async function fetchLessons(): Promise<Lesson[]> {
   return lessons || [];
 }
 
-export default async function LessonsPage() {
-  const lessons = await fetchLessons();
+export default function LessonsPage() {
+  const { user } = useAuth();
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      fetchLessons().then(setLessons);
+    }
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      <header className="px-4 lg:px-6 h-16 flex items-center bg-white dark:bg-gray-800 shadow-md">
-        <Link href="/" className="flex items-center justify-center">
-          <span className="text-2xl font-bold text-blue-600 dark:text-blue-500">eSchool</span>
-        </Link>
-        <nav className="ml-auto flex gap-6 sm:gap-8">
-          <Link href="/lessons" className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors">
-            Lessons
+      {user && (
+        <header className="px-4 lg:px-6 h-16 flex items-center bg-white dark:bg-gray-800 shadow-md">
+          <Link href="/" className="flex items-center justify-center">
+            <span className="text-2xl font-bold text-blue-600 dark:text-blue-500">eSchool</span>
           </Link>
-          <Link href="/social" className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors">
-            Social
-          </Link>
-          <Link href="/profile" className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors">
-            Profile
-          </Link>
-        </nav>
-      </header>
+          <nav className="ml-auto flex gap-6 sm:gap-8">
+            <Link href="/lessons" className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors">
+              Lessons
+            </Link>
+            <Link href="/social" className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors">
+              Social
+            </Link>
+            <Link href="/profile" className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors">
+              Profile
+            </Link>
+          </nav>
+        </header>
+      )}
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-extrabold text-center text-gray-900 dark:text-gray-50 mb-12">Our Lessons</h1>
         {lessons.length === 0 ? (
@@ -75,8 +88,8 @@ export default async function LessonsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {lessons.map(lesson => (
-              <div key={lesson.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-transform hover:scale-105 duration-300">
+            {lessons.map((lesson, index) => (
+              <div key={lesson.id || index} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-transform hover:scale-105 duration-300">
                 <div className="aspect-w-16 aspect-h-9">
                   <video controls className="w-full h-full object-cover">
                     <source src={lesson.video_url} type="video/mp4" />

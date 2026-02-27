@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../supabase';
 import { useRouter } from 'next/navigation';
-import { useUser } from '../../UserContext';
+import { useAuth } from '../../AuthContext';
 
 export default function UploadPage() {
   const [title, setTitle] = useState('');
@@ -15,7 +15,7 @@ export default function UploadPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const router = useRouter();
-  const { user } = useUser();
+  const { user } = useAuth();
 
   const isAdmin = user && user.email === 'wadareaf@gmail.com';
 
@@ -161,7 +161,7 @@ export default function UploadPage() {
             <textarea
               id="description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => setDescription(e.targe.value)}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
               required
               disabled={uploading}
