@@ -1,5 +1,7 @@
+'use client';
 import Link from "next/link";
 import Image from "next/image";
+import { FaWhatsapp } from "react-icons/fa";
 
 export default function Home() {
   return (
@@ -113,7 +115,12 @@ export default function Home() {
       </main>
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
         <p className="text-xs text-gray-500 dark:text-gray-400">© 2026 eSchool. All rights reserved.</p>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mx-auto">Contact: +249127127993</p>
+        <div className="text-xs text-gray-500 dark:text-gray-400 mx-auto flex items-center">
+            <a href="https://wa.me/249127127993" target="_blank" rel="noopener noreferrer" className="flex items-center">
+                <FaWhatsapp className="mr-2 text-green-500" size={20} />
+                +249127127993
+            </a>
+        </div>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
             <Link href="#" className="text-xs hover:underline underline-offset-4" prefetch={false}>
                 Terms of Service

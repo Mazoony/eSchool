@@ -1,8 +1,10 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '../../supabase'; // Import the Supabase client
+import { supabase } from '../../supabase';
 import { useRouter } from 'next/navigation';
+import { useUser } from '../../UserContext';
 
 export default function UploadPage() {
   const [title, setTitle] = useState('');
@@ -11,10 +13,17 @@ export default function UploadPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
   const router = useRouter();
+  const { user } = useUser();
 
-  // In a real app, you would have a proper user session from Supabase Auth
-  // For now, we'll just keep the page accessible.
+  const isAdmin = user && user.email === 'wadareaf@gmail.com';
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+    }
+  }, [user, router]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -31,57 +40,92 @@ export default function UploadPage() {
     }
 
     setUploading(true);
+    setProgress(0);
     setError(null);
     setSuccessMessage(null);
 
     try {
-      // 1. Upload the video to Supabase Storage
       const fileExt = videoFile.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `lessons/${fileName}`;
 
+      setProgress(10); // Start the progress
+
       const { error: uploadError } = await supabase.storage
-        .from('videos') // Make sure you have a 'videos' bucket in your Supabase project
+        .from('videos')
         .upload(filePath, videoFile);
 
       if (uploadError) {
         console.error('Error uploading video:', uploadError);
         setError(`Failed to upload video: ${uploadError.message}`);
         setUploading(false);
+        setProgress(0);
         return;
       }
 
-      // 2. Get the public URL of the uploaded video
+      setProgress(50); // Video uploaded, getting URL
+
       const { data: urlData } = supabase.storage
         .from('videos')
         .getPublicUrl(filePath);
 
       const publicUrl = urlData.publicUrl;
 
-      // 3. Insert the video metadata into the Supabase database
+      setProgress(75); // URL retrieved, saving to DB
+
       const { error: insertError } = await supabase
-        .from('lessons') // Make sure you have a 'lessons' table in your Supabase project
-        .insert([{ title, description, video_url: publicUrl }]);
+        .from('lessons')
+        .insert([{ title, description, video_url: publicUrl, user_id: user?.id }]);
 
       if (insertError) {
         console.error('Error inserting lesson:', insertError);
         setError(`Failed to save lesson: ${insertError.message}`);
         setUploading(false);
+        setProgress(0);
         return;
       }
 
+      setProgress(100); // All done!
       setSuccessMessage('Video uploaded successfully!');
       setTitle('');
       setDescription('');
       setVideoFile(null);
       setUploading(false);
 
+      // Reset progress bar after 2 seconds
+      setTimeout(() => {
+        setProgress(0);
+        setSuccessMessage(null);
+      }, 2000);
+
     } catch (error: any) {
       console.error('Error during video upload process:', error);
       setError(error.message || 'An unexpected error occurred.');
       setUploading(false);
+      setProgress(0);
     }
   };
+
+  if (!user) {
+    return <p>Loading...</p>;
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md text-center">
+          <h1 className="text-2xl font-bold mb-4">Unauthorized</h1>
+          <p>You do not have permission to access this page.</p>
+          <button
+            onClick={() => router.push('/')}
+            className="mt-6 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
@@ -137,14 +181,28 @@ export default function UploadPage() {
               disabled={uploading}
             />
           </div>
+
+          {uploading && (
+            <div className="mb-4">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-center mt-1">Uploading... {progress}%</p>
+            </div>
+          )}
+
           {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
           {successMessage && <p className="text-green-500 text-sm mb-4">{successMessage}</p>}
+
           <button
             type="submit"
             className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300 disabled:bg-gray-400"
             disabled={uploading}
           >
-            {uploading ? 'Uploading...' : 'Upload'}
+            {uploading ? 'Processing...' : 'Upload'}
           </button>
         </form>
       </div>
