@@ -1,74 +1,46 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from "next/link";
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "firebase/auth";
-import { auth } from "../firebase";
 import { useRouter } from 'next/navigation';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { useAuth } from "../AuthContext";
 
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-  const [user, loading] = useAuthState(auth);
+  const { user, loading, signUp, signInWithGoogle, error } = useAuth();
 
   useEffect(() => {
     if (user) {
-      router.push('/profile');
+      router.push('/'); // Redirect to home page if logged in
     }
   }, [user, router]);
-
-  useEffect(() => {
-    const handleRedirectResult = async () => {
-      try {
-        await getRedirectResult(auth);
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          setError(error.message);
-        } else {
-          setError('An unknown error occurred during Google Sign-In.');
-        }
-      }
-    };
-    handleRedirectResult();
-  }, []);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setError('');
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(userCredential.user, {
-        displayName: name,
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('An unknown error occurred.');
-      }
+      await signUp(email, password, name);
+      // Redirect is handled by the useEffect above
+    } catch (err) {
+      // Error is captured by the useAuth hook's error state
+      console.error(err)
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleGoogleSignUp = async () => {
     setIsSubmitting(true);
-    setError('');
-    const provider = new GoogleAuthProvider();
-    provider.addScope('profile');
-    provider.addScope('email');
     try {
-      await signInWithRedirect(auth, provider);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('An unknown error occurred.');
-      }
+      await signInWithGoogle();
+      // Redirect is handled by the useEffect above
+    } catch (err) {
+        // Error is captured by the useAuth hook's error state
+        console.error(err)
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -116,7 +88,7 @@ export default function Register() {
           >
             {isSubmitting ? 'Creating Account...' : 'Sign Up'}
           </button>
-          {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+          {error && <p className="mt-4 text-sm text-red-600">{error.message}</p>}
         </form>
         <div className="mt-6">
           <button
