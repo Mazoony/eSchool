@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../AuthContext';
+import { User } from '../types';
 
 export default function Header() {
   const { user, signOut } = useAuth();
@@ -19,37 +20,29 @@ export default function Header() {
         {user ? (
           <>
             <nav className="hidden md:flex space-x-4">
-              <Link href="/" className="hover:text-gray-400">
-                Home
-              </Link>
               <Link href="/lessons" className="hover:text-gray-400">
                 Lessons
-              </Link>
-              <Link href="/quiz" className="hover:text-gray-400">
-                Quiz
-              </Link>
-              <Link href="/learning-path" className="hover:text-gray-400">
-                Learning Path
-              </Link>
-              <Link href="/progress" className="hover:text-gray-400">
-                Progress
               </Link>
               <Link href="/social" className="hover:text-gray-400">
                 Social Feed
               </Link>
-              <Link href="/admin" className="hover:text-gray-400">
-                Admin
+              <Link href={`/profile/${user.id}`} className="hover:text-gray-400">
+                Profile
               </Link>
             </nav>
             <div className="flex items-center space-x-4">
-              <span className="font-semibold">{user.email}</span>
-              <Image
-                src={'/placeholder.svg'}
-                alt="Profile"
-                className="w-10 h-10 rounded-full"
-                width={40}
-                height={40}
-              />
+              <Link href={`/profile/${user.id}`} className="font-semibold hover:text-gray-400">
+                {user.email}
+              </Link>
+              <Link href={`/profile/${user.id}`}>
+                <Image
+                  src={(user as User).profile?.avatar_url || '/user.svg'}
+                  alt="Profile"
+                  className="w-10 h-10 rounded-full cursor-pointer"
+                  width={40}
+                  height={40}
+                />
+              </Link>
               <button
                 onClick={handleLogout}
                 className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"

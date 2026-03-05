@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '../supabase';
+import { useAuth } from '../AuthContext';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const { signIn } = useAuth();
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -15,17 +16,9 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        setError(error.message);
-      } else {
-        router.push('/lessons');
-      }
-    } catch (error: any) {
+      await signIn({ email, password });
+      router.push('/social');
+    } catch (error: Error) { 
       setError(error.message || 'An unexpected error occurred.');
     }
   };

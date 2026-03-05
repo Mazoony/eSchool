@@ -3,27 +3,40 @@ import Link from "next/link";
 import Image from "next/image";
 import { FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "./AuthContext";
+import SocialFeed from "./components/SocialFeed";
 
 export default function Home() {
   const { user } = useAuth();
+
+  if (user) {
+    return (
+      <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
+        <header className="px-4 lg:px-6 h-14 flex items-center bg-white dark:bg-gray-800">
+          <Link href="#" className="flex items-center justify-center">
+            <span className="text-lg font-semibold text-gray-900 dark:text-gray-50">eSchool</span>
+          </Link>
+          <nav className="ml-auto flex gap-4 sm:gap-6">
+            <Link href="/lessons" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
+              Lessons
+            </Link>
+            <Link href="/social" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
+              Social
+            </Link>
+            <Link href="/profile" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
+              Profile
+            </Link>
+          </nav>
+        </header>
+        <main className="container mx-auto px-4 py-8">
+          <h1 className="text-4xl font-extrabold text-center text-gray-900 dark:text-gray-50 mb-12">Social Feed</h1>
+          <SocialFeed />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-     {user && <header className="px-4 lg:px-6 h-14 flex items-center bg-white dark:bg-gray-800">
-        <Link href="#" className="flex items-center justify-center">
-          <span className="text-lg font-semibold text-gray-900 dark:text-gray-50">eSchool</span>
-        </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link href="/lessons" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Lessons
-          </Link>
-          <Link href="/social" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Social
-          </Link>
-          <Link href="/profile" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Profile
-          </Link>
-        </nav>
-      </header>}
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gray-100 dark:bg-gray-800">
           <div className="container px-4 md:px-6">
@@ -63,7 +76,8 @@ export default function Home() {
                 alt="Hero"
                 width="550"
                 height="550"
-                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square"
+                loading="eager"
+                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
               />
             </div>
           </div>

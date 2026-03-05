@@ -98,7 +98,7 @@ export default function UploadPage() {
         setSuccessMessage(null);
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error: Error) {
       console.error('Error during video upload process:', error);
       setError(error.message || 'An unexpected error occurred.');
       setUploading(false);
@@ -161,7 +161,7 @@ export default function UploadPage() {
             <textarea
               id="description"
               value={description}
-              onChange={(e) => setDescription(e.targe.value)}
+              onChange={(e) => setDescription(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
               required
               disabled={uploading}

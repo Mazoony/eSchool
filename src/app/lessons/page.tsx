@@ -63,7 +63,7 @@ export default function LessonsPage() {
           <div className="text-center text-gray-500 dark:text-gray-400 bg-yellow-100 dark:bg-yellow-900/30 p-8 rounded-lg">
             <h2 className="text-2xl font-bold text-yellow-800 dark:text-yellow-300 mb-4">No Lessons Found</h2>
             <p className="text-lg">
-              If you have already uploaded lessons, they might not be appearing because of Supabase's Row Level Security (RLS).
+              If you have already uploaded lessons, they might not be appearing because of Supabase&apos;s Row Level Security (RLS).
             </p>
             <p className="mt-4">
               <strong>To fix this, you need to create a security policy to allow read access.</strong>
@@ -72,11 +72,11 @@ export default function LessonsPage() {
                 <p className="font-semibold">Follow these steps in your Supabase project:</p>
                 <ol className="list-decimal list-inside mt-2 space-y-2">
                     <li>Go to the <strong>SQL Editor</strong> section.</li>
-                    <li>Click <strong>"New query"</strong>.</li>
-                    <li>Paste the following SQL code and click <strong>"RUN"</strong>:</li>
+                    <li>Click <strong>&quot;New query&quot;</strong>.</li>
+                    <li>Paste the following SQL code and click <strong>&quot;RUN&quot;</strong>:</li>
                     <li className="mt-4 p-4 bg-gray-700 rounded-md">
                       <code>
-                        CREATE POLICY "Enable read access for all users" <br/>
+                        CREATE POLICY &quot;Enable read access for all users&quot; <br/>
                         ON public.lessons <br/>
                         FOR SELECT <br/>
                         USING (true);
