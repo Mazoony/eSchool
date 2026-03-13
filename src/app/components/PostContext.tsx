@@ -3,36 +3,12 @@
 import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { useAuth } from '../AuthContext';
+import { Post as PostType, Comment as CommentType, Like } from '../types';
 import { PostgrestError } from '@supabase/supabase-js';
 
-// Types
-interface Comment {
-  id: string;
-  content: string;
-  user_id: string;
-  profiles: { id: string; full_name: string; avatar_url: string; };
-  created_at: string;
-  parent_id?: string;
-  comment_likes: Like[];
-}
-
-interface Like {
-  user_id: string;
-}
-
-interface Post {
-  id: string;
-  content: string;
-  user_id: string;
-  profiles: { id: string; full_name: string; avatar_url: string; };
-  created_at: string;
-  comments: Comment[];
-  likes: Like[];
-}
-
 interface PostContextType {
-  post: Post;
-  comments: Comment[];
+  post: PostType;
+  comments: CommentType[];
   likesCount: number;
   userHasLiked: boolean;
   addComment: (content: string) => Promise<void>;
@@ -46,26 +22,25 @@ interface PostContextType {
 
 const PostContext = createContext<PostContextType | undefined>(undefined);
 
-export const PostProvider = ({ post: initialPost, children }: { post: Post; children: ReactNode }) => {
+export const PostProvider = ({ post: initialPost, children }: { post: PostType; children: ReactNode }) => {
   const { user } = useAuth();
-  const [post, setPost] = useState<Post>(initialPost);
-  const [comments, setComments] = useState<Comment[]>(initialPost.comments || []);
+  const [post, setPost] = useState<PostType>(initialPost);
+  const [comments, setComments] = useState<CommentType[]>(initialPost.comments || []);
   const [likesCount, setLikesCount] = useState<number>(initialPost.likes?.length || 0);
   const [userHasLiked, setUserHasLiked] = useState<boolean>(false);
   const [likingCommentId, setLikingCommentId] = useState<string | null>(null);
 
-
   const fetchPostData = useCallback(async () => {
     const { data, error } = await supabase
       .from('posts')
-      .select(`*, profiles!user_id(*), likes(user_id), comments!post_id(*, profiles!user_id(*), comment_likes(user_id))`)
+      .select(`*, profiles!inner(*), likes(user_id), comments!post_id(*, profiles!inner(*), comment_likes(user_id))`)
       .eq('id', initialPost.id)
       .single();
 
     if (error) {
       console.error("Error fetching post data:", error);
     } else if (data) {
-      const postData = data as Post;
+      const postData = data as PostType;
       setPost(postData);
       setComments(postData.comments || []);
       setLikesCount(postData.likes?.length || 0);
@@ -122,23 +97,30 @@ export const PostProvider = ({ post: initialPost, children }: { post: Post; chil
     if (!user) return;
 
     const originallyLiked = userHasLiked;
+    const originalLikesCount = likesCount;
+
+    // Optimistically update the UI
+    setUserHasLiked(!originallyLiked);
+    setLikesCount(originallyLiked ? likesCount - 1 : likesCount + 1);
 
     if (originallyLiked) {
       const { error } = await supabase.from('likes').delete().match({ post_id: post.id, user_id: user.id });
       if (error) {
         console.error("Error unliking post:", error.message);
-      } else {
-        fetchPostData();
+        // If there's an error, revert the UI state
+        setUserHasLiked(originallyLiked);
+        setLikesCount(originalLikesCount);
       }
     } else {
       const { error } = await supabase.from('likes').insert({ post_id: post.id, user_id: user.id });
       if (error) {
         console.error("Error liking post:", error.message);
-      } else {
-        fetchPostData();
+        // If there's an error, revert the UI state
+        setUserHasLiked(originallyLiked);
+        setLikesCount(originalLikesCount);
       }
     }
-  }, [post.id, user, userHasLiked, fetchPostData]);
+  }, [post.id, user, userHasLiked, likesCount]);
 
   const deletePost = useCallback(async () => {
     if (!user || user.id !== post.user_id) {
@@ -165,38 +147,46 @@ export const PostProvider = ({ post: initialPost, children }: { post: Post; chil
     }
   }, [user, comments, fetchPostData]);
 
- const likeComment = useCallback(async (commentId: string) => {
+  const likeComment = useCallback(async (commentId: string) => {
     if (!user || likingCommentId) return;
 
-    setLikingCommentId(commentId);
+    const originalComments = comments.map(c => ({...c, comment_likes: [...(c.comment_likes || [])]}));
+    const commentIndex = comments.findIndex(c => c.id === commentId);
+    if (commentIndex === -1) return;
 
-    const comment = comments.find(c => c.id === commentId);
-    if (!comment) {
-      setLikingCommentId(null);
-      return;
-    }
-
+    const comment = comments[commentIndex];
     const userHasLikedComment = (comment.comment_likes || []).some(like => like.user_id === user.id);
+    
+    // Optimistically update the UI
+    const updatedComments = [...comments];
+    const updatedComment = {
+      ...updatedComments[commentIndex],
+      comment_likes: userHasLikedComment
+        ? (updatedComments[commentIndex].comment_likes || []).filter(like => like.user_id !== user.id)
+        : [...(updatedComments[commentIndex].comment_likes || []), { user_id: user.id } as Like]
+    };
+    updatedComments[commentIndex] = updatedComment;
+    setComments(updatedComments);
+    setLikingCommentId(commentId);
 
     try {
       if (userHasLikedComment) {
         const { error } = await supabase.from('comment_likes').delete().match({ comment_id: commentId, user_id: user.id });
         if (error) {
           console.error("Error unliking comment:", error.message);
+          setComments(originalComments); // Revert on error
         }
       } else {
         const { error } = await supabase.from('comment_likes').insert({ comment_id: commentId, user_id: user.id });
-        if (error && error.code === '23505') { // Handle duplicate key error
-          console.warn('Attempted to like a comment that was already liked. Syncing state.');
-        } else if (error) {
+        if (error) {
           console.error("Error liking comment:", error.message);
+          setComments(originalComments); // Revert on error
         }
       }
     } finally {
-      await fetchPostData();
       setLikingCommentId(null);
     }
-  }, [user, comments, fetchPostData, likingCommentId]);
+  }, [user, comments, likingCommentId]);
 
   const replyToComment = useCallback(async (commentId: string, content: string) => {
     if (!user) return;

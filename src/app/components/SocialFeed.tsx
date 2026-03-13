@@ -15,62 +15,40 @@ export default function SocialFeed() {
       .from('posts')
       .select(`
         id, content, created_at, user_id,
-        profiles!user_id ( id, full_name, avatar_url ),
+        author:profiles!user_id( id, full_name, avatar_url ),
         likes ( user_id ),
-        comments ( id, content, created_at, user_id, parent_id, profiles!user_id ( id, full_name, avatar_url ), comment_likes(user_id) )
+        comments ( id, content, created_at, user_id, parent_id, profiles!user_id( id, full_name, avatar_url ), comment_likes(user_id) )
       `)
       .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching posts:', error.message);
-      setPosts([]);
     } else {
-      setPosts(data || []);
+      setPosts(data as Post[]);
     }
     setLoading(false);
   }, []);
 
   useEffect(() => {
-    // Initial fetch
-    fetchPosts();
+      fetchPosts();
+    }, [fetchPosts]);
 
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('public:posts')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'posts' }, 
-        (payload) => {
-          if (payload.eventType === 'DELETE') {
-            // Remove deleted post from UI instantly
-            setPosts(currentPosts => currentPosts.filter(post => post.id !== payload.old.id));
-          } else {
-            // For new or updated posts, re-fetch the whole list to get complete data
-            fetchPosts();
-          }
-        }
-      )
-      .subscribe();
-
-    // Cleanup subscription on component unmount
-    return () => {
-      supabase.removeChannel(channel);
+    const handlePostCreated = (newPost: Post) => {
+      setPosts(prevPosts => [newPost, ...prevPosts]);
     };
-  }, [fetchPosts]);
 
-  const handlePostCreated = (newPost: Post) => {
-    setPosts(currentPosts => [newPost, ...currentPosts]);
-  };
-
-  return (
-    <div className="space-y-4">
-      <CreatePost onPostCreated={handlePostCreated} />
-      {loading && posts.length === 0 ? (
-        <p>Loading posts...</p>
-      ) : (
-        posts.map(post => (
-          <PostItem key={post.id} post={post} />
-        ))
-      )}
-    </div>
-  );
+    return (
+      <div className="w-full max-w-xl mx-auto">
+         <CreatePost onPostCreated={handlePostCreated} />
+        {loading ? (
+          <p className="text-center text-gray-500">Loading feed...</p>
+        ) : (
+          <div className="space-y-4">
+            {posts.map(post => (
+              <PostItem key={post.id} post={post} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
 }

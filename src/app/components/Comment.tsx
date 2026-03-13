@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Image from 'next/image';
 import { FiHeart, FiMessageCircle } from 'react-icons/fi';
 import { usePost } from './PostContext';
 import { useAuth } from '../AuthContext';
 import { Comment as CommentType } from '../types';
+import { formatTimestamp } from '../utils/formatTimestamp';
 
 interface CommentProps {
   comment: CommentType;
@@ -32,11 +34,22 @@ export default function Comment({ comment }: CommentProps) {
     }
   };
 
+  const profile = comment.commenter;
+
   return (
     <div className="flex items-start space-x-4 p-4 border-b border-gray-200 dark:border-gray-700">
-      <FiMessageCircle className="text-gray-500 dark:text-gray-400 mt-1" />
+        <Image
+            src={profile?.avatar_url || '/user.svg'}
+            alt={profile?.full_name || 'user'}
+            className="w-10 h-10 rounded-full"
+            width={40}
+            height={40}
+        />
       <div>
-        <p className="font-semibold text-gray-900 dark:text-gray-50">{comment.profiles.full_name}</p>
+        <div className="flex items-center space-x-2">
+          <p className="font-semibold text-gray-900 dark:text-gray-50">{profile?.full_name}</p>
+          <p className="text-sm text-gray-500">{formatTimestamp(comment.created_at)}</p>
+        </div>
         <p className="text-gray-700 dark:text-gray-300">{comment.content}</p>
         <div className="flex items-center space-x-4 mt-2">
           <button onClick={handleLike} className={`flex items-center space-x-1 ${userHasLiked ? 'text-red-500' : 'text-gray-500'} hover:text-red-500`}>

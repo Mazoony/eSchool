@@ -9,8 +9,9 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { user, loading, signUp, signInWithGoogle, error } = useAuth();
+  const { user, loading, signUp, signInWithGoogle } = useAuth();
 
   useEffect(() => {
     if (user) {
@@ -21,12 +22,13 @@ export default function Register() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
     try {
-      await signUp(email, password, name);
+      await signUp({ email, password });
       // Redirect is handled by the useEffect above
-    } catch (err) {
-      // Error is captured by the useAuth hook's error state
-      console.error(err)
+    } catch (err: any) {
+      setError(err.message);
+      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
@@ -34,11 +36,12 @@ export default function Register() {
 
   const handleGoogleSignUp = async () => {
     setIsSubmitting(true);
+    setError(null);
     try {
       await signInWithGoogle();
       // Redirect is handled by the useEffect above
-    } catch (err) {
-        // Error is captured by the useAuth hook's error state
+    } catch (err: any) {
+        setError(err.message);
         console.error(err)
     } finally {
       setIsSubmitting(false);
@@ -88,7 +91,7 @@ export default function Register() {
           >
             {isSubmitting ? 'Creating Account...' : 'Sign Up'}
           </button>
-          {error && <p className="mt-4 text-sm text-red-600">{error.message}</p>}
+          {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
         </form>
         <div className="mt-6">
           <button

@@ -1,24 +1,10 @@
-
 'use client';
 
 import Image from 'next/image';
 import { useAuth } from '../AuthContext';
 import { usePost } from './PostContext';
 import { FaHeart, FaRegHeart, FaReply, FaTrash } from 'react-icons/fa';
-
-interface Comment {
-  id: string;
-  content: string;
-  user_id: string;
-  profiles: { id: string; full_name: string; avatar_url: string; };
-  created_at: string;
-  parent_id?: string;
-  comment_likes: Like[];
-}
-
-interface Like {
-  user_id: string;
-}
+import { Comment } from '../types'; // Import the correct Comment type
 
 interface CommentItemProps {
   comment: Comment;
@@ -40,18 +26,25 @@ export default function CommentItem({ comment, onReply }: CommentItemProps) {
     }
   };
 
+  // Safely access profile information
+  const commenter = comment.commenter;
+
+  if (!commenter) {
+    return <div>Loading comment...</div>
+  }
+
   return (
     <div className="flex items-start space-x-3 py-3">
       <Image 
-        src={comment.profiles.avatar_url || '/user.svg'} 
-        alt={comment.profiles.full_name || 'user'} 
+        src={commenter.avatar_url || '/user.svg'} 
+        alt={commenter.full_name || 'user'} 
         className="w-10 h-10 rounded-full"
         width={40} 
         height={40} 
       />
       <div className="flex-1">
         <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-4 py-2">
-          <p className="font-semibold text-sm text-gray-900 dark:text-gray-100">{comment.profiles.full_name}</p>
+          <p className="font-semibold text-sm text-gray-900 dark:text-gray-100">{commenter.full_name}</p>
           <p className="text-gray-700 dark:text-gray-300">{comment.content}</p>
         </div>
         <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400 mt-1">

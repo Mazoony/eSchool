@@ -98,7 +98,7 @@ export default function UploadPage() {
         setSuccessMessage(null);
       }, 2000);
 
-    } catch (error: Error) {
+    } catch (error: any) {
       console.error('Error during video upload process:', error);
       setError(error.message || 'An unexpected error occurred.');
       setUploading(false);

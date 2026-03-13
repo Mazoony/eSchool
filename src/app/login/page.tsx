@@ -18,7 +18,7 @@ export default function LoginPage() {
     try {
       await signIn({ email, password });
       router.push('/social');
-    } catch (error: Error) { 
+    } catch (error: any) { 
       setError(error.message || 'An unexpected error occurred.');
     }
   };

@@ -23,6 +23,8 @@ interface AuthContextType {
   loading: boolean;
   signOut: () => Promise<void>;
   signIn: (credentials: SignInWithPasswordCredentials) => Promise<void>;
+  signUp: (credentials: SignInWithPasswordCredentials) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -100,8 +102,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const signUp = async (credentials: SignInWithPasswordCredentials) => {
+    const { error } = await supabase.auth.signUp(credentials);
+    if (error) {
+      throw error;
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+    if (error) {
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ session, user, loading, signOut, signIn }}>
+    <AuthContext.Provider value={{ session, user, loading, signOut, signIn, signUp, signInWithGoogle }}>
       {!loading && children}
     </AuthContext.Provider>
   );

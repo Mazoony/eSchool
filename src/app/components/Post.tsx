@@ -7,29 +7,12 @@ import { useAuth } from '../AuthContext';
 import { usePost } from './PostContext';
 import { HeartIcon, ChatBubbleOvalLeftIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
-import CommentItem from './CommentItem'; // Changed import
-
-const timeAgo = (dateString: string): string => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  let interval = seconds / 31536000;
-  if (interval > 1) return Math.floor(interval) + " years ago";
-  interval = seconds / 2592000;
-  if (interval > 1) return Math.floor(interval) + " months ago";
-  interval = seconds / 86400;
-  if (interval > 1) return Math.floor(interval) + " days ago";
-  interval = seconds / 3600;
-  if (interval > 1) return Math.floor(interval) + " hours ago";
-  interval = seconds / 60;
-  if (interval > 1) return Math.floor(interval) + " minutes ago";
-  return Math.floor(seconds) + " seconds ago";
-};
+import CommentItem from './CommentItem';
+import { formatTimestamp } from '../utils/formatTimestamp';
 
 export default function Post() {
   const { user } = useAuth();
-  const { post, comments, likesCount, userHasLiked, addComment, toggleLike, deletePost, replyToComment } = usePost(); // Added replyToComment
+  const { post, comments, likesCount, userHasLiked, addComment, toggleLike, deletePost, replyToComment } = usePost();
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
@@ -52,24 +35,32 @@ export default function Post() {
   };
 
   const placeholderAvatar = '/user.svg';
+  // FIX: Use the 'author' alias from the Supabase query
+  const author = post.author;
+
+
+  if (!author) {
+    // This can happen if the post is loading or if there's an issue with the data
+    return <div>Loading post...</div>;
+  }
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
       <div className="flex items-center mb-4">
-        <Link href={`/profile/${post.profiles.id}`}>
+        <Link href={`/profile/${author.id}`}>
           <Image 
-            src={post.profiles.avatar_url || placeholderAvatar}
-            alt={`${post.profiles.full_name}'s avatar`}
+            src={author.avatar_url || placeholderAvatar}
+            alt={`${author.full_name}'s avatar`}
             width={40}
             height={40}
             className="rounded-full mr-3 cursor-pointer"
           />
         </Link>
         <div className="flex-1">
-          <Link href={`/profile/${post.profiles.id}`}>
-            <p className="font-bold text-gray-900 dark:text-gray-100 cursor-pointer">{post.profiles.full_name}</p>
+          <Link href={`/profile/${author.id}`}>
+            <p className="font-bold text-gray-900 dark:text-gray-100 cursor-pointer">{author.full_name}</p>
           </Link>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{timeAgo(post.created_at)}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{formatTimestamp(post.created_at)}</p>
         </div>
         {user && user.id === post.user_id && (
             <button onClick={handleDeletePost} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">

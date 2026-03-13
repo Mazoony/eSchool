@@ -16,7 +16,7 @@ export interface Post {
   id: string;
   content: string;
   user_id: string;
-  profiles: { id: string; full_name: string; avatar_url: string; };
+  author: { id: string; full_name: string; avatar_url: string; }; // Changed from profile
   created_at: string;
   comments: Comment[];
   likes: Like[];
@@ -26,7 +26,7 @@ export interface Comment {
   id: string;
   content: string;
   user_id: string;
-  profiles: { id: string; full_name: string; avatar_url: string; };
+  commenter: { id: string; full_name: string; avatar_url: string; }; // Changed from profile
   created_at: string;
   parent_id?: string;
   comment_likes: Like[];

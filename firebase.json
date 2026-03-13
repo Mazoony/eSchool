@@ -1,24 +1,16 @@
 {
-  "auth": {
-    "providers": {
-      "googleSignIn": {
-        "supportEmail": "wadareaf@gmail.com",
-        "oAuthBrandDisplayName": "learneng-20588"
-      }
-    }
-  },
   "hosting": {
-    "public": "out",
+    "public": ".next",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
     ]
-  },
-  "firestore": {
-    "rules": "firestore.rules"
-  },
-  "storage": {
-    "rules": "storage.rules"
   }
 }
