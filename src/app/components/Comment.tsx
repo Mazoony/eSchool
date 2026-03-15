@@ -10,9 +10,10 @@ import { formatTimestamp } from '../utils/formatTimestamp';
 
 interface CommentProps {
   comment: CommentType;
+  postId: string;
 }
 
-export default function Comment({ comment }: CommentProps) {
+export default function Comment({ comment, postId }: CommentProps) {
   const { user } = useAuth();
   const { likeComment, replyToComment } = usePost();
   const [showReplyForm, setShowReplyForm] = useState(false);

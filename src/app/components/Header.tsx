@@ -32,7 +32,7 @@ export default function Header() {
             </nav>
             <div className="flex items-center space-x-4">
               <Link href={`/profile/${user.id}`} className="font-semibold hover:text-gray-400">
-                {user.email}
+                {(user as User).profile?.full_name || user.email}
               </Link>
               <Link href={`/profile/${user.id}`}>
                 <Image

@@ -6,11 +6,12 @@ import { Post as PostType } from '../types';
 
 interface PostItemProps {
   post: PostType;
+  onDelete: (postId: string) => void;
 }
 
-export default function PostItem({ post }: PostItemProps) {
+export default function PostItem({ post, onDelete }: PostItemProps) {
   return (
-    <PostProvider post={post}>
+    <PostProvider post={post} onDelete={onDelete}>
       <Post />
     </PostProvider>
   );

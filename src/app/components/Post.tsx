@@ -99,7 +99,7 @@ export default function Post() {
         )}
         <div className="space-y-4">
           {comments.map(comment => (
-            <CommentItem key={comment.id} comment={comment} onReply={setReplyingTo}/>
+            <CommentItem key={comment.id} comment={comment}/>
           ))}
         </div>
       </div>

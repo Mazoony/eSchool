@@ -13,7 +13,7 @@ interface PostContextType {
   userHasLiked: boolean;
   addComment: (content: string) => Promise<void>;
   toggleLike: () => Promise<void>;
-  deletePost: () => Promise<{ error: PostgrestError | null }>;
+  deletePost: () => Promise<void>;
   deleteComment: (commentId: string) => Promise<void>;
   likeComment: (commentId: string) => Promise<void>;
   replyToComment: (commentId: string, content: string) => Promise<void>;
@@ -22,7 +22,7 @@ interface PostContextType {
 
 const PostContext = createContext<PostContextType | undefined>(undefined);
 
-export const PostProvider = ({ post: initialPost, children }: { post: PostType; children: ReactNode }) => {
+export const PostProvider = ({ post: initialPost, children, onDelete }: { post: PostType; children: ReactNode; onDelete: (postId: string) => void; }) => {
   const { user } = useAuth();
   const [post, setPost] = useState<PostType>(initialPost);
   const [comments, setComments] = useState<CommentType[]>(initialPost.comments || []);
@@ -33,14 +33,23 @@ export const PostProvider = ({ post: initialPost, children }: { post: PostType; 
   const fetchPostData = useCallback(async () => {
     const { data, error } = await supabase
       .from('posts')
-      .select(`*, profiles!inner(*), likes(user_id), comments!post_id(*, profiles!inner(*), comment_likes(user_id))`)
+      .select(`
+        *,
+        author:profiles!inner(*),
+        likes(user_id),
+        comments!post_id(
+          *,
+          commenter:profiles!inner(*),
+          comment_likes(user_id)
+        )
+      `)
       .eq('id', initialPost.id)
       .single();
 
     if (error) {
       console.error("Error fetching post data:", error);
     } else if (data) {
-      const postData = data as PostType;
+      const postData = data as any;
       setPost(postData);
       setComments(postData.comments || []);
       setLikesCount(postData.likes?.length || 0);
@@ -82,16 +91,41 @@ export const PostProvider = ({ post: initialPost, children }: { post: PostType; 
   }, [post.id, fetchPostData]);
 
   const addComment = useCallback(async (content: string) => {
-    if (!user) return;
+    if (!user?.profile) {
+      console.error("User profile not available for commenting.");
+      return;
+    }
 
-    const { error } = await supabase.from('comments').insert({ post_id: post.id, user_id: user.id, content });
+    const newComment: CommentType = {
+      id: `temp-${Date.now()}`,
+      content,
+      user_id: user.id,
+      created_at: new Date().toISOString(),
+      commenter: {
+        id: user.profile.id,
+        full_name: user.profile.full_name,
+        avatar_url: user.profile.avatar_url,
+      },
+      comment_likes: [],
+    };
+
+    setComments(prevComments => [...prevComments, newComment]);
+
+    const { data: insertedComment, error } = await supabase
+      .from('comments')
+      .insert({ post_id: post.id, user_id: user.id, content })
+      .select('*, commenter:profiles!inner(*), comment_likes(user_id)')
+      .single();
 
     if (error) {
       console.error("Error adding comment:", error.message);
-    } else {
-        fetchPostData();
+      setComments(prevComments => prevComments.filter(c => c.id !== newComment.id));
+    } else if (insertedComment) {
+      setComments(prevComments =>
+        prevComments.map(c => (c.id === newComment.id ? (insertedComment as CommentType) : c))
+      );
     }
-  }, [post.id, user, fetchPostData]);
+  }, [post.id, user]);
 
   const toggleLike = useCallback(async () => {
     if (!user) return;
@@ -99,7 +133,6 @@ export const PostProvider = ({ post: initialPost, children }: { post: PostType; 
     const originallyLiked = userHasLiked;
     const originalLikesCount = likesCount;
 
-    // Optimistically update the UI
     setUserHasLiked(!originallyLiked);
     setLikesCount(originallyLiked ? likesCount - 1 : likesCount + 1);
 
@@ -107,7 +140,6 @@ export const PostProvider = ({ post: initialPost, children }: { post: PostType; 
       const { error } = await supabase.from('likes').delete().match({ post_id: post.id, user_id: user.id });
       if (error) {
         console.error("Error unliking post:", error.message);
-        // If there's an error, revert the UI state
         setUserHasLiked(originallyLiked);
         setLikesCount(originalLikesCount);
       }
@@ -115,7 +147,6 @@ export const PostProvider = ({ post: initialPost, children }: { post: PostType; 
       const { error } = await supabase.from('likes').insert({ post_id: post.id, user_id: user.id });
       if (error) {
         console.error("Error liking post:", error.message);
-        // If there's an error, revert the UI state
         setUserHasLiked(originallyLiked);
         setLikesCount(originalLikesCount);
       }
@@ -124,28 +155,39 @@ export const PostProvider = ({ post: initialPost, children }: { post: PostType; 
 
   const deletePost = useCallback(async () => {
     if (!user || user.id !== post.user_id) {
-        return { error: { message: "Permission denied" } as PostgrestError };
+        console.error("Permission denied to delete post");
+        return;
     }
-    return await supabase.from('posts').delete().match({ id: post.id });
-  }, [post.id, post.user_id, user]);
+
+    onDelete(post.id);
+
+    const { error } = await supabase.from('posts').delete().match({ id: post.id });
+    if (error) {
+        console.error("Error deleting post:", error.message);
+        // If the delete fails, we should ideally put the post back in the list.
+        // This requires a more complex state management strategy.
+    }
+  }, [post.id, post.user_id, user, onDelete]);
 
   const deleteComment = useCallback(async (commentId: string) => {
     if (!user) return;
 
+    const originalComments = [...comments];
     const commentToDelete = comments.find(c => c.id === commentId);
     if (!commentToDelete || commentToDelete.user_id !== user.id) {
       console.error("Permission denied to delete comment");
       return;
     }
 
+    setComments(prevComments => prevComments.filter(c => c.id !== commentId));
+
     const { error } = await supabase.from('comments').delete().match({ id: commentId, user_id: user.id });
 
     if (error) {
       console.error("Error deleting comment:", error.message);
-    } else {
-        fetchPostData();
+      setComments(originalComments);
     }
-  }, [user, comments, fetchPostData]);
+  }, [user, comments]);
 
   const likeComment = useCallback(async (commentId: string) => {
     if (!user || likingCommentId) return;
@@ -157,7 +199,6 @@ export const PostProvider = ({ post: initialPost, children }: { post: PostType; 
     const comment = comments[commentIndex];
     const userHasLikedComment = (comment.comment_likes || []).some(like => like.user_id === user.id);
     
-    // Optimistically update the UI
     const updatedComments = [...comments];
     const updatedComment = {
       ...updatedComments[commentIndex],
@@ -174,13 +215,13 @@ export const PostProvider = ({ post: initialPost, children }: { post: PostType; 
         const { error } = await supabase.from('comment_likes').delete().match({ comment_id: commentId, user_id: user.id });
         if (error) {
           console.error("Error unliking comment:", error.message);
-          setComments(originalComments); // Revert on error
+          setComments(originalComments);
         }
       } else {
         const { error } = await supabase.from('comment_likes').insert({ comment_id: commentId, user_id: user.id });
         if (error) {
-          console.error("Error liking comment:", error.message);
-          setComments(originalComments); // Revert on error
+          console.error('Error liking comment:', error.message);
+          setComments(originalComments);
         }
       }
     } finally {
@@ -189,14 +230,42 @@ export const PostProvider = ({ post: initialPost, children }: { post: PostType; 
   }, [user, comments, likingCommentId]);
 
   const replyToComment = useCallback(async (commentId: string, content: string) => {
-    if (!user) return;
-    const { error } = await supabase.from('comments').insert({ post_id: post.id, user_id: user.id, content, parent_id: commentId });
+    if (!user?.profile) {
+      console.error("User profile not available for replying.");
+      return;
+    }
+
+    const newReply: CommentType = {
+      id: `temp-${Date.now()}`,
+      content,
+      user_id: user.id,
+      created_at: new Date().toISOString(),
+      parent_id: commentId,
+      commenter: {
+        id: user.profile.id,
+        full_name: user.profile.full_name,
+        avatar_url: user.profile.avatar_url,
+      },
+      comment_likes: [],
+    };
+
+    setComments(prevComments => [...prevComments, newReply]);
+
+    const { data: insertedComment, error } = await supabase
+      .from('comments')
+      .insert({ post_id: post.id, user_id: user.id, content, parent_id: commentId })
+      .select('*, commenter:profiles!inner(*), comment_likes(user_id)')
+      .single();
+
     if (error) {
       console.error("Error replying to comment:", error.message);
-    } else {
-      fetchPostData();
+      setComments(prevComments => prevComments.filter(c => c.id !== newReply.id));
+    } else if (insertedComment) {
+      setComments(prevComments =>
+        prevComments.map(c => (c.id === newReply.id ? (insertedComment as CommentType) : c))
+      );
     }
-  }, [post.id, user, fetchPostData]);
+  }, [post.id, user]);
 
   return (
     <PostContext.Provider value={{ post, comments, likesCount, userHasLiked, addComment, toggleLike, deletePost, deleteComment, likeComment, replyToComment, likingCommentId }}>
