@@ -4,7 +4,7 @@ import Image from "next/image";
 import { FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "./AuthContext";
 import SocialFeed from "./components/SocialFeed";
-import UserCount from "./components/UserCount"; // Import the UserCount component
+import UserCount from "./components/UserCount";
 
 export default function Home() {
   const { user } = useAuth();
@@ -71,7 +71,9 @@ export default function Home() {
                     Log In
                   </Link>
                 </div>
-                <UserCount />
+                <div className="mt-4">
+                  <UserCount />
+                </div>
               </div>
               <Image
                 src="/teacher.jpg"

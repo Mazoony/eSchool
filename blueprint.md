@@ -46,7 +46,12 @@ eSchool is a modern social feed application designed for educational communities
 - A notification icon in the header displays the number of unread notifications.
 - A dropdown list displays the notifications, with links to the relevant post or comment.
 
-### 3.6. Design & UI/UX
+### 3.6. Real-time User Count
+
+- The landing page displays a real-time count of registered users.
+- This provides a dynamic and engaging metric for prospective users.
+
+### 3.7. Design & UI/UX
 
 - The application features a modern and visually appealing design.
 - The layout is responsive and optimized for both desktop and mobile devices.
@@ -62,7 +67,13 @@ eSchool is a modern social feed application designed for educational communities
 
 ## 5. Recent Changes & Implementations
 
-### 5.1. Notification System
+### 5.1. Real-time User Count on Landing Page
+
+- **Implemented**: The `UserCount` component is now displayed on the main landing page for all visitors.
+- **File**: `src/app/page.tsx`
+- **Description**: The `UserCount` component, which provides a real-time count of registered users, has been moved to be visible to unauthenticated users on the landing page. This serves as a social proof metric to encourage new user registrations.
+
+### 5.2. Notification System
 
 - **Implemented**: A complete notification system.
 - **Files**:
@@ -72,7 +83,7 @@ eSchool is a modern social feed application designed for educational communities
     - `src/app/types.ts`
 - **Description**: Added a `notifications` table to the database. The `PostContext.tsx` file was updated to create notifications for likes and comments. A new `Notifications.tsx` component was created to display notifications, and it was added to the `Header.tsx`.
 
-### 5.2. Comment Liking Bug Fix
+### 5.3. Comment Liking Bug Fix
 
 - **Fixed**: A bug where the like count for comments and replies was not updating in real-time.
 - **Files**:
@@ -80,16 +91,16 @@ eSchool is a modern social feed application designed for educational communities
     - `src/app/components/CommentItem.tsx`
 - **Description**: The `likeComment` function in `PostContext.tsx` was rewritten to use immutable state updates, ensuring that React re-renders the UI correctly. The `likingCommentId` state was removed to allow for a more responsive user experience.
 
-### 5.3. Optimistic UI Updates
+### 5.4. Optimistic UI Updates
 
 - **Implemented**: Optimistic UI for liking posts, adding comments, and deleting comments.
 - **File**: `src/app/components/PostContext.tsx`
 - **Description**: The `toggleLike`, `addComment`, and `deleteComment` functions were updated to provide immediate UI feedback. The application no longer waits for a database response, making the user experience feel faster and more responsive.
 
-### 5.4. Avatar Upload Security Fix
+### 5.5. Avatar Upload Security Fix
 
 - **Fixed**: Resolved a "row-level security policy" error that occurred during avatar uploads.
 - **File**: `src/app/profile/[id]/page.tsx`
-- **Description**: The `handleUpload` function was modified to ensure that avatar uploads comply with Supabase storage policies. The file path is now correctly constructed to include the user's ID, ensuring that users can only upload to their own designated storage folders.
+- **Description**: The `handleUpload` function was modified to ensure that avatar uploads comply with Supabase storage policies. The file path is now correctly constructed to include the user's ID, a JWT claim, ensuring that users can only upload to their own designated storage folders.
 - **Migration**: A new SQL migration was created and applied to define the necessary storage policies for the `avatars` bucket.
   - `supabase/migrations/2024071600000_add_avatar_storage_policies.sql`
