@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../AuthContext';
 import { User } from '../types';
+import Notifications from './Notifications';
 
 export default function Header() {
   const { user, signOut } = useAuth();
@@ -31,6 +32,7 @@ export default function Header() {
               </Link>
             </nav>
             <div className="flex items-center space-x-4">
+              <Notifications />
               <Link href={`/profile/${user.id}`} className="font-semibold hover:text-gray-400">
                 {(user as User).profile?.full_name || user.email}
               </Link>

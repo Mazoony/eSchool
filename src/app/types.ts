@@ -34,4 +34,17 @@ export interface Comment {
 
 export interface Like {
   user_id: string;
+  comment_id?: string;
+}
+
+export interface Notification {
+  id: string;
+  created_at: string;
+  recipient_user_id: string;
+  sender_user_id: string;
+  type: string;
+  post_id: string;
+  comment_id?: string;
+  is_read: boolean;
+  sender: { id: string; full_name: string; avatar_url: string; };
 }

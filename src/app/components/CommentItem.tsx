@@ -13,12 +13,11 @@ interface CommentItemProps {
 
 export default function CommentItem({ comment }: CommentItemProps) {
   const { user } = useAuth();
-  const { deleteComment, likeComment, replyToComment, likingCommentId } = usePost();
+  const { deleteComment, likeComment, replyToComment } = usePost();
   const [isReplying, setIsReplying] = useState(false);
   const [replyContent, setReplyContent] = useState('');
 
   const userHasLikedComment = comment.comment_likes?.some(like => like.user_id === user?.id);
-  const isLiking = likingCommentId === comment.id;
 
   const handleReplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +51,6 @@ export default function CommentItem({ comment }: CommentItemProps) {
         <div className="flex items-center space-x-4 mt-2 text-xs">
           <button 
             onClick={() => likeComment(comment.id)} 
-            disabled={isLiking}
             className={`flex items-center space-x-1 font-semibold ${userHasLikedComment ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}
           >
             <HeartIcon className="h-4 w-4" />

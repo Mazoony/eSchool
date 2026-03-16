@@ -22,7 +22,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
     const { data, error } = await supabase
       .from('posts')
       .insert({ content, user_id: user.id })
-      .select(`*, author:profiles!inner(*), likes(user_id), comments!post_id(*, commenter:profiles!inner(*), comment_likes(user_id))`)
+      .select(`*, author:profiles!user_id(*), likes(user_id), comments!post_id(*, commenter:profiles!user_id(*), comment_likes(user_id))`)
       .single();
 
     if (error) {

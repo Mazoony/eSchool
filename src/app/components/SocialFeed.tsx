@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../supabase';
 import PostItem from './PostItem';
 import CreatePost from './CreatePost';
@@ -11,13 +11,18 @@ export default function SocialFeed() {
   const [loading, setLoading] = useState(true);
 
   const fetchPosts = useCallback(async () => {
+    setLoading(true);
     const { data, error } = await supabase
       .from('posts')
       .select(`
-        id, content, created_at, user_id,
-        author:profiles!user_id( id, full_name, avatar_url ),
-        likes ( user_id ),
-        comments ( id, content, created_at, user_id, parent_id, commenter:profiles!user_id( id, full_name, avatar_url ), comment_likes(user_id) )
+        *,
+        author:profiles!user_id(*),
+        likes(user_id),
+        comments!post_id(
+          *,
+          commenter:profiles!user_id(*),
+          comment_likes(user_id)
+        )
       `)
       .order('created_at', { ascending: false });
 
@@ -29,30 +34,37 @@ export default function SocialFeed() {
     setLoading(false);
   }, []);
 
+  const handleNewPost = (post: Post) => {
+    setPosts(prevPosts => [post, ...prevPosts]);
+  };
+
   useEffect(() => {
-      fetchPosts();
-    }, [fetchPosts]);
+    fetchPosts();
 
-    const handlePostCreated = (newPost: Post) => {
-      setPosts(prevPosts => [newPost, ...prevPosts]);
+    const channel = supabase
+      .channel('social-feed')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, fetchPosts)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
     };
+  }, [fetchPosts]);
 
-    const handleDeletePost = (postId: string) => {
-      setPosts(prevPosts => prevPosts.filter(p => p.id !== postId));
-    };
+  const handleDeletePost = (postId: string) => {
+    setPosts(prevPosts => prevPosts.filter(p => p.id !== postId));
+  };
 
-    return (
-      <div className="w-full max-w-xl mx-auto">
-         <CreatePost onPostCreated={handlePostCreated} />
-        {loading ? (
-          <p className="text-center text-gray-500">Loading feed...</p>
-        ) : (
-          <div className="space-y-4">
-            {posts.map(post => (
-              <PostItem key={post.id} post={post} onDelete={handleDeletePost}/>
-            ))}
-          </div>
-        )}
-      </div>
-    );
+  if (loading) {
+    return <div className="text-center p-8">Loading posts...</div>;
+  }
+
+  return (
+    <div className="space-y-6 max-w-2xl mx-auto py-8">
+      <CreatePost onPostCreated={handleNewPost} />
+      {posts.map(post => (
+        <PostItem key={post.id} post={post} onDelete={handleDeletePost} />
+      ))}
+    </div>
+  );
 }
