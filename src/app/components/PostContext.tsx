@@ -106,15 +106,15 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
     }
 
     const { data: insertedComment, error } = await supabase
-      .from('comments')
+      .from<CommentType>('comments')
       .insert({ post_id: post.id, user_id: user.id, content })
-      .select('*, commenter:profiles!inner(*), comment_likes(user_id))')
+      .select('*, commenter:profiles!inner(*), comment_likes(user_id)')
       .single();
 
     if (error) {
       console.error("Error adding comment:", error.message);
     } else if (insertedComment) {
-      setComments(prevComments => [...prevComments, insertedComment as CommentType]);
+      setComments(prevComments => [...prevComments, insertedComment]);
       await createNotification(post.user_id, 'comment', post.id, insertedComment.id);
     }
   }, [post.id, post.user_id, user]);
@@ -222,15 +222,15 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
     }
 
     const { data: insertedComment, error } = await supabase
-      .from('comments')
+      .from<CommentType>('comments')
       .insert({ post_id: post.id, user_id: user.id, content, parent_id: commentId })
-      .select('*, commenter:profiles!inner(*), comment_likes(user_id))')
+      .select('*, commenter:profiles!inner(*), comment_likes(user_id)')
       .single();
 
     if (error) {
       console.error("Error replying to comment:", error.message);
     } else if (insertedComment) {
-      setComments(prevComments => [...prevComments, insertedComment as CommentType]);
+      setComments(prevComments => [...prevComments, insertedComment]);
       const parentComment = comments.find(c => c.id === commentId);
       if(parentComment) {
         await createNotification(parentComment.user_id, 'reply', post.id, insertedComment.id);
