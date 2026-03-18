@@ -43,17 +43,16 @@ export default function SocialFeed() {
 
     const channel = supabase
       .channel('social-feed')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, fetchPosts)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, (payload) => {
+        // Instead of refetching, prepend the new post to the list
+        handleNewPost(payload.new as Post);
+      })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [fetchPosts]);
-
-  const handleDeletePost = (postId: string) => {
-    setPosts(prevPosts => prevPosts.filter(p => p.id !== postId));
-  };
+  }, []);
 
   if (loading) {
     return <div className="text-center p-8">Loading posts...</div>;
@@ -63,7 +62,7 @@ export default function SocialFeed() {
     <div className="space-y-6 max-w-2xl mx-auto py-8">
       <CreatePost onPostCreated={handleNewPost} />
       {posts.map(post => (
-        <PostItem key={post.id} post={post} onDelete={handleDeletePost} />
+        <PostItem key={post.id} post={post} />
       ))}
     </div>
   );

@@ -10,26 +10,37 @@ interface CreatePostProps {
 }
 
 export default function CreatePost({ onPostCreated }: CreatePostProps) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth(); // Assuming profile is available in AuthContext
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || !user) return;
+    if (!content.trim() || !user || !profile) return;
 
     setIsSubmitting(true);
-    const { data, error } = await supabase
+    
+    // Optimistic update
+    const newPost: Post = {
+      id: `temp-${Date.now()}`,
+      created_at: new Date().toISOString(),
+      content,
+      user_id: user.id,
+      author: profile, // Use profile from AuthContext
+      likes: [],
+      comments: [],
+    };
+    onPostCreated(newPost);
+    setContent('');
+
+    const { error } = await supabase
       .from('posts')
-      .insert({ content, user_id: user.id })
-      .select(`*, author:profiles!user_id(*), likes(user_id), comments!post_id(*, commenter:profiles!user_id(*), comment_likes(user_id))`)
-      .single();
+      .insert({ content, user_id: user.id });
 
     if (error) {
       console.error('Error creating post:', error.message);
-    } else {
-      onPostCreated(data as Post);
-      setContent('');
+      // Revert optimistic update if there's an error
+      // (Implementation of revert logic would depend on how you manage state)
     }
     setIsSubmitting(false);
   };

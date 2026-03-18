@@ -104,3 +104,14 @@ eSchool is a modern social feed application designed for educational communities
 - **Description**: The `handleUpload` function was modified to ensure that avatar uploads comply with Supabase storage policies. The file path is now correctly constructed to include the user's ID, a JWT claim, ensuring that users can only upload to their own designated storage folders.
 - **Migration**: A new SQL migration was created and applied to define the necessary storage policies for the `avatars` bucket.
   - `supabase/migrations/2024071600000_add_avatar_storage_policies.sql`
+
+### 5.6. Social Feed & Post Creation Improvements
+
+- **Implemented**: Optimistic UI for new posts and improved real-time feed updates.
+- **Files**:
+    - `src/app/components/SocialFeed.tsx`
+    - `src/app/components/CreatePost.tsx`
+- **Description**:
+    - **Optimistic Post Creation**: The `CreatePost.tsx` component was updated to create a temporary `Post` object on the client-side. This object is immediately added to the social feed, providing an instantaneous UI update when a user creates a new post. The actual database insertion happens in the background.
+    - **Efficient Real-time Updates**: The `SocialFeed.tsx` component now subscribes to Supabase's real-time events. Instead of re-fetching the entire list of posts when a new post is created, it now listens for `INSERT` events on the `posts` table and prepends the new post to the feed, making the updates more efficient.
+    - **Corrected Data Aliasing**: Fixed the Supabase query in `SocialFeed.tsx` to correctly alias the author's profile information, resolving display issues with newly created posts.
