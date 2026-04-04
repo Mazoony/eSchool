@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
-import { supabase } from '../supabase';
+import { supabase as getSupabase } from '../supabase';
 import { useAuth } from '../AuthContext';
 import { Post as PostType, Comment as CommentType, Like } from '../types';
 
@@ -21,6 +21,7 @@ interface PostContextType {
 const PostContext = createContext<PostContextType | undefined>(undefined);
 
 export const PostProvider = ({ post: initialPost, children, onDelete }: { post: PostType; children: ReactNode; onDelete: (postId: string) => void; }) => {
+  const supabase = getSupabase();
   const { user } = useAuth();
   const [post, setPost] = useState<PostType>(initialPost);
   const [comments, setComments] = useState<CommentType[]>(initialPost.comments || []);
@@ -66,7 +67,7 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
         setUserHasLiked((postData.likes || []).some((like: Like) => like.user_id === user.id));
       }
     }
-  }, [initialPost.id, user]);
+  }, [initialPost.id, user, supabase]);
 
   useEffect(() => {
     setPost(initialPost);
@@ -97,7 +98,7 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [post.id, fetchPostData]);
+  }, [post.id, fetchPostData, supabase]);
 
   const addComment = useCallback(async (content: string) => {
     if (!user?.profile) {
@@ -106,7 +107,7 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
     }
 
     const { data: insertedComment, error } = await supabase
-      .from<CommentType>('comments')
+      .from('comments')
       .insert({ post_id: post.id, user_id: user.id, content })
       .select('*, commenter:profiles!inner(*), comment_likes(user_id)')
       .single();
@@ -114,10 +115,10 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
     if (error) {
       console.error("Error adding comment:", error.message);
     } else if (insertedComment) {
-      setComments(prevComments => [...prevComments, insertedComment]);
-      await createNotification(post.user_id, 'comment', post.id, insertedComment.id);
+      setComments(prevComments => [...prevComments, insertedComment as any]);
+      await createNotification(post.user_id, 'comment', post.id, (insertedComment as any).id);
     }
-  }, [post.id, post.user_id, user]);
+  }, [post.id, post.user_id, user, supabase]);
 
   const toggleLike = useCallback(async () => {
     if (!user) return;
@@ -143,7 +144,7 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
         await createNotification(post.user_id, 'like', post.id);
       }
     }
-  }, [post.id, post.user_id, user, userHasLiked]);
+  }, [post.id, post.user_id, user, userHasLiked, supabase]);
 
   const deletePost = useCallback(async () => {
     if (!user || user.id !== post.user_id) {
@@ -157,7 +158,7 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
     if (error) {
         console.error("Error deleting post:", error.message);
     }
-  }, [post.id, post.user_id, user, onDelete]);
+  }, [post.id, post.user_id, user, onDelete, supabase]);
 
   const deleteComment = useCallback(async (commentId: string) => {
     if (!user) return;
@@ -177,7 +178,7 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
       console.error("Error deleting comment:", error.message);
       setComments(originalComments);
     }
-  }, [user, comments]);
+  }, [user, comments, supabase]);
 
   const likeComment = useCallback(async (commentId: string) => {
     if (!user) return;
@@ -213,7 +214,7 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
         await createNotification(comment.user_id, 'like_comment', post.id, comment.id);
       }
     }
-  }, [user, comments, post.id]);
+  }, [user, comments, post.id, supabase]);
 
   const replyToComment = useCallback(async (commentId: string, content: string) => {
     if (!user?.profile) {
@@ -222,7 +223,7 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
     }
 
     const { data: insertedComment, error } = await supabase
-      .from<CommentType>('comments')
+      .from('comments')
       .insert({ post_id: post.id, user_id: user.id, content, parent_id: commentId })
       .select('*, commenter:profiles!inner(*), comment_likes(user_id)')
       .single();
@@ -230,13 +231,13 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
     if (error) {
       console.error("Error replying to comment:", error.message);
     } else if (insertedComment) {
-      setComments(prevComments => [...prevComments, insertedComment]);
+      setComments(prevComments => [...prevComments, insertedComment as any]);
       const parentComment = comments.find(c => c.id === commentId);
       if(parentComment) {
-        await createNotification(parentComment.user_id, 'reply', post.id, insertedComment.id);
+        await createNotification(parentComment.user_id, 'reply', post.id, (insertedComment as any).id);
       }
     }
-  }, [post.id, user, comments]);
+  }, [post.id, user, comments, supabase]);
 
   return (
     <PostContext.Provider value={{ post, comments, likesCount, userHasLiked, addComment, toggleLike, deletePost, deleteComment, likeComment, replyToComment }}>

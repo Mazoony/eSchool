@@ -3,16 +3,39 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../supabase';
 import PostItem from './PostItem';
-import CreatePost from './CreatePost';
 import { Post } from '../types';
+import CreatePost from './CreatePost';
 
 export default function SocialFeed() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchPost = async (postId: string) => {
+    const { data, error } = await supabase()
+      .from('posts')
+      .select(`
+        *,
+        author:profiles!user_id(*),
+        likes(user_id),
+        comments!post_id(
+          *,
+          commenter:profiles!user_id(*),
+          comment_likes(user_id)
+        )
+      `)
+      .eq('id', postId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching post:', error.message);
+      return null;
+    }
+    return data;
+  };
+
   const fetchPosts = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('posts')
       .select(`
         *,
@@ -34,25 +57,29 @@ export default function SocialFeed() {
     setLoading(false);
   }, []);
 
-  const handleNewPost = (post: Post) => {
-    setPosts(prevPosts => [post, ...prevPosts]);
+  const handleNewPost = useCallback(async (payload: any) => {
+    const newPost = await fetchPost(payload.new.id);
+    if (newPost) {
+      setPosts(prevPosts => [newPost, ...prevPosts]);
+    }
+  }, []);
+
+  const handleDelete = (postId: string) => {
+    setPosts(posts.filter((p) => p.id !== postId));
   };
 
   useEffect(() => {
     fetchPosts();
 
-    const channel = supabase
+    const channel = supabase()
       .channel('social-feed')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, (payload) => {
-        // Instead of refetching, prepend the new post to the list
-        handleNewPost(payload.new as Post);
-      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, handleNewPost)
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase().removeChannel(channel);
     };
-  }, []);
+  }, [fetchPosts, handleNewPost]);
 
   if (loading) {
     return <div className="text-center p-8">Loading posts...</div>;
@@ -60,9 +87,9 @@ export default function SocialFeed() {
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto py-8">
-      <CreatePost onPostCreated={handleNewPost} />
+      <CreatePost onPostCreated={() => {}} />
       {posts.map(post => (
-        <PostItem key={post.id} post={post} />
+        <PostItem key={post.id} post={post} onDelete={handleDelete} />
       ))}
     </div>
   );

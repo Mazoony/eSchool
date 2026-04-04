@@ -36,7 +36,7 @@ export default function Post() {
 
   const placeholderAvatar = '/user.svg';
   // FIX: Use the 'author' alias from the Supabase query
-  const author = post.author;
+  const author = post.author || { id: 'unknown', full_name: 'Unknown User', avatar_url: placeholderAvatar };
 
 
   if (!author) {

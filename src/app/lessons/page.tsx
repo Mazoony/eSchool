@@ -14,7 +14,8 @@ interface Lesson {
 }
 
 async function fetchLessons(): Promise<Lesson[]> {
-  const { data: lessons, error } = await supabase
+  const supabaseClient = supabase();
+  const { data: lessons, error } = await supabaseClient
     .from('lessons')
     .select('*');
 

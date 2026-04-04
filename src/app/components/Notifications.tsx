@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../supabase';
+import { supabase as getSupabase } from '../supabase';
 import { useAuth } from '../AuthContext';
 import { Notification } from '../types';
 import Link from 'next/link';
@@ -9,6 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { BellIcon } from '@heroicons/react/24/outline';
 
 export default function Notifications() {
+  const supabase = getSupabase();
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -29,20 +30,22 @@ export default function Notifications() {
       setNotifications(data as Notification[]);
       setUnreadCount(data.filter(n => !n.is_read).length);
     }
-  }, [user]);
+  }, [user, supabase]);
 
   useEffect(() => {
+    if (!user) return;
+    
     fetchNotifications();
 
     const channel = supabase
       .channel('notifications')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_user_id=eq.${user?.id}` }, fetchNotifications)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_user_id=eq.${user.id}` }, fetchNotifications)
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, fetchNotifications]);
+  }, [user, fetchNotifications, supabase]);
 
   const markAsRead = async () => {
     if (!user) return;

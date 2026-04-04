@@ -5,6 +5,7 @@ import LeftSidebar from './components/LeftSidebar';
 import RightSidebar from './components/RightSidebar';
 import MobileNav from './components/MobileNav';
 import Header from './components/Header';
+import SubHeader from './components/SubHeader';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { usePathname } from 'next/navigation';
@@ -25,6 +26,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className={`min-h-screen bg-gray-100 dark:bg-gray-900 ${inter.className}`}>
       <Header />
+      <SubHeader />
       {session && !isPublicPath ? (
         <div className="flex">
           <LeftSidebar />
@@ -48,7 +50,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
+      <body className={inter.className}>
         <AuthProvider>
           <AppLayout>{children}</AppLayout>
         </AuthProvider>

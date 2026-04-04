@@ -1,6 +1,12 @@
-import { createBrowserClient } from '@supabase/ssr';
+import { createBrowserClient } from '@supabase/ssr'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// Create a singleton Supabase client instance.
+const supabaseClient = createBrowserClient(
+  'https://ouiqvgksyauvnzabflro.supabase.co',
+  'sb_publishable_VOL0IKjGErubINbqFufkwg_zbCnPau6'
+);
 
-export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
+// Export a function that returns the singleton instance.
+export function supabase() {
+  return supabaseClient;
+}
