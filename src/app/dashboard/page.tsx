@@ -1,33 +1,45 @@
-import Link from "next/link";
 
-export default function Dashboard() {
+'use client';
+
+import { AuthProvider } from '../AuthContext';
+import SocialFeed from '../components/SocialFeed';
+import { useAuth } from '../AuthContext';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import UserHeader from '../components/UserHeader';
+
+function DashboardContent() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return <div className="text-center py-10">Loading...</div>;
+  }
+
+  if (!user) {
+    return null; 
+  }
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-      <header className="px-4 lg:px-6 h-14 flex items-center bg-white dark:bg-gray-800">
-        <Link href="#" className="flex items-center justify-center">
-          <span className="text-lg font-semibold text-gray-900 dark:text-gray-50">eSchool</span>
-        </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link href="/" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Home
-          </Link>
-          <Link href="/lessons" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Lessons
-          </Link>
-          <Link href="/social" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Social
-          </Link>
-          <Link href="/profile" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Profile
-          </Link>
-        </nav>
-      </header>
-      <main className="flex-1 p-4 md:p-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">Dashboard</h1>
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm bg-white dark:bg-gray-800 p-6">
-          <p className="text-gray-500 dark:text-gray-400">Welcome to your dashboard! This is where you&apos;ll be able to track your progress, see your recent activity, and view personalized recommendations. The dashboard is coming soon!</p>
-        </div>
-      </main>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      <UserHeader />
+      <div className="container mx-auto p-4">
+        <SocialFeed />
+      </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <AuthProvider>
+      <DashboardContent />
+    </AuthProvider>
   );
 }

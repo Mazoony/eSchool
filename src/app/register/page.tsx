@@ -13,7 +13,7 @@ export default function Register() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-  const { user, loading, signUp, signInWithGoogle } = useAuth();
+  const { user, loading, signUp } = useAuth();
 
   useEffect(() => {
     if (user) {
@@ -31,20 +31,6 @@ export default function Register() {
     } catch (err: any) {
       setError(err.message);
       console.error(err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleGoogleSignUp = async () => {
-    setIsSubmitting(true);
-    setError(null);
-    try {
-      await signInWithGoogle();
-      // Redirect is handled by the useEffect above
-    } catch (err: any) {
-        setError(err.message);
-        console.error(err)
     } finally {
       setIsSubmitting(false);
     }
@@ -104,15 +90,6 @@ export default function Register() {
           </button>
           {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
         </form>
-        <div className="mt-6">
-          <button
-            onClick={handleGoogleSignUp}
-            className="w-full py-2 px-4 font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Redirecting...' : 'Sign up with Google'}
-          </button>
-        </div>
         <p className="mt-4 text-sm text-center text-gray-500 dark:text-gray-400">
           Already have an account?{" "}
           <Link href="/login" className="font-medium text-blue-600 hover:underline">

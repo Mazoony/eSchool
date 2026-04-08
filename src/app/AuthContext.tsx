@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser({ ...session.user, profile: profile || undefined });
 
         if (_event === 'SIGNED_IN') {
-            router.push('/social');
+            router.push('/dashboard');
         }
       } else {
         setUser(null);
