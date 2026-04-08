@@ -1,5 +1,4 @@
 import { AuthProvider } from './AuthContext';
-import CreatePost from './components/CreatePost';
 import SocialFeed from './components/SocialFeed';
 
 export default function Page() {
@@ -7,7 +6,6 @@ export default function Page() {
     <AuthProvider>
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">eSchool</h1>
-        <CreatePost />
         <SocialFeed />
       </div>
     </AuthProvider>

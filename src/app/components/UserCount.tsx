@@ -8,7 +8,7 @@ export default function UserCount() {
 
   useEffect(() => {
     const fetchUserCount = async () => {
-      const { count, error } = await supabase
+      const { count, error } = await supabase()
         .from('profiles')
         .select('id', { count: 'exact', head: true });
 
@@ -21,13 +21,13 @@ export default function UserCount() {
 
     fetchUserCount();
 
-    const channel = supabase
+    const channel = supabase()
       .channel('profiles')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, fetchUserCount)
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase().removeChannel(channel);
     };
   }, []);
 

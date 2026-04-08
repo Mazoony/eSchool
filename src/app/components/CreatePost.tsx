@@ -4,7 +4,11 @@ import { useState } from 'react';
 import { supabase } from '../supabase';
 import { useAuth } from '../AuthContext';
 
-export default function CreatePost() {
+interface CreatePostProps {
+  onPostCreated: () => void;
+}
+
+export default function CreatePost({ onPostCreated }: CreatePostProps) {
   const { user } = useAuth();
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -14,7 +18,6 @@ export default function CreatePost() {
     if (!content.trim() || !user) return;
 
     setIsSubmitting(true);
-    setContent('');
 
     const { error } = await supabase()
       .from('posts')
@@ -22,6 +25,9 @@ export default function CreatePost() {
 
     if (error) {
       console.error('Error creating post:', error.message);
+    } else {
+      setContent('');
+      onPostCreated(); // Refresh the feed
     }
     setIsSubmitting(false);
   };

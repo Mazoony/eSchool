@@ -51,7 +51,7 @@ export default function UploadPage() {
 
       setProgress(10); // Start the progress
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase().storage
         .from('videos')
         .upload(filePath, videoFile);
 
@@ -65,7 +65,7 @@ export default function UploadPage() {
 
       setProgress(50); // Video uploaded, getting URL
 
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = supabase().storage
         .from('videos')
         .getPublicUrl(filePath);
 
@@ -73,7 +73,7 @@ export default function UploadPage() {
 
       setProgress(75); // URL retrieved, saving to DB
 
-      const { error: insertError } = await supabase
+      const { error: insertError } = await supabase()
         .from('lessons')
         .insert([{ title, description, video_url: publicUrl, user_id: user?.id }]);
 

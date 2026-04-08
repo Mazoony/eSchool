@@ -10,7 +10,7 @@ export default function LeftSidebar() {
   const { user } = useAuth();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await supabase().auth.signOut();
   };
 
   const placeholderAvatar = '/user.svg';

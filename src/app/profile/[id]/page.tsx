@@ -29,7 +29,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error } = await supabase()
         .from('profiles')
         .select('id, full_name, avatar_url')
         .eq('id', id)
@@ -65,7 +65,7 @@ export default function ProfilePage() {
     setSuccessMessage(null);
 
     setProgress(10);
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase().storage
       .from('avatars')
       .upload(filePath, file, { upsert: true });
 
@@ -78,7 +78,7 @@ export default function ProfilePage() {
     }
 
     setProgress(50);
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = supabase().storage
       .from('avatars')
       .getPublicUrl(filePath);
 
@@ -92,7 +92,7 @@ export default function ProfilePage() {
     const publicUrl = urlData.publicUrl;
 
     setProgress(75);
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabase()
       .from('profiles')
       .update({ avatar_url: publicUrl })
       .eq('id', id);

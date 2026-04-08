@@ -87,7 +87,7 @@ export default function SocialFeed() {
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto py-8">
-      <CreatePost onPostCreated={() => {}} />
+      <CreatePost onPostCreated={fetchPosts} />
       {posts.map(post => (
         <PostItem key={post.id} post={post} onDelete={handleDelete} />
       ))}

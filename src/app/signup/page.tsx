@@ -17,7 +17,7 @@ export default function SignUpPage() {
 
     try {
       // Step 1: Create the user in Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabase().auth.signUp({
         email,
         password,
       });
@@ -33,7 +33,7 @@ export default function SignUpPage() {
       }
 
       // Step 2: Create the user's profile in the `profiles` table
-      const { error: profileError } = await supabase.from('profiles').insert([
+      const { error: profileError } = await supabase().from('profiles').insert([
         { id: authData.user.id, full_name: fullName, email: email },
       ]);
 
