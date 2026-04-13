@@ -1,7 +1,27 @@
 
+'use client';
+
+import { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from './AuthContext'; // Assuming AuthContext is in this path
+import { GlobeAltIcon, UserGroupIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 
 export default function LandingPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/social');
+    }
+  }, [user, loading, router]);
+
+  if (loading || user) {
+    // Render a loading state or nothing while checking auth/redirecting
+    return <div className="text-center py-10">Loading...</div>;
+  }
+
   return (
     <div className="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col">
       <header className="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -41,16 +61,19 @@ export default function LandingPage() {
               <p className="mt-2 text-gray-600 dark:text-gray-400">Everything you need to succeed in one place.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-              <div className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold text-blue-600 dark:text-blue-400">Social Feed</h3>
+              <div className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md flex flex-col items-center">
+                <GlobeAltIcon className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+                <h3 className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">Social Feed</h3>
                 <p className="mt-2 text-gray-600 dark:text-gray-300">Stay updated with a live feed of posts and announcements from your peers and instructors.</p>
               </div>
-              <div className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold text-blue-600 dark:text-blue-400">Custom Profiles</h3>
+              <div className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md flex flex-col items-center">
+                <UserCircleIcon className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+                <h3 className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">Custom Profiles</h3>
                 <p className="mt-2 text-gray-600 dark:text-gray-300">Create a personal profile, upload your avatar, and showcase your achievements.</p>
               </div>
-              <div className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold text-blue-600 dark:text-blue-400">Interactive Community</h3>
+              <div className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md flex flex-col items-center">
+                <UserGroupIcon className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+                <h3 className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">Interactive Community</h3>
                 <p className="mt-2 text-gray-600 dark:text-gray-300">Engage with posts, share your thoughts, and connect with a vibrant learning community.</p>
               </div>
             </div>

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useAuth } from '../AuthContext';
 import { User } from '../types';
 import Notifications from './Notifications';
+import { BookOpenIcon, ChatBubbleLeftIcon, UserCircleIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
 
 export default function Header() {
   const { user, signOut } = useAuth();
@@ -22,13 +23,13 @@ export default function Header() {
           <>
             <nav className="hidden md:flex space-x-4">
               <Link href="/lessons" className="hover:text-gray-400">
-                Lessons
+                <BookOpenIcon className="h-6 w-6" />
               </Link>
               <Link href="/social" className="hover:text-gray-400">
-                Social Feed
+                <ChatBubbleLeftIcon className="h-6 w-6" />
               </Link>
               <Link href={`/profile/${user.id}`} className="hover:text-gray-400">
-                Profile
+                <UserCircleIcon className="h-6 w-6" />
               </Link>
             </nav>
             <div className="flex items-center space-x-4">
@@ -49,7 +50,7 @@ export default function Header() {
                 onClick={handleLogout}
                 className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
               >
-                Logout
+                <ArrowLeftOnRectangleIcon className="h-6 w-6" />
               </button>
             </div>
           </>

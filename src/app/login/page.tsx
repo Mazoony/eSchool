@@ -17,7 +17,7 @@ export default function Login() {
 
   useEffect(() => {
     if (user) {
-      router.push('/'); // Redirect to home page if logged in
+      router.push('/social'); // Redirect to social feed if logged in
     }
   }, [user, router]);
 
