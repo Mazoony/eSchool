@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from './AuthContext'; // Assuming AuthContext is in this path
 import { GlobeAltIcon, UserGroupIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import Image from 'next/image';
 
 export default function LandingPage() {
   const { user, loading } = useAuth();
@@ -35,20 +36,31 @@ export default function LandingPage() {
       <main className="flex-grow">
         {/* Hero Section */}
         <section className="text-center py-20 lg:py-32 bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-          <div className="container mx-auto px-6">
-            <h1 className="text-4xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-              Welcome to the Future of Learning
-            </h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg lg:text-xl text-gray-600 dark:text-gray-400">
-              eSchool is a modern social platform connecting students and educators. Share ideas, collaborate on projects, and build your community.
-            </p>
-            <div className="mt-8 flex justify-center gap-4">
-                <Link href="/signup" className="inline-block px-8 py-3 rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg transform hover:scale-105 transition-all duration-300">
-                    Get Started for Free
-                </Link>
-                <Link href="/login" className="inline-block px-8 py-3 rounded-lg text-blue-600 dark:text-blue-400 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 shadow-lg transform hover:scale-105 transition-all duration-300">
-                    Log In to Your Account
-                </Link>
+          <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-center">
+            <div className="md:w-1/2">
+                <Image
+                    src="/teacher.jpg"
+                    alt="Teacher"
+                    width={400}
+                    height={400}
+                    className="rounded-full mx-auto"
+                />
+            </div>
+            <div className="md:w-1/2">
+                <h1 className="text-4xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+                Welcome to the Future of Learning
+                </h1>
+                <p className="mt-4 max-w-2xl mx-auto text-lg lg:text-xl text-gray-600 dark:text-gray-400">
+                eSchool is a modern social platform connecting students and educators. Share ideas, collaborate on projects, and build your community.
+                </p>
+                <div className="mt-8 flex justify-center gap-4">
+                    <Link href="/signup" className="inline-block px-8 py-3 rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Get Started for Free
+                    </Link>
+                    <Link href="/login" className="inline-block px-8 py-3 rounded-lg text-blue-600 dark:text-blue-400 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Log In to Your Account
+                    </Link>
+                </div>
             </div>
           </div>
         </section>
