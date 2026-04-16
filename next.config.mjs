@@ -30,4 +30,6 @@ const nextConfig = {
   ],
 };
 
+// Trigger reload again
+
 export default nextConfig;

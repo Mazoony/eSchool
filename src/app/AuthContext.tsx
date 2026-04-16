@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase as supabaseFactory } from './supabase'; // Renaming for clarity
+import { createClient } from '../utils/supabase/client'; // Correctly import the client-side client
 import { Session, User as SupabaseUser, SignInWithPasswordCredentials } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const supabase = supabaseFactory(); // Create the client instance
+  const supabase = createClient(); // Create the client instance
 
   useEffect(() => {
     const fetchSessionAndProfile = async () => {
