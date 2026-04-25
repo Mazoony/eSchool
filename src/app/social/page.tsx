@@ -1,26 +1,13 @@
-'use client';
-
 import SocialFeed from '../components/SocialFeed';
-import { useAuth } from '../AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { createClient } from '@/utils/supabase/server';
+import { redirect } from 'next/navigation';
 
-export default function SocialPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
+export default async function SocialPage() {
+  const supabase = createClient();
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
-
-  if (loading) {
-    return <div className="text-center py-10">Loading...</div>;
-  }
-
-  if (!user) {
-    return null;
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data?.user) {
+    redirect('/login');
   }
 
   return (

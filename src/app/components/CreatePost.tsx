@@ -1,7 +1,7 @@
-'use client';
+''''use client';
 
 import { useState } from 'react';
-import { supabase } from '../supabase';
+import { createClient } from '@/utils/supabase/client';
 import { useAuth } from '../AuthContext';
 
 interface CreatePostProps {
@@ -9,6 +9,7 @@ interface CreatePostProps {
 }
 
 export default function CreatePost({ onPostCreated }: CreatePostProps) {
+  const supabase = createClient();
   const { user } = useAuth();
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,7 +20,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
 
     setIsSubmitting(true);
 
-    const { error } = await supabase()
+    const { error } = await supabase
       .from('posts')
       .insert({ content, user_id: user.id });
 
@@ -53,3 +54,4 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
     </form>
   );
 }
+'''

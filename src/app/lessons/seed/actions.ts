@@ -1,39 +1,62 @@
 'use server';
 
-import { createClient } from "../../../utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
+import { revalidatePath } from "next/cache";
 
 export async function seedLessons() {
-  const supabase = createClient();
-  const lessons = [
+  const supabase = await createClient();
+
+  // Drop the table if it exists
+  await supabase.from("lessons").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+
+
+  const lessonsToInsert = [
     {
-      title: 'Introduction to Next.js',
-      description: 'Learn the basics of Next.js, a powerful React framework for building server-rendered applications.',
+      title: "Introduction to Programming",
+      description: "Learn the fundamentals of programming, including variables, data types, and control structures.",
     },
     {
-      title: 'Styling in Next.js',
-      description: 'Explore different styling options in Next.js, including CSS Modules, Tailwind CSS, and styled-components.',
+      title: "Web Development Basics",
+      description: "An introduction to HTML, CSS, and JavaScript, the core technologies for building websites.",
     },
     {
-      title: 'Data Fetching in Next.js',
-      description: 'Discover how to fetch data in Next.js using server-side rendering (SSR), static site generation (SSG), and client-side fetching.',
+      title: "Advanced JavaScript",
+      description: "Dive deeper into JavaScript and learn about concepts like closures, promises, and async/await.",
     },
     {
-      title: 'Introduction to Supabase',
-      description: 'Get started with Supabase, an open-source Firebase alternative, and learn how to use its powerful features like authentication, database, and storage.',
+      title: "React for Beginners",
+      description: "Learn the basics of React, a popular JavaScript library for building user interfaces.",
     },
     {
-      title: 'Building a simple app with Next.js and Supabase',
-      description: 'Learn how to build a full-stack application from scratch using Next.js for the frontend and Supabase for the backend.',
+      title: "State Management with Redux",
+      description: "Master state management in React applications with Redux.",
+    },
+    {
+      title: "Building APIs with Node.js",
+      description: "Learn how to build robust and scalable APIs using Node.js and Express.",
+    },
+    {
+      title: "Database Design and SQL",
+      description: "Understand the principles of database design and learn how to write SQL queries.",
+    },
+    {
+      title: "Introduction to Python",
+      description: "A beginner-friendly introduction to Python, a versatile and powerful programming language.",
+    },
+    {
+      title: "Data Science with Pandas",
+      description: "Learn how to use the Pandas library in Python for data manipulation and analysis.",
     },
   ];
 
-  const { data, error } = await supabase.from('lessons').insert(lessons);
+  const { error } = await supabase.from("lessons").insert(lessonsToInsert);
 
   if (error) {
-    console.error('Error seeding lessons:', error);
-    return { success: false, error };
+    console.error("Error seeding lessons:", error);
+    return;
   }
 
-  console.log('Seeded lessons:', data);
-  return { success: true };
+  revalidatePath("/lessons");
+
+  console.log("Seeding successful!");
 }

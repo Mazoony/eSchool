@@ -1,7 +1,7 @@
-'use client';
+''''use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase as getSupabase } from '../supabase';
+import { createClient } from '@/utils/supabase/client';
 import { useAuth } from '../AuthContext';
 import { Notification } from '../types';
 import Link from 'next/link';
@@ -9,7 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { BellIcon } from '@heroicons/react/24/outline';
 
 export default function Notifications() {
-  const supabase = getSupabase();
+  const supabase = createClient();
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -131,3 +131,4 @@ export default function Notifications() {
     </div>
   );
 }
+'''

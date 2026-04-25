@@ -1,9 +1,9 @@
 'use server';
 
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 
 export async function getLessons() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: lessons, error } = await supabase.from('lessons').select('*');
 
   if (error) {
@@ -15,7 +15,7 @@ export async function getLessons() {
 }
 
 export async function getLesson(id: string) {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: lesson, error } = await supabase
         .from('lessons')
         .select('*')

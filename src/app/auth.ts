@@ -1,9 +1,10 @@
 'use server';
 
-import { supabase } from './supabase';
+import { createClient } from '@/utils/supabase/server';
 
 export async function resetPassword(email: string) {
-  const { error } = await supabase().auth.resetPasswordForEmail(email, {
+  const supabase = createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: '/reset-password',
   });
 

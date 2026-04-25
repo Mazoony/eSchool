@@ -1,26 +1,15 @@
-
-'use client';
-
-import { useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useAuth } from './AuthContext'; // Assuming AuthContext is in this path
+import { createClient } from '@/utils/supabase/server';
+import { redirect } from 'next/navigation';
 import { GlobeAltIcon, UserGroupIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 
-export default function LandingPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
+export default async function LandingPage() {
+  const supabase = createClient();
 
-  useEffect(() => {
-    if (!loading && user) {
-      router.push('/social');
-    }
-  }, [user, loading, router]);
-
-  if (loading || user) {
-    // Render a loading state or nothing while checking auth/redirecting
-    return <div className="text-center py-10">Loading...</div>;
+  const { data } = await supabase.auth.getUser();
+  if (data?.user) {
+    redirect('/social');
   }
 
   return (

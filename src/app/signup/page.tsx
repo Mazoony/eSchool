@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '../supabase';
+import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 
 export default function SignUpPage() {
@@ -10,6 +10,7 @@ export default function SignUpPage() {
   const [fullName, setFullName] = useState(''); // New state for the user's full name
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const supabase = createClient();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +18,7 @@ export default function SignUpPage() {
 
     try {
       // Step 1: Create the user in Supabase Auth
-      const { data: authData, error: authError } = await supabase().auth.signUp({
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
       });
@@ -33,7 +34,7 @@ export default function SignUpPage() {
       }
 
       // Step 2: Create the user's profile in the `profiles` table
-      const { error: profileError } = await supabase().from('profiles').insert([
+      const { error: profileError } = await supabase.from('profiles').insert([
         { id: authData.user.id, full_name: fullName, email: email },
       ]);
 
