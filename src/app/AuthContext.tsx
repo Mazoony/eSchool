@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { createClient } from '../utils/supabase/client'; // Correctly import the client-side client
 import { Session, User as SupabaseUser, SignInWithPasswordCredentials } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
@@ -34,12 +34,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const supabase = createClient(); // Create the client instance
+  const supabase = useMemo(() => createClient(), []); // Stable client instance
 
   useEffect(() => {
+    let mounted = true;
+    let authSubscription: any;
+
     const fetchSessionAndProfile = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const response = await supabase.auth.getSession();
+        const session = response.data?.session ?? null;
+        if (!mounted) return;
+
         setSession(session);
 
         if (session?.user) {
@@ -48,52 +54,64 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             .select('*')
             .eq('id', session.user.id)
             .single();
-          
+
           if (error) {
-            console.error("Error fetching profile:", error);
+            console.error('Error fetching profile:', error);
           }
 
+          if (!mounted) return;
           setUser({ ...session.user, profile: profile || undefined });
         } else {
           setUser(null);
         }
       } catch (error) {
-        console.error("Error in fetchSessionAndProfile:", error);
-        setUser(null);
+        console.error('Error in fetchSessionAndProfile:', error);
+        if (mounted) setUser(null);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
 
     fetchSessionAndProfile();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      
-      if (session?.user) {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
+    try {
+      const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (!mounted) return;
+        setSession(session ?? null);
 
-        if (error) {
-            console.error("Error fetching profile on auth change:", error);
-        }
+        if (session?.user) {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
 
-        setUser({ ...session.user, profile: profile || undefined });
+          if (error) {
+            console.error('Error fetching profile on auth change:', error);
+          }
 
-        if (_event === 'SIGNED_IN') {
+          setUser({ ...session.user, profile: profile || undefined });
+
+          if (_event === 'SIGNED_IN') {
             router.push('/dashboard');
+          }
+        } else {
+          setUser(null);
         }
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
+
+        setLoading(false);
+      });
+
+      authSubscription = data?.subscription;
+    } catch (error) {
+      console.warn('Failed to subscribe to auth state changes:', error);
+    }
 
     return () => {
-      authListener.subscription.unsubscribe();
+      mounted = false;
+      if (authSubscription?.unsubscribe) {
+        authSubscription.unsubscribe();
+      }
     };
   }, [router, supabase]);
 

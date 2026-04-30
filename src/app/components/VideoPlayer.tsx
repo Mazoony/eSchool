@@ -1,4 +1,4 @@
-''''use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
@@ -107,4 +107,3 @@ export default function VideoPlayer() {
     </div>
   );
 }
-'''

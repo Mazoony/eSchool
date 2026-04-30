@@ -35,7 +35,7 @@ export default async function LessonsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {lessons.map((lesson: any, index: number) => (
-            <Link href={`/lessons/${lesson.id}`} key={lesson.id || index}>
+            <Link href={`/lessons/${lesson.slug}`} key={lesson.slug || lesson.id || index}>
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-transform hover:scale-105 duration-300">
                 <div className="p-6">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-2">{lesson.title}</h2>

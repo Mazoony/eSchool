@@ -11,16 +11,13 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 function AppLayout({ children }: { children: React.ReactNode }) {
-  const { loading, session } = useAuth();
-
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading authentication...</div>;
-  }
+  const { user } = useAuth();
+  const authenticated = Boolean(user);
 
   return (
     <div className={`min-h-screen bg-gray-100 dark:bg-gray-900 ${inter.className}`}>
       <Header />
-      {session ? (
+      {authenticated ? (
         <div className="flex">
           <LeftSidebar />
           <main className="flex-1 p-4 sm:p-6 lg:p-8">

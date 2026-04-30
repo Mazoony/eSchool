@@ -1,27 +1,29 @@
+'use client';
+
+import { useEffect } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/utils/supabase/server';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { GlobeAltIcon, UserGroupIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
+import { useAuth } from './AuthContext';
 
-export default async function LandingPage() {
-  const supabase = createClient();
+function LandingRedirect() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
-  const { data } = await supabase.auth.getUser();
-  if (data?.user) {
-    redirect('/social');
-  }
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace('/social');
+    }
+  }, [loading, user, router]);
 
+  return null;
+}
+
+export default function LandingPage() {
   return (
     <div className="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col">
-      <header className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">eSchool</div>
-        <nav className="space-x-4">
-          <Link href="/login" className="px-4 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">Log In</Link>
-          <Link href="/signup" className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">Sign Up</Link>
-        </nav>
-      </header>
-
+      <LandingRedirect />
       <main className="flex-grow">
         {/* Hero Section */}
         <section className="text-center py-20 lg:py-32 bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">

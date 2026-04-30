@@ -45,7 +45,13 @@ export default function UploadPage() {
     setSuccessMessage(null);
 
     try {
-      const fileExt = videoFile.name.split('.').pop();
+      const fileExt = videoFile.name.split('.').pop()?.toLowerCase();
+      if (!fileExt || !['mp4', 'webm'].includes(fileExt)) {
+        setError('Please upload an MP4 or WebM video file.');
+        setUploading(false);
+        return;
+      }
+
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `lessons/${fileName}`;
 
@@ -63,19 +69,11 @@ export default function UploadPage() {
         return;
       }
 
-      setProgress(50); // Video uploaded, getting URL
-
-      const { data: urlData } = supabase().storage
-        .from('videos')
-        .getPublicUrl(filePath);
-
-      const publicUrl = urlData.publicUrl;
-
-      setProgress(75); // URL retrieved, saving to DB
+      setProgress(50); // Video uploaded, saving file path to DB
 
       const { error: insertError } = await supabase()
         .from('lessons')
-        .insert([{ title, description, video_url: publicUrl, user_id: user?.id }]);
+        .insert([{ title, description, video_url: filePath, user_id: user?.id }]);
 
       if (insertError) {
         console.error('Error inserting lesson:', insertError);
@@ -176,7 +174,7 @@ export default function UploadPage() {
               id="video"
               onChange={handleFileChange}
               className="w-full"
-              accept="video/*"
+              accept="video/mp4,video/webm"
               required
               disabled={uploading}
             />

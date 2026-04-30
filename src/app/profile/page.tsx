@@ -12,7 +12,7 @@ export default function ProfileRedirect() {
     if (user) {
       router.push(`/profile/${user.id}`);
     } else {
-      router.push('/login');
+      router.push('/');
     }
   }, [user, router]);
 

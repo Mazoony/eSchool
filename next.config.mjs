@@ -25,9 +25,6 @@ const nextConfig = {
     }
     return config;
   },
-  allowedDevOrigins: [
-    '9000-firebase-eschool-1759955938236.cluster-64pjnskmlbaxowh5lzq6i7v4ra.cloudworkstations.dev',
-  ],
 };
 
 // Trigger reload again
