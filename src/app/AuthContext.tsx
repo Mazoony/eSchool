@@ -8,8 +8,12 @@ import { useRouter } from 'next/navigation';
 // Define a type for the user profile
 interface Profile {
   id: string;
-  full_name: string;
-  avatar_url: string;
+  username?: string | null;
+  full_name?: string | null;
+  avatar_url?: string | null;
+  bio?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 }
 
 // Extend the Supabase User type to include the profile
@@ -36,6 +40,64 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []); // Stable client instance
 
+  const createFallbackProfile = async (userId: string) => {
+    const { error } = await supabase.from('profiles').insert({ id: userId });
+    if (error) {
+      console.error('Error creating fallback profile row:', error.message);
+      return null;
+    }
+
+    return {
+      id: userId,
+      username: null,
+      full_name: null,
+      avatar_url: null,
+      bio: null,
+      created_at: null,
+      updated_at: null,
+    } as Profile;
+  };
+
+  const fetchProfileData = async (userId: string, createIfMissing = false) => {
+    const columns = ['id', 'username', 'full_name', 'avatar_url', 'bio', 'created_at', 'updated_at'];
+
+    while (columns.length > 0) {
+      const result = await supabase
+        .from('profiles')
+        .select(columns.join(', '))
+        .eq('id', userId)
+        .maybeSingle();
+
+      const profile = result.data as unknown as Profile | null;
+      const error = result.error;
+
+      if (!error) {
+        if (profile) {
+          return profile;
+        }
+
+        return createIfMissing ? await createFallbackProfile(userId) : null;
+      }
+
+      const missingMatch = error.message.match(/column .*\.(.*?) does not exist/i);
+      if (!missingMatch) {
+        console.error('Error fetching profile:', error.message);
+        return null;
+      }
+
+      const missingColumn = missingMatch[1].replace(/['"]+/g, '').trim();
+      if (!columns.includes(missingColumn)) {
+        console.error('Error fetching profile:', error.message);
+        return null;
+      }
+
+      columns.splice(columns.indexOf(missingColumn), 1);
+    }
+
+    console.error('Error fetching profile: could not build a valid column set');
+    return null;
+  };
+
   useEffect(() => {
     let mounted = true;
     let authSubscription: any;
@@ -49,15 +111,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
 
         if (session?.user) {
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('id, username, full_name, avatar_url, bio, updated_at')
-            .eq('id', session.user.id)
-            .single();
-
-          if (error) {
-            console.error('Error fetching profile:', error);
-          }
+          const profile = await fetchProfileData(session.user.id, true);
 
           if (!mounted) return;
           setUser({ ...session.user, profile: profile || undefined });
@@ -80,15 +134,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session ?? null);
 
         if (session?.user) {
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('id, username, full_name, avatar_url, bio, updated_at')
-            .eq('id', session.user.id)
-            .single();
-
-          if (error) {
-            console.error('Error fetching profile on auth change:', error);
-          }
+          const profile = await fetchProfileData(session.user.id, true);
 
           setUser({ ...session.user, profile: profile || undefined });
 

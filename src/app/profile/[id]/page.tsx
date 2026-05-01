@@ -27,6 +27,10 @@ interface LessonSummary {
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const profileId = params.id;
+  if (!profileId || profileId === 'undefined' || profileId === 'null' || !/^[0-9a-fA-F-]{36}$/.test(profileId)) {
+    notFound();
+  }
+
   const supabase = await createServerClient();
 
   const sessionResponse = await supabase.auth.getSession();
@@ -35,14 +39,65 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const currentUserEmail = sessionUser?.email ?? null;
   const isOwnProfile = currentUserId === profileId;
 
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('id, username, full_name, avatar_url, bio, created_at, updated_at')
-    .eq('id', profileId)
-    .maybeSingle();
+  const loadProfile = async () => {
+    const columns = ['id', 'username', 'full_name', 'avatar_url', 'bio', 'created_at', 'updated_at'];
 
-  if (profileError) {
-    console.error('Error loading profile:', profileError.message);
+    while (columns.length > 0) {
+      const result = await supabase
+        .from('profiles')
+        .select(columns.join(', '))
+        .eq('id', profileId)
+        .maybeSingle();
+
+      const profile = result.data as unknown as ProfileData | null;
+      const error = result.error;
+
+      if (!error) {
+        return profile;
+      }
+
+      const missingMatch = error.message.match(/column .*\.(.*?) does not exist/i);
+      if (!missingMatch) {
+        console.error('Error loading profile:', error.message);
+        return null;
+      }
+
+      const missingColumn = missingMatch[1].replace(/['"]+/g, '').trim();
+      if (!columns.includes(missingColumn)) {
+        console.error('Error loading profile:', error.message);
+        return null;
+      }
+
+      columns.splice(columns.indexOf(missingColumn), 1);
+    }
+
+    console.error('Error loading profile: could not build a valid column set');
+    return null;
+  };
+
+  let profile = await loadProfile();
+  let createdFallbackProfile = false;
+
+  if (!profile && isOwnProfile && currentUserId) {
+    const { error: insertError } = await supabase
+      .from('profiles')
+      .insert({ id: currentUserId });
+
+    if (insertError) {
+      console.error('Error creating fallback profile row:', insertError.message);
+    } else {
+      createdFallbackProfile = true;
+    }
+
+    profile = {
+      id: currentUserId,
+      username: null,
+      full_name: null,
+      avatar_url: null,
+      bio: null,
+      created_at: null,
+      updated_at: null,
+    };
   }
 
   if (!profile) {
@@ -76,6 +131,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       currentUserEmail={currentUserEmail}
       lessonCount={lessonCount ?? 0}
       recentLessons={recentLessonsData as LessonSummary[]}
+      createdFallbackProfile={createdFallbackProfile}
     />
   );
 }

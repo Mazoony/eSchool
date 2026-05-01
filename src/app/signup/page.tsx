@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '../../utils/supabase/client';
 import { useRouter } from 'next/navigation';
 
 export default function SignUpPage() {
@@ -35,7 +35,7 @@ export default function SignUpPage() {
 
       // Step 2: Create the user's profile in the `profiles` table
       const { error: profileError } = await supabase.from('profiles').insert([
-        { id: authData.user.id, full_name: fullName, email: email },
+        { id: authData.user.id, full_name: fullName },
       ]);
 
       if (profileError) {

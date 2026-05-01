@@ -26,6 +26,7 @@ interface ProfileClientProps {
   currentUserEmail?: string | null;
   lessonCount: number;
   recentLessons: LessonSummary[];
+  createdFallbackProfile?: boolean;
 }
 
 const normalizeAvatarDisplay = (url?: string | null, fullName?: string | null) => {
@@ -47,6 +48,7 @@ export default function ProfileClient({
   currentUserEmail,
   lessonCount,
   recentLessons,
+  createdFallbackProfile,
 }: ProfileClientProps) {
   const [username, setUsername] = useState(profile.username || '');
   const [fullName, setFullName] = useState(profile.full_name || '');
@@ -182,6 +184,9 @@ export default function ProfileClient({
             </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{profile.full_name || 'Unnamed User'}</h1>
             {profile.username && <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">@{profile.username}</p>}
+            {createdFallbackProfile && isOwnProfile && (
+              <p className="mt-3 text-sm text-yellow-500">A profile record was created for your account.</p>
+            )}
             <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">{profile.bio || 'No bio yet. Add one to tell people what you are learning.'}</p>
             {isOwnProfile && (
               <div className="mt-6 flex flex-col gap-3">
