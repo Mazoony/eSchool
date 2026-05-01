@@ -4,9 +4,9 @@ import { createClient as createServerClient } from '../../../utils/supabase/serv
 import ProfileClient from './ProfileClient';
 
 interface ProfilePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 interface ProfileData {
@@ -26,7 +26,7 @@ interface LessonSummary {
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
-  const profileId = params.id;
+  const { id: profileId } = await params;
   if (!profileId || profileId === 'undefined' || profileId === 'null' || !/^[0-9a-fA-F-]{36}$/.test(profileId)) {
     notFound();
   }
