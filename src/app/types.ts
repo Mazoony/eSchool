@@ -3,8 +3,11 @@ import { User as SupabaseUser } from '@supabase/supabase-js';
 // Define a type for the user profile
 interface Profile {
   id: string;
-  full_name: string;
-  avatar_url: string;
+  username?: string | null;
+  full_name?: string | null;
+  avatar_url?: string | null;
+  bio?: string | null;
+  updated_at?: string | null;
 }
 
 // Extend the Supabase User type to include the profile

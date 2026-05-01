@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (session?.user) {
           const { data: profile, error } = await supabase
             .from('profiles')
-            .select('*')
+            .select('id, username, full_name, avatar_url, bio, updated_at')
             .eq('id', session.user.id)
             .single();
 
@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (session?.user) {
           const { data: profile, error } = await supabase
             .from('profiles')
-            .select('*')
+            .select('id, username, full_name, avatar_url, bio, updated_at')
             .eq('id', session.user.id)
             .single();
 
