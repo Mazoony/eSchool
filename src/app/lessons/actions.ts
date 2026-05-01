@@ -50,6 +50,10 @@ const migrateVideoUrlToStablePath = async (supabase: any, lesson: any) => {
     return lesson;
   }
 
+  if (lesson.video_url.includes('/storage/v1/object/sign/')) {
+    return lesson;
+  }
+
   const parsed = parseVideoPath(lesson.video_url);
   if (!parsed || parsed.bucket !== 'videos') {
     return lesson;
@@ -79,6 +83,10 @@ const migrateVideoUrlToStablePath = async (supabase: any, lesson: any) => {
 
 const normalizeVideoUrl = async (supabase: any, videoUrl: string): Promise<string> => {
   if (!videoUrl) {
+    return videoUrl;
+  }
+
+  if (videoUrl.includes('/storage/v1/object/sign/')) {
     return videoUrl;
   }
 
