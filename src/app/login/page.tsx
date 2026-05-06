@@ -13,7 +13,7 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-  const { user, loading, signIn } = useAuth();
+  const { user, loading, signIn, signInWithGoogle } = useAuth();
 
   useEffect(() => {
     if (user) {
@@ -36,6 +36,20 @@ export default function Login() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      await signInWithGoogle();
+      // Redirect is handled by the useEffect above
+    } catch (err: any) {
+      setError(err.message);
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -44,7 +58,21 @@ export default function Login() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="w-full max-w-md px-8 py-10 bg-white rounded-lg shadow-md dark:bg-gray-800">
         <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-50">Log In to eSchool</h1>
-        <form onSubmit={handleEmailLogin} className="mt-8 space-y-6">
+        <div className="mt-8">
+          <button
+            onClick={handleGoogleSignIn}
+            className="w-full py-2 px-4 font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Signing in...' : 'Sign In with Google'}
+          </button>
+        </div>
+        <div className="flex items-center justify-center my-6">
+          <hr className="w-full border-gray-300 dark:border-gray-600" />
+          <span className="px-4 text-sm text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-400">OR</span>
+          <hr className="w-full border-gray-300 dark:border-gray-600" />
+        </div>
+        <form onSubmit={handleEmailLogin} className="space-y-6">
             <input
               type="email"
               value={email}
