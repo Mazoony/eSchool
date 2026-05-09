@@ -70,13 +70,8 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
   }, [initialPost.id, user, supabase]);
 
   useEffect(() => {
-    setPost(initialPost);
-    setComments(initialPost.comments || []);
-    setLikesCount(initialPost.likes?.length || 0);
-    if (user) {
-      setUserHasLiked((initialPost.likes || []).some((like: Like) => like.user_id === user.id));
-    }
-  }, [initialPost, user]);
+    fetchPostData();
+  }, [fetchPostData]);
 
   useEffect(() => {
     const channel = supabase
