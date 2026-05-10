@@ -6,6 +6,7 @@ import { usePost } from './PostContext';
 import { Comment } from '../types';
 import { HeartIcon, TrashIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
 import { formatDistanceToNow } from 'date-fns';
+import ReplyItem from './ReplyItem'; // Import the ReplyItem component
 
 interface CommentItemProps {
   comment: Comment;
@@ -72,6 +73,13 @@ export default function CommentItem({ comment }: CommentItemProps) {
             />
           </form>
         )}
+
+        <div className="mt-4 space-y-4">
+          {comment.replies && comment.replies.map(reply => (
+            <ReplyItem key={reply.id} reply={reply} />
+          ))}
+        </div>
+
       </div>
     </div>
   );

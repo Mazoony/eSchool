@@ -33,7 +33,19 @@ export interface Comment {
   created_at: string;
   parent_id?: string;
   comment_likes: Like[];
+  replies?: Reply[];
+
 }
+
+export interface Reply {
+    id: string;
+    content: string;
+    user_id: string;
+    commenter: { id: string; full_name: string; avatar_url: string; };
+    created_at: string;
+    parent_id: string;
+}
+
 
 export interface Like {
   user_id: string;

@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 import { supabase as getSupabase } from '../supabase';
 import { useAuth } from '../AuthContext';
-import { Post as PostType, Comment as CommentType, Like } from '../types';
+import { Post as PostType, Comment as CommentType, Like, Reply } from '../types';
 
 interface PostContextType {
   post: PostType;
@@ -24,7 +24,7 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
   const supabase = getSupabase();
   const { user } = useAuth();
   const [post, setPost] = useState<PostType>(initialPost);
-  const [comments, setComments] = useState<CommentType[]>(initialPost.comments || []);
+  const [comments, setComments] = useState<CommentType[]>([]);
   const [likesCount, setLikesCount] = useState<number>(initialPost.likes?.length || 0);
   const [userHasLiked, setUserHasLiked] = useState<boolean>(false);
 
@@ -50,10 +50,12 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
         comments!post_id(
           *,
           commenter:profiles!inner(*),
-          comment_likes(user_id)
+          comment_likes(user_id),
+          replies:comments!parent_id(*, commenter:profiles!inner(*))
         )
       `)
       .eq('id', initialPost.id)
+      .is('comments.parent_id', null) // Only fetch top-level comments
       .single();
 
     if (error) {
@@ -68,6 +70,7 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
       }
     }
   }, [initialPost.id, user, supabase]);
+
 
   useEffect(() => {
     fetchPostData();
@@ -104,7 +107,7 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
     const { data: insertedComment, error } = await supabase
       .from('comments')
       .insert({ post_id: post.id, user_id: user.id, content })
-      .select('*, commenter:profiles!inner(*), comment_likes(user_id)')
+      .select('*, commenter:profiles!inner(*), comment_likes(user_id), replies:comments!parent_id(*, commenter:profiles!inner(*))')
       .single();
 
     if (error) {
@@ -213,26 +216,35 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
 
   const replyToComment = useCallback(async (commentId: string, content: string) => {
     if (!user?.profile) {
-      console.error("User profile not available for replying.");
-      return;
+        console.error("User profile not available for replying.");
+        return;
     }
 
-    const { data: insertedComment, error } = await supabase
-      .from('comments')
-      .insert({ post_id: post.id, user_id: user.id, content, parent_id: commentId })
-      .select('*, commenter:profiles!inner(*), comment_likes(user_id)')
-      .single();
+    const { data: insertedReply, error } = await supabase
+        .from('comments')
+        .insert({ post_id: post.id, user_id: user.id, content, parent_id: commentId })
+        .select('*, commenter:profiles!inner(*)')
+        .single();
 
     if (error) {
-      console.error("Error replying to comment:", error.message);
-    } else if (insertedComment) {
-      setComments(prevComments => [...prevComments, insertedComment as any]);
-      const parentComment = comments.find(c => c.id === commentId);
-      if(parentComment) {
-        await createNotification(parentComment.user_id, 'reply', post.id, (insertedComment as any).id);
-      }
+        console.error("Error replying to comment:", error.message);
+    } else if (insertedReply) {
+        setComments(prevComments => 
+            prevComments.map(comment => {
+                if (comment.id === commentId) {
+                    const newReplies = [...(comment.replies || []), insertedReply as Reply];
+                    return { ...comment, replies: newReplies };
+                }
+                return comment;
+            })
+        );
+        const parentComment = comments.find(c => c.id === commentId);
+        if(parentComment) {
+            await createNotification(parentComment.user_id, 'reply', post.id, (insertedReply as any).id);
+        }
     }
-  }, [post.id, user, comments, supabase]);
+}, [post.id, user, comments, supabase]);
+
 
   return (
     <PostContext.Provider value={{ post, comments, likesCount, userHasLiked, addComment, toggleLike, deletePost, deleteComment, likeComment, replyToComment }}>
