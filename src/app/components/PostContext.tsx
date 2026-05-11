@@ -1,9 +1,21 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
-import { supabase as getSupabase } from '../supabase';
-import { useAuth } from '../AuthContext';
-import { Post as PostType, Comment as CommentType, Like, Reply } from '../types';
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+  useEffect,
+} from "react";
+import { supabase as getSupabase } from "../supabase";
+import { useAuth } from "../AuthContext";
+import {
+  Post as PostType,
+  Comment as CommentType,
+  Like,
+  Reply,
+} from "../types";
 
 interface PostContextType {
   post: PostType;
@@ -20,18 +32,33 @@ interface PostContextType {
 
 const PostContext = createContext<PostContextType | undefined>(undefined);
 
-export const PostProvider = ({ post: initialPost, children, onDelete }: { post: PostType; children: ReactNode; onDelete: (postId: string) => void; }) => {
+export const PostProvider = ({
+  post: initialPost,
+  children,
+  onDelete,
+}: {
+  post: PostType;
+  children: ReactNode;
+  onDelete: (postId: string) => void;
+}) => {
   const supabase = getSupabase();
   const { user } = useAuth();
   const [post, setPost] = useState<PostType>(initialPost);
   const [comments, setComments] = useState<CommentType[]>([]);
-  const [likesCount, setLikesCount] = useState<number>(initialPost.likes?.length || 0);
+  const [likesCount, setLikesCount] = useState<number>(
+    initialPost.likes?.length || 0,
+  );
   const [userHasLiked, setUserHasLiked] = useState<boolean>(false);
 
-  const createNotification = async (recipient_user_id: string, type: string, post_id: string, comment_id?: string) => {
+  const createNotification = async (
+    recipient_user_id: string,
+    type: string,
+    post_id: string,
+    comment_id?: string,
+  ) => {
     if (user?.id === recipient_user_id) return;
 
-    await supabase.from('notifications').insert({
+    await supabase.from("notifications").insert({
       recipient_user_id,
       sender_user_id: user!.id,
       type,
@@ -42,8 +69,9 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
 
   const fetchPostData = useCallback(async () => {
     const { data, error } = await supabase
-      .from('posts')
-      .select(`
+      .from("posts")
+      .select(
+        `
         *,
         author:profiles!inner(*),
         likes(user_id),
@@ -51,26 +79,32 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
           *,
           commenter:profiles!inner(*),
           comment_likes(user_id),
-          replies:comments!parent_id(*, commenter:profiles!inner(*))
+          replies:comments!parent_id(*, commenter:profiles(*))
         )
-      `)
-      .eq('id', initialPost.id)
-      .is('comments.parent_id', null) // Only fetch top-level comments
+      `,
+      )
+      .eq("id", initialPost.id)
       .single();
 
     if (error) {
       console.error("Error fetching post data:", error);
     } else if (data) {
       const postData = data as any;
+      // Filter top-level comments in JS to avoid PostgREST embedded-filter
+      // bleeding into the self-join used for replies.
+      const topLevelComments = (postData.comments || []).filter(
+        (c: any) => c.parent_id === null || c.parent_id === undefined,
+      );
       setPost(postData);
-      setComments(postData.comments || []);
+      setComments(topLevelComments);
       setLikesCount(postData.likes?.length || 0);
       if (user) {
-        setUserHasLiked((postData.likes || []).some((like: Like) => like.user_id === user.id));
+        setUserHasLiked(
+          (postData.likes || []).some((like: Like) => like.user_id === user.id),
+        );
       }
     }
   }, [initialPost.id, user, supabase]);
-
 
   useEffect(() => {
     fetchPostData();
@@ -79,17 +113,30 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
   useEffect(() => {
     const channel = supabase
       .channel(`post-${post.id}`)
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'likes', filter: `post_id=eq.${post.id}` }, 
-        () => fetchPostData()
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "likes",
+          filter: `post_id=eq.${post.id}`,
+        },
+        () => fetchPostData(),
       )
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'comments', filter: `post_id=eq.${post.id}` }, 
-        () => fetchPostData()
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "comments",
+          filter: `post_id=eq.${post.id}`,
+        },
+        () => fetchPostData(),
       )
-       .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'comment_likes'},
-        () => fetchPostData()
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "comment_likes" },
+        () => fetchPostData(),
       )
       .subscribe();
 
@@ -98,148 +145,242 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
     };
   }, [post.id, fetchPostData, supabase]);
 
-  const addComment = useCallback(async (content: string) => {
-    if (!user?.profile) {
-      console.error("User profile not available for commenting.");
-      return;
-    }
+  const addComment = useCallback(
+    async (content: string) => {
+      if (!user?.profile) {
+        console.error("User profile not available for commenting.");
+        return;
+      }
 
-    const { data: insertedComment, error } = await supabase
-      .from('comments')
-      .insert({ post_id: post.id, user_id: user.id, content })
-      .select('*, commenter:profiles!inner(*), comment_likes(user_id), replies:comments!parent_id(*, commenter:profiles!inner(*))')
-      .single();
+      const { data: insertedComment, error } = await supabase
+        .from("comments")
+        .insert({ post_id: post.id, user_id: user.id, content })
+        .select(
+          "*, commenter:profiles!inner(*), comment_likes(user_id), replies:comments!parent_id(*, commenter:profiles!inner(*))",
+        )
+        .single();
 
-    if (error) {
-      console.error("Error adding comment:", error.message);
-    } else if (insertedComment) {
-      setComments(prevComments => [...prevComments, insertedComment as any]);
-      await createNotification(post.user_id, 'comment', post.id, (insertedComment as any).id);
-    }
-  }, [post.id, post.user_id, user, supabase]);
+      if (error) {
+        console.error("Error adding comment:", error.message);
+      } else if (insertedComment) {
+        setComments((prevComments) => [
+          ...prevComments,
+          insertedComment as any,
+        ]);
+        await createNotification(
+          post.user_id,
+          "comment",
+          post.id,
+          (insertedComment as any).id,
+        );
+      }
+    },
+    [post.id, post.user_id, user, supabase],
+  );
 
   const toggleLike = useCallback(async () => {
     if (!user) return;
 
     const originallyLiked = userHasLiked;
     setUserHasLiked(!originallyLiked);
-    setLikesCount(prev => originallyLiked ? prev - 1 : prev + 1);
+    setLikesCount((prev) => (originallyLiked ? prev - 1 : prev + 1));
 
     if (originallyLiked) {
-      const { error } = await supabase.from('likes').delete().match({ post_id: post.id, user_id: user.id });
+      const { error } = await supabase
+        .from("likes")
+        .delete()
+        .match({ post_id: post.id, user_id: user.id });
       if (error) {
         console.error("Error unliking post:", error.message);
         setUserHasLiked(originallyLiked);
-        setLikesCount(prev => prev + 1);
+        setLikesCount((prev) => prev + 1);
       }
     } else {
-      const { data, error } = await supabase.from('likes').insert({ post_id: post.id, user_id: user.id }).select().single();
+      const { data, error } = await supabase
+        .from("likes")
+        .insert({ post_id: post.id, user_id: user.id })
+        .select()
+        .single();
       if (error) {
         console.error("Error liking post:", error.message);
         setUserHasLiked(originallyLiked);
-        setLikesCount(prev => prev - 1);
+        setLikesCount((prev) => prev - 1);
       } else {
-        await createNotification(post.user_id, 'like', post.id);
+        await createNotification(post.user_id, "like", post.id);
       }
     }
   }, [post.id, post.user_id, user, userHasLiked, supabase]);
 
   const deletePost = useCallback(async () => {
     if (!user || user.id !== post.user_id) {
-        console.error("Permission denied to delete post");
-        return;
+      console.error("Permission denied to delete post");
+      return;
     }
 
     onDelete(post.id);
 
-    const { error } = await supabase.from('posts').delete().match({ id: post.id });
+    const { error } = await supabase
+      .from("posts")
+      .delete()
+      .match({ id: post.id });
     if (error) {
-        console.error("Error deleting post:", error.message);
+      console.error("Error deleting post:", error.message);
     }
   }, [post.id, post.user_id, user, onDelete, supabase]);
 
-  const deleteComment = useCallback(async (commentId: string) => {
-    if (!user) return;
+  const deleteComment = useCallback(
+    async (commentId: string) => {
+      if (!user) return;
 
-    const commentToDelete = comments.find(c => c.id === commentId);
-    if (!commentToDelete || commentToDelete.user_id !== user.id) {
-      console.error("Permission denied to delete comment");
-      return;
-    }
-
-    const originalComments = [...comments];
-    setComments(prevComments => prevComments.filter(c => c.id !== commentId));
-
-    const { error } = await supabase.from('comments').delete().match({ id: commentId, user_id: user.id });
-
-    if (error) {
-      console.error("Error deleting comment:", error.message);
-      setComments(originalComments);
-    }
-  }, [user, comments, supabase]);
-
-  const likeComment = useCallback(async (commentId: string) => {
-    if (!user) return;
-
-    const originalComments = [...comments];
-    const comment = comments.find(c => c.id === commentId);
-    if (!comment) return;
-
-    const userHasLikedComment = (comment.comment_likes || []).some(like => like.user_id === user.id);
-
-    setComments(prevComments => prevComments.map(c => {
-      if (c.id === commentId) {
-        const newLikes = userHasLikedComment
-          ? (c.comment_likes || []).filter(like => like.user_id !== user.id)
-          : [...(c.comment_likes || []), { user_id: user.id, comment_id: c.id } as Like];
-        return { ...c, comment_likes: newLikes };
-      }
-      return c;
-    }));
-
-    if (userHasLikedComment) {
-      const { error } = await supabase.from('comment_likes').delete().match({ comment_id: commentId, user_id: user.id });
-      if (error) {
-        console.error("Error unliking comment:", error.message);
-        setComments(originalComments);
-      }
-    } else {
-      const { data, error } = await supabase.from('comment_likes').insert({ comment_id: commentId, user_id: user.id }).select().single();
-      if (error) {
-        console.error('Error liking comment:', error.message);
-        setComments(originalComments);
-      } else {
-        await createNotification(comment.user_id, 'like_comment', post.id, comment.id);
-      }
-    }
-  }, [user, comments, post.id, supabase]);
-
-  const replyToComment = useCallback(async (commentId: string, content: string) => {
-    if (!user?.profile) {
-        console.error("User profile not available for replying.");
+      const commentToDelete = comments.find((c) => c.id === commentId);
+      if (!commentToDelete || commentToDelete.user_id !== user.id) {
+        console.error("Permission denied to delete comment");
         return;
-    }
+      }
 
-    const { data: insertedReply, error } = await supabase
-        .from('comments')
-        .insert({ post_id: post.id, user_id: user.id, content, parent_id: commentId })
-        .select('*, commenter:profiles!inner(*)')
+      const originalComments = [...comments];
+      setComments((prevComments) =>
+        prevComments.filter((c) => c.id !== commentId),
+      );
+
+      const { error } = await supabase
+        .from("comments")
+        .delete()
+        .match({ id: commentId, user_id: user.id });
+
+      if (error) {
+        console.error("Error deleting comment:", error.message);
+        setComments(originalComments);
+      }
+    },
+    [user, comments, supabase],
+  );
+
+  const likeComment = useCallback(
+    async (commentId: string) => {
+      if (!user) return;
+
+      const originalComments = [...comments];
+      const comment = comments.find((c) => c.id === commentId);
+      if (!comment) return;
+
+      const userHasLikedComment = (comment.comment_likes || []).some(
+        (like) => like.user_id === user.id,
+      );
+
+      setComments((prevComments) =>
+        prevComments.map((c) => {
+          if (c.id === commentId) {
+            const newLikes = userHasLikedComment
+              ? (c.comment_likes || []).filter(
+                  (like) => like.user_id !== user.id,
+                )
+              : [
+                  ...(c.comment_likes || []),
+                  { user_id: user.id, comment_id: c.id } as Like,
+                ];
+            return { ...c, comment_likes: newLikes };
+          }
+          return c;
+        }),
+      );
+
+      if (userHasLikedComment) {
+        const { error } = await supabase
+          .from("comment_likes")
+          .delete()
+          .match({ comment_id: commentId, user_id: user.id });
+        if (error) {
+          console.error("Error unliking comment:", error.message);
+          setComments(originalComments);
+        }
+      } else {
+        const { data, error } = await supabase
+          .from("comment_likes")
+          .insert({ comment_id: commentId, user_id: user.id })
+          .select()
+          .single();
+        if (error) {
+          console.error("Error liking comment:", error.message);
+          setComments(originalComments);
+        } else {
+          await createNotification(
+            comment.user_id,
+            "like_comment",
+            post.id,
+            comment.id,
+          );
+        }
+      }
+    },
+    [user, comments, post.id, supabase],
+  );
+
+  const replyToComment = useCallback(
+    async (commentId: string, content: string) => {
+      if (!user) {
+        console.error("User not authenticated.");
+        return;
+      }
+
+      const { data: insertedReply, error } = await supabase
+        .from("comments")
+        .insert({
+          post_id: post.id,
+          user_id: user.id,
+          content,
+          parent_id: commentId,
+        })
+        .select("*, commenter:profiles(*)")
         .single();
 
-    if (error) {
+      if (error) {
         console.error("Error replying to comment:", error.message);
-    } else if (insertedReply) {
+      } else if (insertedReply) {
+        // Immediately update local state so the reply is visible without
+        // waiting for a full re-fetch (optimistic update).
+        setComments((prevComments) =>
+          prevComments.map((c) => {
+            if (c.id === commentId) {
+              return {
+                ...c,
+                replies: [...(c.replies || []), insertedReply as any],
+              };
+            }
+            return c;
+          }),
+        );
+        // Full sync with the server to keep everything consistent.
         fetchPostData();
-        const parentComment = comments.find(c => c.id === commentId);
-        if(parentComment) {
-            await createNotification(parentComment.user_id, 'reply', post.id, (insertedReply as any).id);
+        const parentComment = comments.find((c) => c.id === commentId);
+        if (parentComment) {
+          await createNotification(
+            parentComment.user_id,
+            "reply",
+            post.id,
+            (insertedReply as any).id,
+          );
         }
-    }
-}, [post.id, user, comments, supabase, fetchPostData]);
-
+      }
+    },
+    [post.id, user, comments, supabase, fetchPostData],
+  );
 
   return (
-    <PostContext.Provider value={{ post, comments, likesCount, userHasLiked, addComment, toggleLike, deletePost, deleteComment, likeComment, replyToComment }}>
+    <PostContext.Provider
+      value={{
+        post,
+        comments,
+        likesCount,
+        userHasLiked,
+        addComment,
+        toggleLike,
+        deletePost,
+        deleteComment,
+        likeComment,
+        replyToComment,
+      }}
+    >
       {children}
     </PostContext.Provider>
   );
@@ -248,7 +389,7 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
 export const usePost = () => {
   const context = useContext(PostContext);
   if (context === undefined) {
-    throw new Error('usePost must be used within a PostProvider');
+    throw new Error("usePost must be used within a PostProvider");
   }
   return context;
 };
