@@ -77,7 +77,7 @@ export default async function LessonDetails({ lessonId }: LessonDetailsProps) {
         </div>
         <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">Description</h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300">{lesson.description}</p>
+          <p className="text-lg text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{lesson.description}</p>
         </div>
       </div>
     </div>

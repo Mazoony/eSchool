@@ -229,21 +229,13 @@ export const PostProvider = ({ post: initialPost, children, onDelete }: { post: 
     if (error) {
         console.error("Error replying to comment:", error.message);
     } else if (insertedReply) {
-        setComments(prevComments => 
-            prevComments.map(comment => {
-                if (comment.id === commentId) {
-                    const newReplies = [...(comment.replies || []), insertedReply as Reply];
-                    return { ...comment, replies: newReplies };
-                }
-                return comment;
-            })
-        );
+        fetchPostData();
         const parentComment = comments.find(c => c.id === commentId);
         if(parentComment) {
             await createNotification(parentComment.user_id, 'reply', post.id, (insertedReply as any).id);
         }
     }
-}, [post.id, user, comments, supabase]);
+}, [post.id, user, comments, supabase, fetchPostData]);
 
 
   return (
