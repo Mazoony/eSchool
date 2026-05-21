@@ -86,7 +86,7 @@ export default function VideoPlayer() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-8 text-center">eSchool Videos</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center">eAfrica Videos</h1>
       {videos.length === 0 ? (
         <p className="text-center text-gray-500">No videos found.</p>
       ) : (

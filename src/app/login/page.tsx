@@ -62,7 +62,7 @@ export default function Login() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="w-full max-w-md px-8 py-10 bg-white rounded-lg shadow-md dark:bg-gray-800">
-        <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-50">Log In to eSchool</h1>
+        <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-50">Log In to eAfrica</h1>
         {authError && <p className="mt-4 text-center text-sm text-red-600">{authError}</p>}
         <div className="mt-8">
           <button

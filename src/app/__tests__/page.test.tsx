@@ -48,7 +48,7 @@ describe('Home component', () => {
 
   it('should display the footer with copyright text', () => {
     render(<Home />);
-    const footerText = screen.getByText(/© 2024 eSchool. All rights reserved./i);
+    const footerText = screen.getByText(/© 2024 eAfrica. All rights reserved./i);
     expect(footerText).toBeInTheDocument();
   });
 });

@@ -40,7 +40,7 @@ export default async function LessonDetails({ lessonId }: LessonDetailsProps) {
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <header className="px-4 lg:px-6 h-16 flex items-center bg-white dark:bg-gray-800 shadow-md">
         <Link href="/" className="flex items-center justify-center">
-          <span className="text-2xl font-bold text-blue-600 dark:text-blue-500">eSchool</span>
+          <span className="text-2xl font-bold text-blue-600 dark:text-blue-500">eAfrica</span>
         </Link>
         <nav className="ml-auto flex gap-6 sm:gap-8">
           <Link href="/lessons" className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors">

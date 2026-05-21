@@ -5,7 +5,7 @@ export default function Lesson() {
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
       <header className="px-4 lg:px-6 h-14 flex items-center bg-white dark:bg-gray-800">
         <Link href="#" className="flex items-center justify-center">
-          <span className="text-lg font-semibold text-gray-900 dark:text-gray-50">eSchool</span>
+          <span className="text-lg font-semibold text-gray-900 dark:text-gray-50">eAfrica</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">
           <Link href="/" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
