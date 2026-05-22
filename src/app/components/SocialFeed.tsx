@@ -60,7 +60,12 @@ export default function SocialFeed() {
   const handleNewPost = useCallback(async (payload: any) => {
     const newPost = await fetchPost(payload.new.id);
     if (newPost) {
-      setPosts(prevPosts => [newPost, ...prevPosts]);
+      setPosts((prevPosts) => {
+        if (prevPosts.some((post) => post.id === newPost.id)) {
+          return prevPosts;
+        }
+        return [newPost, ...prevPosts];
+      });
     }
   }, []);
 

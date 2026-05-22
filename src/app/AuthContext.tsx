@@ -74,43 +74,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchProfileData = async (userId: string, createIfMissing = false) => {
     if (!supabase) return null;
-    const columns = ['id', 'username', 'full_name', 'avatar_url', 'bio', 'created_at', 'updated_at'];
 
-    while (columns.length > 0) {
-      const result = await supabase
-        .from('profiles')
-        .select(columns.join(', '))
-        .eq('id', userId)
-        .maybeSingle();
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
 
-      const profile = result.data as unknown as Profile | null;
-      const error = result.error;
-
-      if (!error) {
-        if (profile) {
-          return profile;
-        }
-
-        return createIfMissing ? await createFallbackProfile(userId) : null;
-      }
-
-      const missingMatch = error.message.match(/column .*\.(.*?) does not exist/i);
-      if (!missingMatch) {
-        console.error('Error fetching profile:', error.message);
-        return null;
-      }
-
-      const missingColumn = missingMatch[1].replace(/['\"]+/g, '').trim();
-      if (!columns.includes(missingColumn)) {
-        console.error('Error fetching profile:', error.message);
-        return null;
-      }
-
-      columns.splice(columns.indexOf(missingColumn), 1);
+    if (error) {
+      console.error('Error fetching profile:', error.message);
+      return createIfMissing ? await createFallbackProfile(userId) : null;
     }
 
-    console.error('Error fetching profile: could not build a valid column set');
-    return null;
+    if (data) {
+      return data as Profile;
+    }
+
+    return createIfMissing ? await createFallbackProfile(userId) : null;
   };
 
   useEffect(() => {
@@ -167,11 +147,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (session?.user) {
           const profile = await fetchProfileData(session.user.id, true);
-
           setUser({ ...session.user, profile: profile || undefined });
 
           if (_event === 'SIGNED_IN') {
-            router.push('/dashboard');
+            router.push(`/profile/${session.user.id}`);
           }
         } else {
           setUser(null);
