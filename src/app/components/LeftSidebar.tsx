@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { HomeIcon, BellIcon, UserCircleIcon, CogIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../AuthContext';
 import Image from 'next/image';
+import { User } from '../types';
 
 export default function LeftSidebar() {
   const { user, signOut } = useAuth();
@@ -40,13 +41,13 @@ export default function LeftSidebar() {
           {user && (
             <div className="flex items-center space-x-3 mb-4">
               <Image 
-                src={user.user_metadata.avatar_url || placeholderAvatar} 
+                src={((user as User).profile?.avatar_url) || (user as any).user_metadata?.avatar_url || placeholderAvatar} 
                 alt="User avatar" 
                 width={40} 
                 height={40} 
                 className="rounded-full"
               />
-              <span className="font-semibold text-gray-700 dark:text-gray-200">{user.user_metadata.full_name || user.email}</span>
+              <span className="font-semibold text-gray-700 dark:text-gray-200">{(user as User).profile?.full_name || (user as any).user_metadata?.full_name || user.email}</span>
             </div>
           )}
           <button 
