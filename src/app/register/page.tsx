@@ -46,7 +46,32 @@ export default function SignUpPage() {
         // Optional: Here you might want to delete the created user if the profile creation fails
         // await supabase.auth.api.deleteUser(authData.user.id);
       } else {
-        router.push('/social');
+        // Try to sign the user in immediately so the client has a session
+        try {
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (signInError) {
+            // If sign in fails (e.g., email confirmation required), fallback to social feed or login page
+            console.warn('Sign in after sign up failed:', signInError.message);
+            router.push('/login');
+            return;
+          }
+
+          const sessionUser = signInData?.user;
+          if (sessionUser) {
+            router.push(`/profile/${sessionUser.id}`);
+            return;
+          }
+
+          // Fallback
+          router.push('/social');
+        } catch (err) {
+          console.error('Error signing in after registration:', err);
+          router.push('/login');
+        }
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
