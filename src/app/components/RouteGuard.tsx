@@ -4,7 +4,7 @@ import { useAuth } from '../AuthContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-const allowedPaths = ['/', '/login', '/register'];
+const allowedPublicPaths = ['/', '/login', '/register', '/forgot-password'];
 
 export default function RouteGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -13,14 +13,15 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     if (!loading) {
-      if (!user && !allowedPaths.includes(pathname)) {
+      // If user is not logged in and trying to access a protected route
+      if (!user && !allowedPublicPaths.includes(pathname) && !pathname.startsWith('/auth/')) {
         router.push('/');
       }
     }
   }, [user, loading, router, pathname]);
 
   if (loading) {
-    return <div>Loading...</div>; // Or a spinner component
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
   return <>{children}</>;

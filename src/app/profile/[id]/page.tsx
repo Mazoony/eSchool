@@ -3,26 +3,27 @@ import { createClient } from '../../../utils/supabase/server';
 import ProfileClient from './ProfileClient';
 
 interface ProfilePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
+  const awaitedParams = await params;
   const supabase = await createClient();
 
   const [{ data: currentUserData }, { data: profileData }] = await Promise.all([
     supabase.auth.getUser(),
-    supabase.from('profiles').select('*').eq('id', params.id).maybeSingle(),
+    supabase.from('profiles').select('*').eq('id', awaitedParams.id).maybeSingle(),
   ]);
 
   const currentUser = currentUserData?.user ?? null;
 
   if (!profileData) {
-    if (currentUser?.id === params.id) {
+    if (currentUser?.id === awaitedParams.id) {
       const { data: fallbackProfile, error: fallbackError } = await supabase
         .from('profiles')
-        .insert({ id: params.id })
+        .insert({ id: awaitedParams.id })
         .select('*')
         .single();
 

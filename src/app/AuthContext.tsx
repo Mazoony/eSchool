@@ -110,6 +110,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchSessionAndProfile = async () => {
       try {
+        // Small delay to allow session cookie to be set after OAuth callback
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         const response = await supabase.auth.getSession();
         const session = response.data?.session ?? null;
         if (!mounted) return;
