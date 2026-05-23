@@ -21,9 +21,17 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   if (!profileData) {
     if (currentUser?.id === awaitedParams.id) {
+      // Capture Google metadata if available
+      const fullName = currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || null;
+      const avatarUrl = currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture || null;
+      
       const { data: fallbackProfile, error: fallbackError } = await supabase
         .from('profiles')
-        .insert({ id: awaitedParams.id })
+        .insert({ 
+          id: awaitedParams.id,
+          full_name: fullName,
+          avatar_url: avatarUrl
+        })
         .select('*')
         .single();
 
@@ -51,7 +59,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   return (
     <ProfileClient
       profile={profileData}
-      isOwnProfile={currentUser?.id === params.id}
+      isOwnProfile={currentUser?.id === awaitedParams.id}
       currentUserId={currentUser?.id ?? null}
       currentUserEmail={currentUser?.email ?? null}
       lessonCount={0}

@@ -53,9 +53,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const createFallbackProfile = async (userId: string) => {
+  const createFallbackProfile = async (userId: string, userMetadata?: any) => {
     if (!supabase) return null;
-    const { error } = await supabase.from('profiles').insert({ id: userId });
+    
+    // Extract name and picture from user metadata (for Google OAuth)
+    const fullName = userMetadata?.full_name || userMetadata?.name || null;
+    const avatarUrl = userMetadata?.avatar_url || userMetadata?.picture || null;
+    
+    const { error } = await supabase.from('profiles').insert({ 
+      id: userId,
+      full_name: fullName,
+      avatar_url: avatarUrl
+    });
     if (error) {
       console.error('Error creating fallback profile row:', error.message);
       return null;
@@ -64,15 +73,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return {
       id: userId,
       username: null,
-      full_name: null,
-      avatar_url: null,
+      full_name: fullName,
+      avatar_url: avatarUrl,
       bio: null,
       created_at: null,
       updated_at: null,
     } as Profile;
   };
 
-  const fetchProfileData = async (userId: string, createIfMissing = false) => {
+  const fetchProfileData = async (userId: string, createIfMissing = false, userMetadata?: any) => {
     if (!supabase) return null;
 
     const { data, error } = await supabase
@@ -83,14 +92,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (error) {
       console.error('Error fetching profile:', error.message);
-      return createIfMissing ? await createFallbackProfile(userId) : null;
+      return createIfMissing ? await createFallbackProfile(userId, userMetadata) : null;
     }
 
     if (data) {
       return data as Profile;
     }
 
-    return createIfMissing ? await createFallbackProfile(userId) : null;
+    return createIfMissing ? await createFallbackProfile(userId, userMetadata) : null;
   };
 
   useEffect(() => {
@@ -120,7 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
 
         if (session?.user) {
-          const profile = await fetchProfileData(session.user.id, true);
+          const profile = await fetchProfileData(session.user.id, true, session.user.user_metadata);
 
           if (!mounted) return;
           setUser({ ...session.user, profile: profile || undefined });
@@ -149,7 +158,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session ?? null);
 
         if (session?.user) {
-          const profile = await fetchProfileData(session.user.id, true);
+          const profile = await fetchProfileData(session.user.id, true, session.user.user_metadata);
           setUser({ ...session.user, profile: profile || undefined });
 
           if (_event === 'SIGNED_IN') {
