@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     if (!error && data?.user) {
       // Wait a moment to ensure session is persisted before redirecting
       await new Promise(resolve => setTimeout(resolve, 100));
-      return NextResponse.redirect(`${origin}/profile`);
+      return NextResponse.redirect(`${origin}/profile/${data.user.id}`);
     }
     
     if (error) {

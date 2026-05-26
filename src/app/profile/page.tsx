@@ -14,15 +14,9 @@ export default function ProfileRedirect() {
     }
 
     if (user?.id) {
-      // Redirect to the user's specific profile page
-      router.push(`/profile/${user.id}`);
+      router.replace(`/profile/${user.id}`);
     } else {
-      // No user after loading is done, redirect to landing page
-      // But wait a moment in case the auth listener is still syncing
-      const timeout = setTimeout(() => {
-        router.push('/');
-      }, 500);
-      return () => clearTimeout(timeout);
+      router.replace('/login');
     }
   }, [user, loading, router]);
 
