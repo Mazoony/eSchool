@@ -60,7 +60,7 @@ export default function LandingPage() {
         <section className="py-16 bg-white dark:bg-gray-800">
           <div className="container mx-auto px-6">
             <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">Why eAfrica?</h2>
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">Why eSchool?</h2>
               <p className="mt-2 text-gray-600 dark:text-gray-400">Everything you need to succeed in one place.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
@@ -86,7 +86,7 @@ export default function LandingPage() {
 
       <footer className="bg-gray-100 dark:bg-gray-800">
         <div className="container mx-auto px-6 py-4 text-center text-gray-600 dark:text-gray-400">
-          <p>&copy; {new Date().getFullYear()} eAfrica. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} eSchool. All rights reserved.</p>
         </div>
       </footer>
     </div>
