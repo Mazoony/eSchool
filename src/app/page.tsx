@@ -42,7 +42,7 @@ export default function LandingPage() {
                 Welcome to the Future of Learning
                 </h1>
                 <p className="mt-4 max-w-2xl mx-auto text-lg lg:text-xl text-gray-600 dark:text-gray-400">
-                eAfrica is a modern social platform connecting students and educators. Share ideas, collaborate on projects, and build your community.
+                eSchool is a modern social platform connecting students and educators. Share ideas, collaborate on projects, and build your community.
                 </p>
                 <div className="mt-8 flex justify-center gap-4">
                     <Link href="/register" className="inline-block px-8 py-3 rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg transform hover:scale-105 transition-all duration-300">
