@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useAuth } from '../AuthContext';
 import { usePost } from './PostContext';
 import { Comment } from '../types';
@@ -31,7 +32,7 @@ export default function CommentItem({ comment }: CommentItemProps) {
 
   return (
     <div className="flex items-start space-x-3 py-3 border-t border-gray-200 dark:border-gray-700">
-      <img src={comment.commenter.avatar_url} alt={comment.commenter.full_name} className="w-10 h-10 rounded-full" />
+      <Image src={comment.commenter.avatar_url} alt={comment.commenter.full_name} width={40} height={40} className="w-10 h-10 rounded-full" priority />
       <div className="flex-1">
         <div className="flex items-center justify-between">
           <div>

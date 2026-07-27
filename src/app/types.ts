@@ -1,3 +1,4 @@
+
 import { User as SupabaseUser } from '@supabase/supabase-js';
 
 // Define a type for the user profile
@@ -62,4 +63,12 @@ export interface Notification {
   comment_id?: string;
   is_read: boolean;
   sender: { id: string; full_name: string; avatar_url: string; };
+}
+
+export interface Lesson {
+  id: string;
+  title: string;
+  description: string;
+  video_url: string;
+  created_at: string;
 }

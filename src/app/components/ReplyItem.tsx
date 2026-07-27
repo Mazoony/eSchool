@@ -2,6 +2,7 @@
 
 import { formatDistanceToNow } from 'date-fns';
 import { Reply } from '../types';
+import Image from 'next/image';
 
 interface ReplyItemProps {
   reply: Reply;
@@ -10,7 +11,7 @@ interface ReplyItemProps {
 export default function ReplyItem({ reply }: ReplyItemProps) {
   return (
     <div className="flex items-start space-x-3 mt-3">
-      <img src={reply.commenter.avatar_url} alt={reply.commenter.full_name} className="w-8 h-8 rounded-full" />
+      <Image src={reply.commenter.avatar_url} alt={reply.commenter.full_name} width={32} height={32} className="w-8 h-8 rounded-full" priority />
       <div className="flex-1">
         <div className="flex items-center">
           <span className="font-semibold text-xs text-gray-900 dark:text-white">{reply.commenter.full_name}</span>

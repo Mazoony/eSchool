@@ -180,7 +180,7 @@ export default function ProfileClient({
         <div className="grid gap-6 lg:grid-cols-[320px,1fr]">
           <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-md p-6 text-center">
             <div className="relative mx-auto w-36 h-36 mb-5 rounded-full overflow-hidden border-4 border-blue-500 shadow-xl">
-              <Image src={avatarSrc} alt="Profile Avatar" fill style={{ objectFit: 'cover' }} />
+              <Image src={avatarSrc} alt="Profile Avatar" fill style={{ objectFit: 'cover' }} priority />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{profile.full_name || 'Unnamed User'}</h1>
             {profile.username && <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">@{profile.username}</p>}

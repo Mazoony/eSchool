@@ -54,6 +54,7 @@ export default function Post() {
             width={40}
             height={40}
             className="rounded-full mr-3 cursor-pointer"
+            priority
           />
         </Link>
         <div className="flex-1">

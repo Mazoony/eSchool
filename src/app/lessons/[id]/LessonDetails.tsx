@@ -1,5 +1,6 @@
-import { getLesson } from '../actions';
+
 import Link from 'next/link';
+import { Lesson } from '../types';
 
 const getVideoMimeType = (url: string) => {
   const extension = url.split('?')[0].split('.').pop()?.toLowerCase();
@@ -18,11 +19,10 @@ const getVideoMimeType = (url: string) => {
 };
 
 interface LessonDetailsProps {
-  lessonId: string;
+  lesson: Lesson;
 }
 
-export default async function LessonDetails({ lessonId }: LessonDetailsProps) {
-  const lesson = await getLesson(lessonId);
+export default async function LessonDetails({ lesson }: LessonDetailsProps) {
 
   if (!lesson) {
     return (
