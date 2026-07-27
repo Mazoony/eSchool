@@ -40,6 +40,9 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+<head>
+  <meta name="google-site-verification" content="UkUhY70E9MAjf_li--7vK-bhplx4mGxO5Ec2F1X26mA" />
+</head> 
       <body className={inter.className}>
         <AuthProvider>
           <AppLayout>{children}</AppLayout>
