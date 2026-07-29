@@ -97,14 +97,15 @@ export default function RegisterForm() {
     }
   };
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
+    <main className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Create an Account</h1>
         <button
           type="button"
           onClick={handleGoogleSignUp}
           disabled={isGoogleSubmitting}
-          className="w-full py-2 px-4 mb-6 font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition duration-300 disabled:opacity-50"
+          className="w-full py-2 px-4 mb-6 font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition duration-300 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"
+          aria-label="Continue with Google"
         >
           {isGoogleSubmitting ? 'Continuing with Google...' : 'Continue with Google'}
         </button>
@@ -120,6 +121,7 @@ export default function RegisterForm() {
               onChange={(e) => setFullName(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
               required
+              aria-describedby="error-message"
             />
           </div>
           <div className="mb-4">
@@ -133,6 +135,7 @@ export default function RegisterForm() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
               required
+              aria-describedby="error-message"
             />
           </div>
           <div className="mb-6">
@@ -146,17 +149,18 @@ export default function RegisterForm() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
               required
+              aria-describedby="error-message"
             />
           </div>
-          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+          {error && <p id="error-message" className="text-red-600 dark:text-red-400 text-sm mb-4" role="alert">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
+            className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
           >
             Sign Up
           </button>
         </form>
       </div>
-    </div>
+    </main>
   );
 }

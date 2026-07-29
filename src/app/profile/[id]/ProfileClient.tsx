@@ -175,10 +175,10 @@ export default function ProfileClient({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 sm:p-6 lg:p-8">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="grid gap-6 lg:grid-cols-[320px,1fr]">
-          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-md p-6 text-center">
+          <section className="bg-white dark:bg-gray-800 rounded-3xl shadow-md p-6 text-center">
             <div className="relative mx-auto w-36 h-36 mb-5 rounded-full overflow-hidden border-4 border-blue-500 shadow-xl">
               <Image src={avatarSrc} alt="Profile Avatar" fill style={{ objectFit: 'cover' }} priority />
             </div>
@@ -190,35 +190,36 @@ export default function ProfileClient({
             <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">{profile.bio || 'No bio yet. Add one to tell people what you are learning.'}</p>
             {isOwnProfile && (
               <div className="mt-6 flex flex-col gap-3">
-                <label className="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition">
+                <label className="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                   Upload Avatar
-                  <input type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} />
+                  <input type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} aria-label="Upload new avatar"/>
                 </label>
                 <button
                   type="button"
                   onClick={() => setEditing((current) => !current)}
-                  className="rounded-full border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900 transition"
+                  className="rounded-full border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                  aria-label={editing ? 'Cancel editing your profile' : 'Edit your profile'}
                 >
                   {editing ? 'Cancel edit' : 'Edit profile'}
                 </button>
               </div>
             )}
-          </div>
+          </section>
 
-          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-md p-6 space-y-6">
+          <section className="bg-white dark:bg-gray-800 rounded-3xl shadow-md p-6 space-y-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl bg-gray-50 dark:bg-gray-900 p-4">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Lessons created</p>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Lessons created</p>
                 <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{lessonCount}</p>
               </div>
               <div className="rounded-2xl bg-gray-50 dark:bg-gray-900 p-4">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Last updated</p>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Last updated</p>
                 <p className="mt-2 text-lg font-semibold text-gray-900 dark:text-white">{profile.updated_at ? new Date(profile.updated_at).toLocaleDateString() : 'N/A'}</p>
               </div>
             </div>
 
             <div className="rounded-2xl bg-gray-50 dark:bg-gray-900 p-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Account</p>
+              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Account</p>
               <div className="mt-3 space-y-2 text-sm text-gray-700 dark:text-gray-300">
                 {isOwnProfile && currentUserEmail && (
                   <div>
@@ -235,34 +236,38 @@ export default function ProfileClient({
                 </div>
               </div>
             </div>
-          </div>
+          </section>
         </div>
 
         {editing && isOwnProfile && (
-          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-md p-6">
+          <section className="bg-white dark:bg-gray-800 rounded-3xl shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4">Edit profile</h2>
             <div className="grid gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Username</label>
+                <label htmlFor='username' className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Username</label>
                 <input
+                  id='username'
                   value={username}
                   onChange={(event) => setUsername(event.target.value)}
                   placeholder="Choose a unique username"
                   className="w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  aria-describedby="username-description"
                 />
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Lowercase, no spaces, and must be unique.</p>
+                <p id="username-description" className="mt-2 text-xs text-gray-500 dark:text-gray-400">Lowercase, no spaces, and must be unique.</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Full name</label>
+                <label htmlFor='fullName' className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Full name</label>
                 <input
+                  id='fullName'
                   value={fullName}
                   onChange={(event) => setFullName(event.target.value)}
                   className="w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Bio</label>
+                <label htmlFor='bio' className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Bio</label>
                 <textarea
+                  id='bio'
                   value={bio}
                   onChange={(event) => setBio(event.target.value)}
                   rows={4}
@@ -274,25 +279,25 @@ export default function ProfileClient({
                   type="button"
                   onClick={handleSave}
                   disabled={saving}
-                  className="rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
                 >
                   {saving ? 'Saving…' : 'Save changes'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setEditing(false)}
-                  className="rounded-full border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-900 transition"
+                  className="rounded-full border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-900 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
                 >
                   Cancel
                 </button>
               </div>
-              {message && <p className="text-sm text-green-500">{message}</p>}
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {message && <p className="text-sm text-green-500" role="status">{message}</p>}
+              {error && <p className="text-sm text-red-500" role="alert">{error}</p>}
             </div>
-          </div>
+          </section>
         )}
 
-        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-md p-6">
+        <section className="bg-white dark:bg-gray-800 rounded-3xl shadow-md p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-xl font-semibold">Recent lessons</h2>
@@ -307,7 +312,7 @@ export default function ProfileClient({
             <ul className="space-y-4">
               {recentLessons.map((lesson) => (
                 <li key={lesson.id} className="rounded-2xl border border-gray-200 dark:border-gray-700 p-4 hover:border-blue-500 transition">
-                  <a href={`/lessons/${lesson.id}`} className="block text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-300">
+                  <a href={`/lessons/${lesson.id}`} className="block text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500">
                     {lesson.title}
                   </a>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Created {lesson.created_at ? new Date(lesson.created_at).toLocaleDateString() : 'unknown'}</p>
@@ -315,8 +320,8 @@ export default function ProfileClient({
               ))}
             </ul>
           )}
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

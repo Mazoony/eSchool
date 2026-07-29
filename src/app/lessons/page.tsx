@@ -1,6 +1,13 @@
 
 import Link from 'next/link';
 import { getLessons } from './actions';
+import { createMetadata } from '../metadata';
+
+export const metadata = createMetadata({
+  title: 'eSchool - English Lessons for Sudanese Students',
+  description: 'Explore our comprehensive English lessons designed for Sudanese students. From beginner to advanced, find the right course to improve your language skills.',
+  path: '/lessons',
+});
 
 export default async function LessonsPage() {
   const lessons = await getLessons();
@@ -8,12 +15,12 @@ export default async function LessonsPage() {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-extrabold text-center text-gray-900 dark:text-gray-50 mb-12">Our Lessons</h1>
+        <h1 className="text-4xl font-extrabold text-center text-gray-900 dark:text-gray-50 mb-12">Our English Lessons</h1>
         {lessons.length === 0 ? (
           <div className="text-center text-gray-500 dark:text-gray-400 bg-yellow-100 dark:bg-yellow-900/30 p-8 rounded-lg">
             <h2 className="text-2xl font-bold text-yellow-800 dark:text-yellow-300 mb-4">No Lessons Found</h2>
             <p className="text-lg">
-              There are no lessons available at the moment. Please check back later.
+              There are no lessons available at the moment. Please check back later for updates.
             </p>
           </div>
         ) : (

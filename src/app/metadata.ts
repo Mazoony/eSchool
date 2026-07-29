@@ -1,57 +1,57 @@
 
 import { Metadata } from 'next';
 
-const metadata: Metadata = {
-  title: {
-    default: 'eSchool - Learn English Online in Sudan',
-    template: '%s | eSchool',
-  },
-  description: 'eSchool offers online English courses for students in Sudan. Learn spoken English, prepare for IELTS, and improve your English skills with our expert instructors.',
-  keywords: ['Learn English Online', 'English Courses in Sudan', 'Spoken English', 'English for Beginners', 'IELTS Preparation', 'eSchool'],
+const defaultMetadata: Metadata = {
+  metadataBase: new URL('https://eschool.com'),
+  title: 'eSchool - Learn English in Sudan',
+  description: 'eSchool is an online platform for Sudanese students to learn English, connect with instructors, and access high-quality educational resources. Prepare for the IELTS exam, improve your conversation skills, and join a vibrant community of learners.',
+  keywords: ['English learning Sudan', 'online English courses', 'IELTS preparation Sudan', 'Sudan education', 'e-learning Sudan'],
+  authors: [{ name: 'eSchool Team' }],
   openGraph: {
-    title: 'eSchool - Learn English Online in Sudan',
-    description: 'eSchool offers online English courses for students in Sudan. Learn spoken English, prepare for IELTS, and improve your English skills with our expert instructors.',
-    url: 'https://eschool.com',
-    siteName: 'eSchool',
+    title: 'eSchool - Learn English in Sudan',
+    description: 'Join the leading online platform for English education in Sudan.',
     images: [
       {
-        url: 'https://eschool.com/og-image.png',
-        width: 1200,
-        height: 630,
+        url: '/og-image.png',
+        width: 800,
+        height: 600,
+        alt: 'eSchool Online Learning Platform',
       },
     ],
-    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'eSchool - Learn English Online in Sudan',
-    description: 'eSchool offers online English courses for students in Sudan. Learn spoken English, prepare for IELTS, and improve your English skills with our expert instructors.',
-    images: ['https://eschool.com/twitter-image.png'],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-  themeColor: '#ffffff',
-  manifest: '/manifest.json',
-  icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png',
-  },
-  alternates: {
-    canonical: 'https://eschool.com',
-    languages: {
-      'en-US': 'https://eschool.com/en-US',
-    },
+    title: 'eSchool - Learn English in Sudan',
+    description: 'The future of English education in Sudan is here. Join eSchool and start your learning journey today.',
+    images: ['/twitter-image.png'],
   },
 };
 
-export default metadata;
+export const createMetadata = (page: {
+  title: string;
+  description: string;
+  path: string;
+}): Metadata => {
+  const { title, description, path } = page;
+  const url = `https://eschool.com${path}`;
+
+  return {
+    ...defaultMetadata,
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      ...defaultMetadata.openGraph,
+      title,
+      description,
+      url,
+    },
+    twitter: {
+      ...defaultMetadata.twitter,
+      title,
+      description,
+    },
+  };
+};

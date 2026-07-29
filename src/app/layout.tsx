@@ -6,6 +6,7 @@ import './globals.css';
 import { Metadata } from 'next';
 import { ThemeProvider } from 'next-themes';
 import Breadcrumbs from '../components/Breadcrumbs';
+import Axe from './Axe';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -32,9 +33,6 @@ export const metadata: Metadata = {
     title: 'eSchool - Learn English in Sudan',
     description: 'The future of English education in Sudan is here. Join eSchool and start your learning journey today.',
     images: ['/twitter-image.png'], 
-  },
-  alternates: {
-    canonical: '/',
   },
 };
 
@@ -66,6 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} bg-gray-100 dark:bg-gray-900`}>
+      <Axe />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -77,6 +76,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Breadcrumbs />
                 {children}
             </main>
+            <footer className="bg-gray-800 text-white p-4 text-center">
+              <p>&copy; {new Date().getFullYear()} eSchool. All Rights Reserved.</p>
+              <p><a href="/sitemap.xml" className="underline">Sitemap</a></p>
+            </footer>
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -35,10 +35,10 @@ export default function LandingPage() {
               The premier online platform for English language education in Sudan. Connect, learn, and grow with our vibrant community.
             </p>
             <div className="mt-8 flex justify-center gap-4">
-              <Link href="/register" className="inline-block px-8 py-3 rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg transform hover:scale-105 transition-all duration-300">
+              <Link href="/register" className="inline-block px-8 py-3 rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg transform hover:scale-105 transition-all duration-300 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">
                 Start Your Journey
               </Link>
-              <Link href="/social" className="inline-block px-8 py-3 rounded-lg text-blue-600 dark:text-blue-400 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 shadow-lg transform hover:scale-105 transition-all duration-300">
+              <Link href="/social" className="inline-block px-8 py-3 rounded-lg text-blue-600 dark:text-blue-400 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 shadow-lg transform hover:scale-105 transition-all duration-300 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">
                 Explore the Community
               </Link>
             </div>
@@ -82,7 +82,7 @@ export default function LandingPage() {
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
                 <p className="text-gray-600 dark:text-gray-300 italic">"eSchool has been a game-changer for my IELTS preparation. The instructors are amazing and the community is so supportive."</p>
                 <div className="mt-4 flex items-center">
-                  <Image src="/avatar1.jpeg" alt="User Avatar" width={40} height={40} className="rounded-full" />
+                  <Image src="/avatar1.jpeg" alt="User Avatar" width={40} height={40} className="rounded-full" priority/>
                   <div className="ml-4">
                     <p className="font-semibold text-gray-900 dark:text-white">Fatima A.</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">IELTS Student</p>
@@ -92,7 +92,7 @@ export default function LandingPage() {
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
                 <p className="text-gray-600 dark:text-gray-300 italic">"I love the social feed! It's a great way to practice my English every day and make new friends who are also learning."</p>
                 <div className="mt-4 flex items-center">
-                  <Image src="/avatar2.jpeg" alt="User Avatar" width={40} height={40} className="rounded-full" />
+                  <Image src="/avatar2.jpeg" alt="User Avatar" width={40} height={40} className="rounded-full" priority/>
                   <div className="ml-4">
                     <p className="font-semibold text-gray-900 dark:text-white">Mohammed H.</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">University Student</p>
@@ -102,7 +102,7 @@ export default function LandingPage() {
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
                 <p className="text-gray-600 dark:text-gray-300 italic">"As an instructor, eSchool provides the tools I need to effectively teach and engage with my students in a modern way."</p>
                 <div className="mt-4 flex items-center">
-                  <Image src="/avatar3.jpeg" alt="User Avatar" width={40} height={40} className="rounded-full" />
+                  <Image src="/avatar3.jpeg" alt="User Avatar" width={40} height={40} className="rounded-full" priority/>
                   <div className="ml-4">
                     <p className="font-semibold text-gray-900 dark:text-white">Ahmed I.</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">English Instructor</p>
@@ -124,17 +124,17 @@ export default function LandingPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Quick Links</h3>
               <ul className="mt-2 space-y-2">
-                <li><Link href="/about" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">About Us</Link></li>
-                <li><Link href="/contact" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Contact</Link></li>
-                <li><Link href="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Privacy Policy</Link></li>
+                <li><Link href="/about" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">About Us</Link></li>
+                <li><Link href="/contact" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">Contact</Link></li>
+                <li><Link href="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">Privacy Policy</Link></li>
               </ul>
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Follow Us</h3>
               <div className="mt-2 flex space-x-4">
-                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600"><span className="sr-only">Facebook</span><svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" /></svg></a>
-                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600"><span className="sr-only">Twitter</span><svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-.424.727-.666 1.581-.666 2.477 0 1.61.82 3.027 2.07 3.868-.76-.025-1.475-.232-2.1-.586v.054c0 2.256 1.605 4.14 3.737 4.568-.39.106-.803.163-1.227.163-.3 0-.593-.028-.877-.082.593 1.85 2.307 3.198 4.342 3.234-1.595 1.25-3.604 1.995-5.786 1.995-.376 0-.747-.022-1.112-.065 2.062 1.323 4.51 2.092 7.14 2.092 8.57 0 13.255-7.098 13.255-13.254 0-.2-.005-.403-.014-.602.91-.658 1.7-1.475 2.323-2.41z" /></svg></a>
-                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600"><span className="sr-only">Instagram</span><svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.011 3.584-.069 4.85c-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.148-4.771-1.691-4.919-4.919-.058-1.265-.069-1.645-.069-4.85s.011-3.584.069-4.85c.149-3.225 1.664-4.771 4.919-4.919 1.266-.058 1.644-.07 4.85-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.358 2.618 6.78 6.98 6.98 1.281.059 1.689.073 4.948.073s3.667-.014 4.947-.072c4.358-.2 6.78-2.618 6.98-6.98.059-1.281.073-1.689.073-4.948s-.014-3.667-.072-4.947c-.2-4.358-2.618-6.78-6.98-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z" /></svg></a>
+                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75" aria-label="eSchool on Facebook"><svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" /></svg></a>
+                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75" aria-label="eSchool on Twitter"><svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-.424.727-.666 1.581-.666 2.477 0 1.61.82 3.027 2.07 3.868-.76-.025-1.475-.232-2.1-.586v.054c0 2.256 1.605 4.14 3.737 4.568-.39.106-.803.163-1.227.163-.3 0-.593-.028-.877-.082.593 1.85 2.307 3.198 4.342 3.234-1.595 1.25-3.604 1.995-5.786 1.995-.376 0-.747-.022-1.112-.065 2.062 1.323 4.51 2.092 7.14 2.092 8.57 0 13.255-7.098 13.255-13.254 0-.2-.005-.403-.014-.602.91-.658 1.7-1.475 2.323-2.41z" /></svg></a>
+                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75" aria-label="eSchool on Instagram"><svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.011 3.584-.069 4.85c-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.148-4.771-1.691-4.919-4.919-.058-1.265-.069-1.645-.069-4.85s.011-3.584.069-4.85c.149-3.225 1.664-4.771 4.919-4.919 1.266-.058 1.644-.07 4.85-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.358 2.618 6.78 6.98 6.98 1.281.059 1.689.073 4.948.073s3.667-.014 4.947-.072c4.358-.2 6.78-2.618 6.98-6.98.059-1.281.073-1.689-.073-4.948s-.014-3.667-.072-4.947c-.2-4.358-2.618-6.78-6.98-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z" /></svg></a>
               </div>
             </div>
           </div>

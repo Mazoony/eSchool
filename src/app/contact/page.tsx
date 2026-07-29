@@ -1,21 +1,19 @@
 
-import { Metadata } from 'next';
+import { createMetadata } from '../metadata';
 
-export const metadata: Metadata = {
-  title: 'Contact Us - eSchool',
-  description: 'Get in touch with the eSchool team. We are here to answer your questions about our courses, platform, and partnerships.',
-  alternates: {
-    canonical: 'https://eschool.com/contact',
-  },
-};
+export const metadata = createMetadata({
+  title: 'Contact eSchool - English Courses in Sudan',
+  description: 'Get in touch with the eSchool team. We are here to answer your questions about our English courses, platform, and partnerships in Sudan.',
+  path: '/contact',
+});
 
 export default function ContactPage() {
   return (
     <div className="container mx-auto px-6 py-12">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
-            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">Contact Us</h1>
-            <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">We'd love to hear from you. Please fill out the form below or reach out to us using the contact details provided.</p>
+            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">Contact Our Team</h1>
+            <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">We'd love to hear from you. Please fill out the form below or reach out to us using the contact details provided for any questions about our English programs.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
@@ -47,7 +45,7 @@ export default function ContactPage() {
                 </form>
             </div>
             <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Contact Information</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Our Contact Information</h2>
                 <div className="space-y-4 text-gray-600 dark:text-gray-300">
                     <p><strong>Address:</strong><br />123 Education Street, Khartoum, Sudan</p>
                     <p><strong>Email:</strong><br /> <a href="mailto:info@eschool.com" className="text-blue-600 dark:text-blue-400 hover:underline">info@eschool.com</a></p>
