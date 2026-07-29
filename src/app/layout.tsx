@@ -76,10 +76,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Breadcrumbs />
                 {children}
             </main>
-            <footer className="bg-gray-800 text-white p-4 text-center">
-              <p>&copy; {new Date().getFullYear()} eSchool. All Rights Reserved.</p>
-              <p><a href="/sitemap.xml" className="underline">Sitemap</a></p>
-            </footer>
           </AuthProvider>
         </ThemeProvider>
       </body>
