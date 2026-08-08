@@ -52,7 +52,15 @@ export default function SocialFeed() {
     if (error) {
       console.error('Error fetching posts:', error.message);
     } else {
-      setPosts(data as Post[]);
+      const normalized = data.map((p: any) => ({
+        ...p,
+        author: Array.isArray(p.author) ? p.author[0] ?? null : p.author ?? null,
+        comments: (p.comments ?? []).map((c: any) => ({
+          ...c,
+          commenter: Array.isArray(c.commenter) ? c.commenter[0] ?? null : c.commenter ?? null,
+        })),
+      }));
+      setPosts(normalized as Post[]);
     }
     setLoading(false);
   }, []);
