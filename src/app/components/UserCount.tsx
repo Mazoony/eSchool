@@ -1,34 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '../supabase';
+import { subscribeUserCount } from '@/utils/firebase/data';
 
 export default function UserCount() {
   const [userCount, setUserCount] = useState(0);
 
   useEffect(() => {
-    const fetchUserCount = async () => {
-      const { count, error } = await supabase()
-        .from('profiles')
-        .select('id', { count: 'exact', head: true });
-
-      if (error) {
-        console.error('Error fetching user count:', error.message);
-      } else {
-        setUserCount(count || 0);
-      }
-    };
-
-    fetchUserCount();
-
-    const channel = supabase()
-      .channel('profiles')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, fetchUserCount)
-      .subscribe();
-
-    return () => {
-      supabase().removeChannel(channel);
-    };
+    return subscribeUserCount(
+      setUserCount,
+      (error) => console.error('Error fetching user count:', error),
+    );
   }, []);
 
   return (

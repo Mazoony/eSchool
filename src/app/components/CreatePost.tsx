@@ -1,36 +1,30 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { createPost } from '@/utils/firebase/data';
 import { useAuth } from '../AuthContext';
 
-interface CreatePostProps {
-  onPostCreated: () => void;
-}
-
-export default function CreatePost({ onPostCreated }: CreatePostProps) {
-  const supabase = createClient();
+export default function CreatePost() {
   const { user } = useAuth();
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim() || !user) return;
 
     setIsSubmitting(true);
-
-    const { error } = await supabase
-      .from('posts')
-      .insert({ content, user_id: user.id });
-
-    if (error) {
-      console.error('Error creating post:', error.message);
-    } else {
+    setError(null);
+    try {
+      await createPost(content, user.id);
       setContent('');
-      onPostCreated(); // Refresh the feed
+    } catch (postError: unknown) {
+      console.error('Error creating post:', postError);
+      setError(postError instanceof Error ? postError.message : 'Could not create the post.');
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   return (
@@ -42,6 +36,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
         className="w-full p-2 bg-gray-100 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         rows={3}
       />
+      {error && <p className="mt-2 text-sm text-red-600" role="alert">{error}</p>}
       <div className="flex justify-end mt-2">
         <button
           type="submit"

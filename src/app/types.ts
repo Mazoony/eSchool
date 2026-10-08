@@ -1,18 +1,18 @@
-
-import { User as SupabaseUser } from '@supabase/supabase-js';
-
-// Define a type for the user profile
-interface Profile {
+export interface Profile {
   id: string;
   username?: string | null;
   full_name?: string | null;
   avatar_url?: string | null;
   bio?: string | null;
+  created_at?: string | null;
   updated_at?: string | null;
 }
 
-// Extend the Supabase User type to include the profile
-export interface User extends SupabaseUser {
+export interface User {
+  id: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
   profile?: Profile;
 }
 
@@ -20,7 +20,7 @@ export interface Post {
   id: string;
   content: string;
   user_id: string;
-  author: { id: string; full_name: string; avatar_url: string; }; // Changed from profile
+  author: Profile;
   created_at: string;
   comments: Comment[];
   likes: Like[];
@@ -30,23 +30,21 @@ export interface Comment {
   id: string;
   content: string;
   user_id: string;
-  commenter: { id: string; full_name: string; avatar_url: string; }; // Changed from profile
+  commenter: Profile;
   created_at: string;
   parent_id?: string;
   comment_likes: Like[];
   replies?: Reply[];
-
 }
 
 export interface Reply {
-    id: string;
-    content: string;
-    user_id: string;
-    commenter: { id: string; full_name: string; avatar_url: string; };
-    created_at: string;
-    parent_id: string;
+  id: string;
+  content: string;
+  user_id: string;
+  commenter: Profile;
+  created_at: string;
+  parent_id: string;
 }
-
 
 export interface Like {
   user_id: string;
@@ -62,7 +60,7 @@ export interface Notification {
   post_id: string;
   comment_id?: string;
   is_read: boolean;
-  sender: { id: string; full_name: string; avatar_url: string; };
+  sender: Profile;
 }
 
 export interface Lesson {
@@ -71,4 +69,5 @@ export interface Lesson {
   description: string;
   video_url: string;
   created_at: string;
+  slug: string;
 }

@@ -1,27 +1,30 @@
-"use client";
+'use client';
 
 import {
   createContext,
+  useCallback,
   useContext,
+  useEffect,
   useState,
   ReactNode,
-  useCallback,
-  useEffect,
-} from "react";
-import { supabase as getSupabase } from "../supabase";
-import { useAuth } from "../AuthContext";
+} from 'react';
 import {
-  Post as PostType,
-  Comment as CommentType,
-  Like,
-  Reply,
-} from "../types";
+  createComment,
+  removeComment,
+  removePost,
+  subscribePost,
+  toggleCommentLike,
+  togglePostLike,
+} from '@/utils/firebase/data';
+import { useAuth } from '../AuthContext';
+import { Comment as CommentType, Post as PostType } from '../types';
 
 interface PostContextType {
   post: PostType;
   comments: CommentType[];
   likesCount: number;
   userHasLiked: boolean;
+  error: string | null;
   addComment: (content: string) => Promise<void>;
   toggleLike: () => Promise<void>;
   deletePost: () => Promise<void>;
@@ -41,330 +44,121 @@ export const PostProvider = ({
   children: ReactNode;
   onDelete: (postId: string) => void;
 }) => {
-  const supabase = getSupabase();
   const { user } = useAuth();
   const [post, setPost] = useState<PostType>(initialPost);
-  const [comments, setComments] = useState<CommentType[]>([]);
-  const [likesCount, setLikesCount] = useState<number>(
-    initialPost.likes?.length || 0,
+  const [error, setError] = useState<string | null>(null);
+  const comments = post.comments ?? [];
+  const likesCount = post.likes?.length ?? 0;
+  const userHasLiked = Boolean(
+    user && post.likes?.some((like) => like.user_id === user.id),
   );
-  const [userHasLiked, setUserHasLiked] = useState<boolean>(false);
-
-  const createNotification = async (
-    recipient_user_id: string,
-    type: string,
-    post_id: string,
-    comment_id?: string,
-  ) => {
-    if (user?.id === recipient_user_id) return;
-
-    await supabase.from("notifications").insert({
-      recipient_user_id,
-      sender_user_id: user!.id,
-      type,
-      post_id,
-      comment_id,
-    });
-  };
-
-  const fetchPostData = useCallback(async () => {
-    const { data, error } = await supabase
-      .from("posts")
-      .select(
-        `
-        *,
-        author:profiles!posts_user_id_fkey(*),
-        likes(user_id),
-        comments!post_id(
-          *,
-          commenter:profiles!user_id(*),
-          comment_likes(user_id),
-          replies:comments!parent_id(*, commenter:profiles!user_id(*))
-        )
-      `,
-      )
-      .eq("id", initialPost.id)
-      .single();
-
-    if (error) {
-      console.error("Error fetching post data:", error);
-    } else if (data) {
-      const postData = data as any;
-      // Filter top-level comments in JS to avoid PostgREST embedded-filter
-      // bleeding into the self-join used for replies.
-      const topLevelComments = (postData.comments || []).filter(
-        (c: any) => c.parent_id === null || c.parent_id === undefined,
-      );
-      setPost(postData);
-      setComments(topLevelComments);
-      setLikesCount(postData.likes?.length || 0);
-      if (user) {
-        setUserHasLiked(
-          (postData.likes || []).some((like: Like) => like.user_id === user.id),
-        );
-      }
-    }
-  }, [initialPost.id, user, supabase]);
 
   useEffect(() => {
-    fetchPostData();
-  }, [fetchPostData]);
+    setPost(initialPost);
+  }, [initialPost]);
 
-  useEffect(() => {
-    const channel = supabase
-      .channel(`post-${post.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "likes",
-          filter: `post_id=eq.${post.id}`,
-        },
-        () => fetchPostData(),
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "comments",
-          filter: `post_id=eq.${post.id}`,
-        },
-        () => fetchPostData(),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "comment_likes" },
-        () => fetchPostData(),
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [post.id, fetchPostData, supabase]);
-
-  const addComment = useCallback(
-    async (content: string) => {
-      if (!user?.profile) {
-        console.error("User profile not available for commenting.");
-        return;
-      }
-
-      const { data: insertedComment, error } = await supabase
-        .from("comments")
-        .insert({ post_id: post.id, user_id: user.id, content })
-        .select(
-          "*, commenter:profiles!user_id(*), comment_likes(user_id), replies:comments!parent_id(*, commenter:profiles!user_id(*))",
-        )
-        .single();
-
-      if (error) {
-        console.error("Error adding comment:", error.message);
-      } else if (insertedComment) {
-        setComments((prevComments) => [
-          ...prevComments,
-          insertedComment as any,
-        ]);
-        await createNotification(
-          post.user_id,
-          "comment",
-          post.id,
-          (insertedComment as any).id,
-        );
+  useEffect(() => subscribePost(
+    post.id,
+    (updatedPost) => {
+      if (updatedPost) {
+        setPost(updatedPost);
+        setError(null);
       }
     },
-    [post.id, post.user_id, user, supabase],
-  );
+    (loadError) => {
+      console.error('Error updating post:', loadError);
+      setError(loadError.message);
+    },
+  ), [post.id]);
+
+  const addComment = useCallback(async (content: string) => {
+    if (!user) {
+      setError('Sign in to comment.');
+      return;
+    }
+    try {
+      setError(null);
+      await createComment(post, user.id, content);
+    } catch (actionError: unknown) {
+      console.error('Error adding comment:', actionError);
+      setError(actionError instanceof Error ? actionError.message : 'Could not add your comment.');
+    }
+  }, [post, user]);
 
   const toggleLike = useCallback(async () => {
-    if (!user) return;
-
-    const originallyLiked = userHasLiked;
-    setUserHasLiked(!originallyLiked);
-    setLikesCount((prev) => (originallyLiked ? prev - 1 : prev + 1));
-
-    if (originallyLiked) {
-      const { error } = await supabase
-        .from("likes")
-        .delete()
-        .match({ post_id: post.id, user_id: user.id });
-      if (error) {
-        console.error("Error unliking post:", error.message);
-        setUserHasLiked(originallyLiked);
-        setLikesCount((prev) => prev + 1);
-      }
-    } else {
-      const { data, error } = await supabase
-        .from("likes")
-        .insert({ post_id: post.id, user_id: user.id })
-        .select()
-        .single();
-      if (error) {
-        console.error("Error liking post:", error.message);
-        setUserHasLiked(originallyLiked);
-        setLikesCount((prev) => prev - 1);
-      } else {
-        await createNotification(post.user_id, "like", post.id);
-      }
+    if (!user) {
+      setError('Sign in to like posts.');
+      return;
     }
-  }, [post.id, post.user_id, user, userHasLiked, supabase]);
+    try {
+      setError(null);
+      await togglePostLike(post.id, user.id, post.user_id);
+    } catch (actionError: unknown) {
+      console.error('Error updating post like:', actionError);
+      setError(actionError instanceof Error ? actionError.message : 'Could not update your like.');
+    }
+  }, [post.id, post.user_id, user, userHasLiked]);
 
   const deletePost = useCallback(async () => {
     if (!user || user.id !== post.user_id) {
-      console.error("Permission denied to delete post");
+      setError('You do not have permission to delete this post.');
       return;
     }
-
-    onDelete(post.id);
-
-    const { error } = await supabase
-      .from("posts")
-      .delete()
-      .match({ id: post.id });
-    if (error) {
-      console.error("Error deleting post:", error.message);
+    try {
+      setError(null);
+      await removePost(post.id);
+      onDelete(post.id);
+    } catch (actionError: unknown) {
+      console.error('Error deleting post:', actionError);
+      setError(actionError instanceof Error ? actionError.message : 'Could not delete this post.');
     }
-  }, [post.id, post.user_id, user, onDelete, supabase]);
+  }, [post.id, post.user_id, user, onDelete]);
 
-  const deleteComment = useCallback(
-    async (commentId: string) => {
-      if (!user) return;
+  const deleteComment = useCallback(async (commentId: string) => {
+    const comment = comments.find((item) => item.id === commentId);
+    if (!user || !comment || comment.user_id !== user.id) {
+      setError('You do not have permission to delete this comment.');
+      return;
+    }
+    try {
+      setError(null);
+      await removeComment(post.id, commentId);
+    } catch (actionError: unknown) {
+      console.error('Error deleting comment:', actionError);
+      setError(actionError instanceof Error ? actionError.message : 'Could not delete the comment.');
+    }
+  }, [comments, post.id, user]);
 
-      const commentToDelete = comments.find((c) => c.id === commentId);
-      if (!commentToDelete || commentToDelete.user_id !== user.id) {
-        console.error("Permission denied to delete comment");
-        return;
-      }
+  const likeComment = useCallback(async (commentId: string) => {
+    if (!user) {
+      setError('Sign in to like comments.');
+      return;
+    }
+    const comment = comments.find((item) => item.id === commentId);
+    if (!comment) return;
+    const liked = comment.comment_likes.some((like) => like.user_id === user.id);
+    try {
+      setError(null);
+      await toggleCommentLike(post.id, commentId, user.id, comment.user_id);
+    } catch (actionError: unknown) {
+      console.error('Error updating comment like:', actionError);
+      setError(actionError instanceof Error ? actionError.message : 'Could not update your comment like.');
+    }
+  }, [comments, post.id, user]);
 
-      const originalComments = [...comments];
-      setComments((prevComments) =>
-        prevComments.filter((c) => c.id !== commentId),
-      );
-
-      const { error } = await supabase
-        .from("comments")
-        .delete()
-        .match({ id: commentId, user_id: user.id });
-
-      if (error) {
-        console.error("Error deleting comment:", error.message);
-        setComments(originalComments);
-      }
-    },
-    [user, comments, supabase],
-  );
-
-  const likeComment = useCallback(
-    async (commentId: string) => {
-      if (!user) return;
-
-      const originalComments = [...comments];
-      const comment = comments.find((c) => c.id === commentId);
-      if (!comment) return;
-
-      const userHasLikedComment = (comment.comment_likes || []).some(
-        (like) => like.user_id === user.id,
-      );
-
-      setComments((prevComments) =>
-        prevComments.map((c) => {
-          if (c.id === commentId) {
-            const newLikes = userHasLikedComment
-              ? (c.comment_likes || []).filter(
-                  (like) => like.user_id !== user.id,
-                )
-              : [
-                  ...(c.comment_likes || []),
-                  { user_id: user.id, comment_id: c.id } as Like,
-                ];
-            return { ...c, comment_likes: newLikes };
-          }
-          return c;
-        }),
-      );
-
-      if (userHasLikedComment) {
-        const { error } = await supabase
-          .from("comment_likes")
-          .delete()
-          .match({ comment_id: commentId, user_id: user.id });
-        if (error) {
-          console.error("Error unliking comment:", error.message);
-          setComments(originalComments);
-        }
-      } else {
-        const { data, error } = await supabase
-          .from("comment_likes")
-          .insert({ comment_id: commentId, user_id: user.id })
-          .select()
-          .single();
-        if (error) {
-          console.error("Error liking comment:", error.message);
-          setComments(originalComments);
-        } else {
-          await createNotification(
-            comment.user_id,
-            "like_comment",
-            post.id,
-            comment.id,
-          );
-        }
-      }
-    },
-    [user, comments, post.id, supabase],
-  );
-
-  const replyToComment = useCallback(
-    async (commentId: string, content: string) => {
-      if (!user) {
-        console.error("User not authenticated.");
-        return;
-      }
-
-      const { data: insertedReply, error } = await supabase
-        .from("comments")
-        .insert({
-          post_id: post.id,
-          user_id: user.id,
-          content,
-          parent_id: commentId,
-        })
-        .select("*, commenter:profiles(*)")
-        .single();
-
-      if (error) {
-        console.error("Error replying to comment:", error.message);
-      } else if (insertedReply) {
-        // Immediately update local state so the reply is visible without
-        // waiting for a full re-fetch (optimistic update).
-        setComments((prevComments) =>
-          prevComments.map((c) => {
-            if (c.id === commentId) {
-              return {
-                ...c,
-                replies: [...(c.replies || []), insertedReply as any],
-              };
-            }
-            return c;
-          }),
-        );
-        // Full sync with the server to keep everything consistent.
-        fetchPostData();
-        const parentComment = comments.find((c) => c.id === commentId);
-        if (parentComment) {
-          await createNotification(
-            parentComment.user_id,
-            "reply",
-            post.id,
-            (insertedReply as any).id,
-          );
-        }
-      }
-    },
-    [post.id, user, comments, supabase, fetchPostData],
-  );
+  const replyToComment = useCallback(async (commentId: string, content: string) => {
+    if (!user) {
+      setError('Sign in to reply.');
+      return;
+    }
+    try {
+      setError(null);
+      await createComment(post, user.id, content, commentId);
+    } catch (actionError: unknown) {
+      console.error('Error replying to comment:', actionError);
+      setError(actionError instanceof Error ? actionError.message : 'Could not add your reply.');
+    }
+  }, [post, user]);
 
   return (
     <PostContext.Provider
@@ -373,6 +167,7 @@ export const PostProvider = ({
         comments,
         likesCount,
         userHasLiked,
+        error,
         addComment,
         toggleLike,
         deletePost,
@@ -389,7 +184,7 @@ export const PostProvider = ({
 export const usePost = () => {
   const context = useContext(PostContext);
   if (context === undefined) {
-    throw new Error("usePost must be used within a PostProvider");
+    throw new Error('usePost must be used within a PostProvider');
   }
   return context;
 };

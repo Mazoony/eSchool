@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { supabase } from '../supabase';
+import { useEffect, useState } from 'react';
+import { subscribePosts } from '@/utils/firebase/data';
 import PostItem from './PostItem';
 import { Post } from '../types';
 import CreatePost from './CreatePost';
@@ -10,81 +10,26 @@ export default function SocialFeed() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchPost = async (postId: string) => {
-    const { data, error } = await supabase()
-      .from('posts')
-      .select(`
-        *,
-        author:profiles!user_id(*),
-        likes(user_id),
-        comments!post_id(
-          *,
-          commenter:profiles!user_id(*),
-          comment_likes(user_id)
-        )
-      `)
-      .eq('id', postId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching post:', error.message);
-      return null;
-    }
-    return data;
-  };
-
-  const fetchPosts = useCallback(async () => {
-    setLoading(true);
-    const { data, error } = await supabase()
-      .from('posts')
-      .select(`
-        *,
-        author:profiles!user_id(*),
-        likes(user_id),
-        comments!post_id(
-          *,
-          commenter:profiles!user_id(*),
-          comment_likes(user_id)
-        )
-      `)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching posts:', error.message);
-    } else {
-      setPosts(data as Post[]);
-    }
-    setLoading(false);
-  }, []);
-
-  const handleNewPost = useCallback(async (payload: any) => {
-    const newPost = await fetchPost(payload.new.id);
-    if (newPost) {
-      setPosts((prevPosts) => {
-        if (prevPosts.some((post) => post.id === newPost.id)) {
-          return prevPosts;
-        }
-        return [newPost, ...prevPosts];
-      });
-    }
-  }, []);
+  const [error, setError] = useState<string | null>(null);
 
   const handleDelete = (postId: string) => {
-    setPosts(posts.filter((p) => p.id !== postId));
+    setPosts((previous) => previous.filter((post) => post.id !== postId));
   };
 
   useEffect(() => {
-    fetchPosts();
-
-    const channel = supabase()
-      .channel('social-feed')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, handleNewPost)
-      .subscribe();
-
-    return () => {
-      supabase().removeChannel(channel);
-    };
-  }, [fetchPosts, handleNewPost]);
+    return subscribePosts(
+      (newPosts) => {
+        setPosts(newPosts);
+        setLoading(false);
+        setError(null);
+      },
+      (loadError) => {
+        console.error('Error loading social feed:', loadError);
+        setError(loadError.message);
+        setLoading(false);
+      },
+    );
+  }, []);
 
   if (loading) {
     return <div className="text-center p-8">Loading posts...</div>;
@@ -92,7 +37,8 @@ export default function SocialFeed() {
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto py-8">
-      <CreatePost onPostCreated={fetchPosts} />
+      <CreatePost />
+      {error && <p className="text-center text-red-600" role="alert">{error}</p>}
       {posts.map(post => (
         <PostItem key={post.id} post={post} onDelete={handleDelete} />
       ))}

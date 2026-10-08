@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { getDownloadURL, listAll, ref } from 'firebase/storage';
+import { getFirebaseServices } from '@/utils/firebase/client';
 
 interface VideoFile {
   name: string;
@@ -12,50 +13,39 @@ export default function VideoPlayer() {
   const [videos, setVideos] = useState<VideoFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const supabase = createClient();
-
   useEffect(() => {
     async function fetchVideos() {
       try {
         setLoading(true);
         setError(null);
 
-        const { data: fileList, error: listError } = await supabase.storage
-          .from('videos')
-          .list();
+        const { storage } = getFirebaseServices();
+        const fileList = await listAll(ref(storage, 'lessons'));
 
-        if (listError) {
-          throw listError;
-        }
-
-        if (!fileList || fileList.length === 0) {
+        if (fileList.items.length === 0) {
           setVideos([]);
           return;
         }
 
         const videoFiles = await Promise.all(
-          fileList.map(async (file) => {
-            const { data } = supabase.storage
-              .from('videos')
-              .getPublicUrl(file.name);
-
+          fileList.items.map(async (file) => {
             return {
               name: file.name,
-              publicURL: data.publicUrl,
+              publicURL: await getDownloadURL(file),
             };
           })
         );
 
         setVideos(videoFiles);
-      } catch (error: any) {
-        setError(error.message);
+      } catch (error: unknown) {
+        setError(error instanceof Error ? error.message : 'Could not load videos.');
       } finally {
         setLoading(false);
       }
     }
 
     fetchVideos();
-  }, [supabase.storage]);
+  }, []);
 
   if (loading) {
     return (

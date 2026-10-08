@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../AuthContext';
-import { User } from '../types';
 import Notifications from './Notifications';
 import { 
   HomeIcon, 
@@ -69,13 +68,13 @@ export default function Header() {
                 </button>
               <Link href={`/profile/${user.id}`} className="flex items-center space-x-3">
                 <Image
-                  src={(user as User).profile?.avatar_url || (user as any).user_metadata?.avatar_url || '/user.svg'}
+                  src={user.profile?.avatar_url || user.photoURL || '/user.svg'}
                   alt="Profile"
                   className="w-10 h-10 rounded-full cursor-pointer"
                   width={40}
                   height={40}
                 />
-                <span className="hidden sm:inline-block font-medium text-gray-900 dark:text-gray-100">{(user as User).profile?.full_name || (user as any).user_metadata?.full_name || user.email}</span>
+                <span className="hidden sm:inline-block font-medium text-gray-900 dark:text-gray-100">{user.profile?.full_name || user.displayName || user.email}</span>
               </Link>
             </div>
           </>

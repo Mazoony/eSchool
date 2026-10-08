@@ -12,7 +12,7 @@ import { formatTimestamp } from '../utils/formatTimestamp';
 
 export default function Post() {
   const { user } = useAuth();
-  const { post, comments, likesCount, userHasLiked, addComment, toggleLike, deletePost, replyToComment } = usePost();
+  const { post, comments, likesCount, userHasLiked, error, addComment, toggleLike, deletePost, replyToComment } = usePost();
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
@@ -35,7 +35,6 @@ export default function Post() {
   };
 
   const placeholderAvatar = '/user.svg';
-  // FIX: Use the 'author' alias from the Supabase query
   const author = post.author || { id: 'unknown', full_name: 'Unknown User', avatar_url: placeholderAvatar };
 
 
@@ -46,6 +45,7 @@ export default function Post() {
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+      {error && <p className="mb-3 text-sm text-red-600" role="alert">{error}</p>}
       <div className="flex items-center mb-4">
         <Link href={`/profile/${author.id}`}>
           <Image 

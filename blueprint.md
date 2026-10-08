@@ -3,7 +3,7 @@
 
 ## Overview
 
-eSchool is a modern social learning platform designed to connect students and educators in Sudan. It provides an interactive online environment where users can share ideas, collaborate, and build a vibrant learning community. The platform is built with Next.js and utilizes Supabase for its backend, database, and authentication needs.
+eSchool is a modern social learning platform designed to connect students and educators in Sudan. It provides an interactive online environment where users can share ideas, collaborate, and build a vibrant learning community. The platform is built with Next.js and uses Firebase Authentication, Cloud Firestore, and Cloud Storage.
 
 ## Design and Features
 
@@ -16,7 +16,7 @@ eSchool is a modern social learning platform designed to connect students and ed
 - **Protected Routes:** The social feed and user profiles are protected. If a logged-out user tries to access them, they are automatically redirected to the login page.
 - **Post Creation & Interaction:** Authenticated users can create posts, leave comments, and engage with content from others.
 - **Custom User Profiles:** Every user has a personal profile page where they can set their full name and upload a custom avatar.
-- **Authentication:** A complete authentication system powered by Supabase, supporting email/password sign-up and login.
+- **Authentication:** A complete authentication system powered by Firebase, supporting email/password sign-up and login.
 - **Correct Login Redirect:** Users are now correctly redirected to the `/social` page upon successful sign-in, ensuring a seamless user experience.
 - **Refactored Layout:** The layout has been refactored to use a single `Header` component and unused layout components have been removed.
 - **SEO and Structured Data:** The application now includes comprehensive SEO and structured data to improve its visibility in search results. This includes:
@@ -27,3 +27,8 @@ eSchool is a modern social learning platform designed to connect students and ed
 - **Enhanced Accessibility (A11Y):** Conducted a comprehensive accessibility audit and implemented fixes across the application to ensure compliance with WCAG standards. This includes adding ARIA labels, focus indicators, proper semantic HTML (`<main>`), improving color contrast, and ensuring interactive elements are fully accessible via keyboard and screen readers.
 - **Automated Accessibility Testing:** Integrated `axe-core` and `react-axe` to perform automated accessibility checks during development, helping to identify and resolve issues early in the development process.
 
+## Current Change: Connect Firebase Web App
+
+- Configure the local `.env.local` with the Firebase Web app settings for project `eschool-e0656`; keep this ignored local file out of source control.
+- Set `eschool-e0656` as the Firebase CLI default project in `.firebaserc`.
+- Do not deploy security rules or change Firebase Console settings as part of local configuration.

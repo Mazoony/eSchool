@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { markNotificationsRead, subscribeNotifications } from '@/utils/firebase/data';
 import { useAuth } from '../AuthContext';
 import { Notification } from '../types';
 import Link from 'next/link';
@@ -9,57 +9,42 @@ import { formatDistanceToNow } from 'date-fns';
 import { BellIcon } from '@heroicons/react/24/outline';
 
 export default function Notifications() {
-  const supabase = createClient();
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-
-  const fetchNotifications = useCallback(async () => {
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*, sender:profiles!sender_user_id(*)')
-      .eq('recipient_user_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching notifications:', error.message);
-    } else {
-      setNotifications(data as Notification[]);
-      setUnreadCount(data.filter(n => !n.is_read).length);
-    }
-  }, [user, supabase]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) return;
-    
-    fetchNotifications();
+    if (!user) {
+      setNotifications([]);
+      setUnreadCount(0);
+      return;
+    }
 
-    const channel = supabase
-      .channel('notifications')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_user_id=eq.${user.id}` }, fetchNotifications)
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, fetchNotifications, supabase]);
+    return subscribeNotifications(
+      user.id,
+      (items) => {
+        setNotifications(items);
+        setUnreadCount(items.filter((item) => !item.is_read).length);
+        setError(null);
+      },
+      (loadError) => {
+        console.error('Error fetching notifications:', loadError);
+        setError(loadError.message);
+      },
+    );
+  }, [user]);
 
   const markAsRead = async () => {
     if (!user) return;
 
-    const { error } = await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('recipient_user_id', user.id)
-      .eq('is_read', false);
-
-    if (error) {
-      console.error('Error marking notifications as read:', error.message);
-    } else {
+    try {
+      await markNotificationsRead(user.id);
       setUnreadCount(0);
+    } catch (error: unknown) {
+      console.error('Error marking notifications as read:', error);
+      setError(error instanceof Error ? error.message : 'Could not update notifications.');
     }
   };
 
@@ -104,12 +89,13 @@ export default function Notifications() {
               <button onClick={markAsRead} className="text-sm text-blue-500 hover:underline">Mark all as read</button>
             }
           </div>
+          {error && <p className="p-3 text-sm text-red-600" role="alert">{error}</p>}
           <div className="divide-y divide-gray-200 dark:divide-gray-700 max-h-96 overflow-y-auto">
             {notifications.map(notification => (
               <Link key={notification.id} href={getNotificationLink(notification)}>
                 <div className={`p-4 hover:bg-gray-100 dark:hover:bg-gray-700 ${!notification.is_read ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}>
                   <div className="flex items-start">
-                    <img src={notification.sender.avatar_url} alt={notification.sender.full_name} className="w-8 h-8 rounded-full mr-3"/>
+                    <img src={notification.sender.avatar_url || '/user.svg'} alt={notification.sender.full_name || 'User'} className="w-8 h-8 rounded-full mr-3"/>
                     <div className="flex-1">
                       <p className="text-sm">
                         <span className="font-bold">{notification.sender.full_name}</span> {getNotificationMessage(notification)}

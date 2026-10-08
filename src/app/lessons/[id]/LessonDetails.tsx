@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { Lesson } from '../types';
+import { Lesson } from '../../types';
 
 const getVideoMimeType = (url: string) => {
   const extension = url.split('?')[0].split('.').pop()?.toLowerCase();

@@ -1,30 +1,26 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '../supabase';
+import { useAuth } from '../AuthContext';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { signIn } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     try {
-      const { error } = await supabase().auth.signInWithPassword({
+      await signIn({
         email,
         password,
       });
-      if (error) {
-        setError(error.message);
-      } else {
-        router.push('/admin/dashboard');
-      }
+      router.push('/admin/dashboard');
     } catch (err) {
-        const error = err as { message: string };
-        setError(error.message);
+        setError(err instanceof Error ? err.message : 'Unable to sign in.');
     }
   };
 

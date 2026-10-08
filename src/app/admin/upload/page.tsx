@@ -2,9 +2,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '../../supabase';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../AuthContext';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { deleteObject, getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { getFirebaseServices } from '@/utils/firebase/client';
 
 export default function UploadPage() {
   const [title, setTitle] = useState('');
@@ -15,15 +17,15 @@ export default function UploadPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const isAdmin = user && user.email === 'wadareaf@gmail.com';
 
   useEffect(() => {
-    if (!user) {
+    if (!authLoading && !user) {
       router.push('/login');
     }
-  }, [user, router]);
+  }, [authLoading, user, router]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -52,35 +54,40 @@ export default function UploadPage() {
         return;
       }
 
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `lessons/${fileName}`;
+      if (!user || !isAdmin) throw new Error('Administrator access is required to upload lessons.');
 
-      setProgress(10); // Start the progress
-
-      const { error: uploadError } = await supabase().storage
-        .from('videos')
-        .upload(filePath, videoFile);
-
-      if (uploadError) {
-        console.error('Error uploading video:', uploadError);
-        setError(`Failed to upload video: ${uploadError.message}`);
-        setUploading(false);
-        setProgress(0);
-        return;
-      }
-
-      setProgress(50); // Video uploaded, saving file path to DB
-
-      const { error: insertError } = await supabase()
-        .from('lessons')
-        .insert([{ title, description, video_url: filePath, user_id: user?.id }]);
-
-      if (insertError) {
-        console.error('Error inserting lesson:', insertError);
-        setError(`Failed to save lesson: ${insertError.message}`);
-        setUploading(false);
-        setProgress(0);
-        return;
+      const { storage, db } = getFirebaseServices();
+      const filePath = `lessons/${crypto.randomUUID()}.${fileExt}`;
+      const uploadTask = uploadBytesResumable(ref(storage, filePath), videoFile, {
+        contentType: videoFile.type,
+      });
+      await new Promise<void>((resolve, reject) => {
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            setProgress(Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 75));
+          },
+          reject,
+          resolve,
+        );
+      });
+      setProgress(85);
+      const videoUrl = await getDownloadURL(uploadTask.snapshot.ref);
+      try {
+        await addDoc(collection(db, 'lessons'), {
+          title: title.trim(),
+          description: description.trim(),
+          video_url: videoUrl,
+          user_id: user.id,
+          created_at: serverTimestamp(),
+        });
+      } catch (saveError) {
+        try {
+          await deleteObject(uploadTask.snapshot.ref);
+        } catch (cleanupError) {
+          console.error('Failed to remove uploaded video after saving lesson failed:', cleanupError);
+        }
+        throw saveError;
       }
 
       setProgress(100); // All done!
@@ -96,15 +103,15 @@ export default function UploadPage() {
         setSuccessMessage(null);
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error during video upload process:', error);
-      setError(error.message || 'An unexpected error occurred.');
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred.');
       setUploading(false);
       setProgress(0);
     }
   };
 
-  if (!user) {
+  if (authLoading || !user) {
     return <p>Loading...</p>;
   }
 
@@ -136,7 +143,7 @@ export default function UploadPage() {
         </button>
       </div>
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Upload Video with Supabase</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Upload Video</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="title" className="block text-gray-700 font-bold mb-2">

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '../../utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../AuthContext';
 
@@ -12,67 +11,19 @@ export default function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
-  const { signInWithGoogle } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     try {
-      // Step 1: Create the user in Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      await signUp({
         email,
         password,
+        fullName,
       });
-
-      if (authError) {
-        setError(authError.message);
-        return;
-      }
-
-      if (!authData.user) {
-        setError('Sign up successful, but no user data returned. Please try logging in.');
-        return;
-      }
-
-      // Step 2: Create the user's profile in the `profiles` table
-      const { error: profileError } = await supabase.from('profiles').insert([
-        { id: authData.user.id, full_name: fullName },
-      ]);
-
-      if (profileError) {
-        setError(profileError.message);
-        // Optional: Here you might want to delete the created user if the profile creation fails
-        // await supabase.auth.api.deleteUser(authData.user.id);
-      } else {
-        // Try to sign the user in immediately so the client has a session
-        try {
-          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-
-          if (signInError) {
-            // If sign in fails (e.g., email confirmation required), fallback to social feed or login page
-            console.warn('Sign in after sign up failed:', signInError.message);
-            router.push('/login');
-            return;
-          }
-
-          const sessionUser = signInData?.user;
-          if (sessionUser) {
-            router.push(`/social`);
-            return;
-          }
-
-          // Fallback
-          router.push('/social');
-        } catch (err) {
-          console.error('Error signing in after registration:', err);
-          router.push('/login');
-        }
-      }
+      router.push('/social');
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);

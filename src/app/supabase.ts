@@ -1,1 +1,0 @@
-export { createClient as supabase } from '../utils/supabase/client';

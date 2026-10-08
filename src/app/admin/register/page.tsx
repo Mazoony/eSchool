@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../supabase";
+import { useAuth } from "../../AuthContext";
 
 export default function AdminRegister() {
   const [email, setEmail] = useState("");
@@ -9,23 +9,20 @@ export default function AdminRegister() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { signUp } = useAuth();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    const { data, error } = await supabase().auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
-    } else if (data.user) {
+    try {
+      await signUp({ email, password });
       // You might want to automatically sign in the user or redirect them
       // For an admin panel, maybe redirect to a login page or a "check your email" page
       router.push("/auth/login");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Registration failed.");
     }
     setLoading(false);
   };

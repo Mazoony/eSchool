@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { createClient } from '../../../utils/supabase/client';
+import { getFirebaseServices } from '@/utils/firebase/client';
+import { updateProfile } from '@/utils/firebase/data';
+import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 interface LessonSummary {
   id: string;
@@ -60,9 +62,6 @@ export default function ProfileClient({
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const supabase = createClient();
-
   const avatarSrc = normalizeAvatarDisplay(avatarUrl, fullName || profile.username || 'User');
 
   const handleSave = async () => {
@@ -73,47 +72,25 @@ export default function ProfileClient({
     setMessage(null);
 
     const cleanUsername = username.trim().toLowerCase();
-    const updates: Record<string, unknown> = {
-      username: cleanUsername || null,
-      full_name: fullName.trim() || null,
-      bio: bio.trim() || null,
-    };
-
-    if (cleanUsername) {
-      const { data: existingUser, error: usernameError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('username', cleanUsername)
-        .maybeSingle();
-
-      if (usernameError) {
-        setError(usernameError.message);
-        setSaving(false);
-        return;
-      }
-
-      if (existingUser && existingUser.id !== currentUserId) {
-        setError('This username is already taken. Please choose another one.');
-        setSaving(false);
-        return;
-      }
-    }
-
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', currentUserId);
-
-    if (updateError) {
-      setError(updateError.message);
+    if (cleanUsername && !/^[a-z0-9_]{3,20}$/.test(cleanUsername)) {
+      setError('Username must be 3-20 characters and contain only lowercase letters, numbers, or underscores.');
       setSaving(false);
       return;
     }
 
-    setSaving(false);
-    setEditing(false);
-    setMessage('Profile updated successfully.');
-    router.refresh();
+    try {
+      await updateProfile(currentUserId, {
+        username: cleanUsername || null,
+        full_name: fullName.trim() || null,
+        bio: bio.trim() || null,
+      });
+      setSaving(false);
+      setEditing(false);
+      setMessage('Profile updated successfully.');
+    } catch (updateError: unknown) {
+      setError(updateError instanceof Error ? updateError.message : 'Failed to update profile.');
+      setSaving(false);
+    }
   };
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,7 +98,7 @@ export default function ProfileClient({
 
     const file = event.target.files[0];
     const fileExt = file.name.split('.').pop() || 'png';
-    const fileName = `avatar.${fileExt}`;
+    const fileName = `avatar-${Date.now()}.${fileExt}`;
     const filePath = `${currentUserId}/${fileName}`;
 
     setUploading(true);
@@ -129,49 +106,30 @@ export default function ProfileClient({
     setError(null);
     setMessage(null);
 
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(filePath, file, { upsert: true });
-
-    if (uploadError) {
-      setError(`Upload failed: ${uploadError.message}`);
+    try {
+      const { storage, db } = getFirebaseServices();
+      setProgress(25);
+      const uploaded = await uploadBytes(
+        ref(storage, `avatars/${filePath}`),
+        file,
+        { contentType: file.type },
+      );
+      setProgress(75);
+      const publicUrl = await getDownloadURL(uploaded.ref);
+      await updateDoc(doc(db, 'profiles', currentUserId), {
+        avatar_url: publicUrl,
+        updated_at: serverTimestamp(),
+      });
+      setAvatarUrl(publicUrl);
+      setProgress(100);
+      setUploading(false);
+      setMessage('Avatar updated successfully.');
+      setTimeout(() => setMessage(null), 3000);
+    } catch (uploadError: unknown) {
+      setError(`Upload failed: ${uploadError instanceof Error ? uploadError.message : 'Unknown error.'}`);
       setUploading(false);
       setProgress(0);
-      return;
     }
-
-    setProgress(50);
-    const { data: urlData } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(filePath);
-
-    if (!urlData?.publicUrl) {
-      setError('Could not get avatar URL for the uploaded file.');
-      setUploading(false);
-      setProgress(0);
-      return;
-    }
-
-    const publicUrl = urlData.publicUrl;
-    setAvatarUrl(publicUrl);
-    setProgress(75);
-
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update({ avatar_url: publicUrl })
-      .eq('id', currentUserId);
-
-    if (updateError) {
-      setError(`Failed to save avatar: ${updateError.message}`);
-      setUploading(false);
-      setProgress(0);
-      return;
-    }
-
-    setUploading(false);
-    setProgress(100);
-    setMessage('Avatar updated successfully.');
-    setTimeout(() => setMessage(null), 3000);
   };
 
   return (

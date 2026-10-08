@@ -83,7 +83,7 @@ export default function Header() {
                             <span className="sr-only">Open user menu</span>
                             <img
                             className="h-8 w-8 rounded-full"
-                            src={user.user_metadata.avatar_url || 'https://www.gravatar.com/avatar/'}
+                            src={user.profile?.avatar_url || user.photoURL || 'https://www.gravatar.com/avatar/'}
                             alt=""
                             />
                         </Menu.Button>
