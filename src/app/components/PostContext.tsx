@@ -15,7 +15,7 @@ import {
   subscribePost,
   toggleCommentLike,
   togglePostLike,
-} from '@/utils/firebase/data';
+} from '@/utils/supabase/data';
 import { useAuth } from '../AuthContext';
 import { Comment as CommentType, Post as PostType } from '../types';
 
@@ -92,7 +92,7 @@ export const PostProvider = ({
     }
     try {
       setError(null);
-      await togglePostLike(post.id, user.id, post.user_id);
+      await togglePostLike(post.id, user.id);
     } catch (actionError: unknown) {
       console.error('Error updating post like:', actionError);
       setError(actionError instanceof Error ? actionError.message : 'Could not update your like.');
@@ -136,10 +136,9 @@ export const PostProvider = ({
     }
     const comment = comments.find((item) => item.id === commentId);
     if (!comment) return;
-    const liked = comment.comment_likes.some((like) => like.user_id === user.id);
     try {
       setError(null);
-      await toggleCommentLike(post.id, commentId, user.id, comment.user_id);
+      await toggleCommentLike(commentId, user.id);
     } catch (actionError: unknown) {
       console.error('Error updating comment like:', actionError);
       setError(actionError instanceof Error ? actionError.message : 'Could not update your comment like.');

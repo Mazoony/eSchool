@@ -1,3 +1,4 @@
+-- Create the base social tables before migrations that add likes and policies.
 -- Create the posts table
 CREATE TABLE IF NOT EXISTS posts (
     id SERIAL PRIMARY KEY,

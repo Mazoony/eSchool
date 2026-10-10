@@ -41,29 +41,29 @@ export default function Header() {
           {user ? (
           <>
             <nav className="flex flex-grow justify-center items-center space-x-6 sm:space-x-10">
-              <Link href="/social" className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
+              <Link href="/social" aria-label="Home feed" className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
                 <HomeIcon className="h-7 w-7" />
               </Link>
-              <Link href="/lessons" className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
+              <Link href="/lessons" aria-label="Lessons" className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
                 <BookOpenIcon className="h-7 w-7" />
               </Link>
               <Notifications />
-              <Link href={`/profile/${user.id}`} className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
+              <Link href={`/profile/${user.id}`} aria-label="Your profile" className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
                 <UserCircleIcon className="h-7 w-7" />
               </Link>
-               <Link href="/settings" className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
+               <Link href="/settings" aria-label="Settings" className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
                 <CogIcon className="h-7 w-7" />
               </Link>
-              <button onClick={handleLogout} className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
+              <button onClick={handleLogout} aria-label="Sign out" className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
                 <ArrowLeftOnRectangleIcon className="h-7 w-7" />
               </button>
             </nav>
 
             <div className="flex items-center space-x-2 sm:space-x-4">
-                <button className="bg-gray-200 dark:bg-gray-700 p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
+                <button aria-label="Create a post" className="bg-gray-200 dark:bg-gray-700 p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
                     <PlusIcon className="h-6 w-6" />
                 </button>
-                <button className="bg-gray-200 dark:bg-gray-700 p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
+                <button aria-label="Messages" className="bg-gray-200 dark:bg-gray-700 p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
                     <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
                 </button>
               <Link href={`/profile/${user.id}`} className="flex items-center space-x-3">

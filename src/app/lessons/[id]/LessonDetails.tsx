@@ -1,6 +1,7 @@
 
 import Link from 'next/link';
 import { Lesson } from '../../types';
+import LessonTask from './LessonTask';
 
 const getVideoMimeType = (url: string) => {
   const extension = url.split('?')[0].split('.').pop()?.toLowerCase();
@@ -22,7 +23,7 @@ interface LessonDetailsProps {
   lesson: Lesson;
 }
 
-export default async function LessonDetails({ lesson }: LessonDetailsProps) {
+export default function LessonDetails({ lesson }: LessonDetailsProps) {
 
   if (!lesson) {
     return (
@@ -81,6 +82,19 @@ export default async function LessonDetails({ lesson }: LessonDetailsProps) {
           <h2 id="lesson-description-heading" className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">Description</h2>
           <p className="text-lg text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{lesson.description}</p>
         </section>
+        {lesson.task_prompt ? (
+          <LessonTask lessonId={lesson.id} prompt={lesson.task_prompt} />
+        ) : (
+          <section
+            aria-labelledby="lesson-task-heading"
+            className="mt-8 rounded-lg bg-white p-6 shadow-md dark:bg-gray-800"
+          >
+            <h2 id="lesson-task-heading" className="mb-3 text-2xl font-bold text-gray-900 dark:text-gray-50">
+              Your Task
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300">No task assigned yet.</p>
+          </section>
+        )}
       </main>
     </div>
   );

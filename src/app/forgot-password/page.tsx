@@ -1,8 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { getFirebaseServices } from '@/utils/firebase/client';
+import { createClient } from '@/utils/supabase/client';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -12,13 +11,12 @@ export default function ForgotPassword() {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { auth } = getFirebaseServices();
-      await sendPasswordResetEmail(auth, email);
+      const { error: resetError } = await createClient().auth.resetPasswordForEmail(email);
+      if (resetError) throw resetError;
       setMessage('Password reset email sent. Please check your inbox.');
       setError(null);
-    } catch (err) {
-      const error = err as { message: string };
-      setError(error.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Could not send the password reset email.');
       setMessage(null);
     }
   };

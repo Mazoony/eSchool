@@ -3,13 +3,14 @@
 
 import { useAuth } from '../app/AuthContext';
 import Link from 'next/link';
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, BellIcon, XMarkIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 import { useTheme } from 'next-themes';
 
 const navigation = [
   { name: 'Home', href: '/' },
+  { name: 'Lessons', href: '/lessons' },
   { name: 'Social', href: '/social' },
 ];
 
@@ -20,6 +21,21 @@ function classNames(...classes: string[]) {
 export default function Header() {
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const visibleNavigation = [
+    ...navigation.filter((item) => item.href !== '/lessons' || user),
+    ...(user?.email === 'wadareaf@gmail.com'
+      ? [
+          { name: 'Upload', href: '/admin/upload' },
+          { name: 'Tasks', href: '/admin/tasks' },
+        ]
+      : []),
+  ];
 
   return (
     <Disclosure as="nav" className="bg-white dark:bg-gray-800 shadow">
@@ -46,7 +62,7 @@ export default function Header() {
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
-                    {navigation.map((item) => (
+                    {visibleNavigation.map((item) => (
                       <Link
                         key={item.name}
                         href={item.href}
@@ -68,10 +84,10 @@ export default function Header() {
                     className="p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
                 >
                     <span className="sr-only">Toggle dark mode</span>
-                    {theme === 'dark' ? (
-                        <SunIcon className="h-6 w-6" aria-hidden="true" />
-                    ) : (
+                    {!mounted || theme !== 'dark' ? (
                         <MoonIcon className="h-6 w-6" aria-hidden="true" />
+                    ) : (
+                        <SunIcon className="h-6 w-6" aria-hidden="true" />
                     )}
                 </button>
 
@@ -137,7 +153,7 @@ export default function Header() {
 
           <Disclosure.Panel className="sm:hidden">
             <div className="space-y-1 px-2 pt-2 pb-3">
-              {navigation.map((item) => (
+              {visibleNavigation.map((item) => (
                 <Disclosure.Button
                   key={item.name}
                   as="a"

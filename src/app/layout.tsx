@@ -19,20 +19,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'eSchool - Learn English in Sudan',
     description: 'Join the leading online platform for English education in Sudan.',
-    images: [
-      {
-        url: '/og-image.png', 
-        width: 800,
-        height: 600,
-        alt: 'eSchool Online Learning Platform',
-      },
-    ],
+    images: [{ url: '/teacher.jpg', alt: 'eSchool teacher' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'eSchool - Learn English in Sudan',
     description: 'The future of English education in Sudan is here. Join eSchool and start your learning journey today.',
-    images: ['/twitter-image.png'], 
+    images: ['/teacher.jpg'],
   },
 };
 

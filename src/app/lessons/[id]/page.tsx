@@ -1,6 +1,4 @@
 
-import { notFound } from 'next/navigation';
-import LessonDetails from './LessonDetails';
 import { Metadata } from 'next';
 import LessonPageClient from './LessonPageClient';
 

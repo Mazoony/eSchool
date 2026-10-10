@@ -9,9 +9,8 @@ export default function RegisterForm() {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState(''); // New state for the user's full name
   const [error, setError] = useState<string | null>(null);
-  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const router = useRouter();
-  const { signUp, signInWithGoogle } = useAuth();
+  const { signUp } = useAuth();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +22,7 @@ export default function RegisterForm() {
         password,
         fullName,
       });
-      router.push('/social');
+      router.push('/lessons');
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
@@ -32,34 +31,10 @@ export default function RegisterForm() {
       }
     }
   };
-  const handleGoogleSignUp = async () => {
-    setError(null);
-    setIsGoogleSubmitting(true);
-    try {
-      await signInWithGoogle();
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('Google sign up failed.');
-      }
-    } finally {
-      setIsGoogleSubmitting(false);
-    }
-  };
   return (
     <main className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Create an Account</h1>
-        <button
-          type="button"
-          onClick={handleGoogleSignUp}
-          disabled={isGoogleSubmitting}
-          className="w-full py-2 px-4 mb-6 font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition duration-300 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"
-          aria-label="Continue with Google"
-        >
-          {isGoogleSubmitting ? 'Continuing with Google...' : 'Continue with Google'}
-        </button>
         <form onSubmit={handleSignUp}>
           <div className="mb-4">
             <label htmlFor="fullName" className="block text-gray-700 font-bold mb-2">

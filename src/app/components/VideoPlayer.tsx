@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getDownloadURL, listAll, ref } from 'firebase/storage';
-import { getFirebaseServices } from '@/utils/firebase/client';
+import { getLessons } from '../lessons/actions';
 
 interface VideoFile {
   name: string;
@@ -19,24 +18,10 @@ export default function VideoPlayer() {
         setLoading(true);
         setError(null);
 
-        const { storage } = getFirebaseServices();
-        const fileList = await listAll(ref(storage, 'lessons'));
-
-        if (fileList.items.length === 0) {
-          setVideos([]);
-          return;
-        }
-
-        const videoFiles = await Promise.all(
-          fileList.items.map(async (file) => {
-            return {
-              name: file.name,
-              publicURL: await getDownloadURL(file),
-            };
-          })
-        );
-
-        setVideos(videoFiles);
+        const lessons = await getLessons();
+        setVideos(lessons
+          .filter((lesson) => lesson.video_url)
+          .map((lesson) => ({ name: lesson.title, publicURL: lesson.video_url })));
       } catch (error: unknown) {
         setError(error instanceof Error ? error.message : 'Could not load videos.');
       } finally {

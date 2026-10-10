@@ -8,19 +8,10 @@ import {
   useState,
   ReactNode,
 } from 'react';
-import {
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut as firebaseSignOut,
-  updateProfile,
-  User as FirebaseUser,
-} from 'firebase/auth';
+import { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
-import { ensureProfile } from '@/utils/firebase/data';
-import { getFirebaseServices } from '@/utils/firebase/client';
+import { createClient } from '@/utils/supabase/client';
+import { ensureProfile } from '@/utils/supabase/data';
 import { Profile, User } from './types';
 
 interface Credentials {
@@ -29,7 +20,7 @@ interface Credentials {
 }
 
 interface AuthContextType {
-  session: FirebaseUser | null;
+  session: Session | null;
   user: User | null;
   loading: boolean;
   error: string | null;
@@ -42,16 +33,18 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const appUser = (authUser: FirebaseUser, profile?: Profile): User => ({
-  id: authUser.uid,
-  email: authUser.email,
-  displayName: authUser.displayName,
-  photoURL: authUser.photoURL,
-  profile,
-});
+function toAppUser(authUser: SupabaseUser, profile?: Profile | null): User {
+  return {
+    id: authUser.id,
+    email: authUser.email ?? null,
+    displayName: authUser.user_metadata.full_name ?? authUser.user_metadata.name ?? null,
+    photoURL: authUser.user_metadata.avatar_url ?? authUser.user_metadata.picture ?? null,
+    profile: profile ?? undefined,
+  };
+}
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [session, setSession] = useState<FirebaseUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,48 +54,57 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let mounted = true;
     let unsubscribe: (() => void) | undefined;
+    let client: ReturnType<typeof createClient>;
+
+    const applySession = async (nextSession: Session | null) => {
+      if (!mounted) return;
+      setSession(nextSession);
+      if (!nextSession?.user) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const profile = await ensureProfile(
+          nextSession.user.id,
+          nextSession.user.user_metadata as Record<string, unknown>,
+        );
+        if (mounted) setUser(toAppUser(nextSession.user, profile));
+      } catch (profileError: unknown) {
+        console.error('Failed to load Supabase profile:', profileError);
+        if (mounted) {
+          setUser(toAppUser(nextSession.user));
+          setError(profileError instanceof Error ? profileError.message : 'Could not load your profile.');
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
 
     try {
-      const { auth } = getFirebaseServices();
-      unsubscribe = onAuthStateChanged(
-        auth,
-        async (firebaseUser) => {
-          if (!mounted) return;
-          setSession(firebaseUser);
-          setLoading(true);
-          setError(null);
-
-          if (!firebaseUser) {
-            setUser(null);
-            setLoading(false);
-            return;
-          }
-
-          try {
-            const profile = await ensureProfile(firebaseUser);
-            if (mounted) setUser(appUser(firebaseUser, profile));
-          } catch (authError: unknown) {
-            console.error('Failed to load Firebase profile:', authError);
-            if (mounted) {
-              setUser(appUser(firebaseUser));
-              setError(authError instanceof Error ? authError.message : 'Could not load your profile.');
-            }
-          } finally {
-            if (mounted) setLoading(false);
-          }
-        },
-        (authError) => {
-          console.error('Firebase authentication state error:', authError);
+      client = createClient();
+      client.auth.getSession()
+        .then(({ data, error: sessionError }) => {
+          if (sessionError) throw sessionError;
+          return applySession(data.session);
+        })
+        .catch((authError: unknown) => {
+          console.error('Failed to load Supabase session:', authError);
           if (mounted) {
-            setError(authError.message);
+            setError(authError instanceof Error ? authError.message : 'Could not load your session.');
             setLoading(false);
           }
-        },
-      );
+        });
+
+      const { data } = client.auth.onAuthStateChange((_event, nextSession) => {
+        window.setTimeout(() => void applySession(nextSession), 0);
+      });
+      unsubscribe = () => data.subscription.unsubscribe();
     } catch (authError: unknown) {
-      console.error('Failed to initialize Firebase authentication:', authError);
+      console.error('Failed to initialize Supabase authentication:', authError);
       if (mounted) {
-        setError(authError instanceof Error ? authError.message : 'Could not initialize Firebase.');
+        setError(authError instanceof Error ? authError.message : 'Could not initialize authentication.');
         setLoading(false);
       }
     }
@@ -119,29 +121,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signOut = useCallback(async () => {
-    const { auth } = getFirebaseServices();
-    await firebaseSignOut(auth);
+    const { error: signOutError } = await createClient().auth.signOut();
+    if (signOutError) throw signOutError;
     showToast('Signed out successfully');
     router.push('/');
   }, [router, showToast]);
 
   const signIn = useCallback(async ({ email, password }: Credentials) => {
-    const { auth } = getFirebaseServices();
-    await signInWithEmailAndPassword(auth, email, password);
+    const { error: signInError } = await createClient().auth.signInWithPassword({ email, password });
+    if (signInError) throw signInError;
   }, []);
 
   const signUp = useCallback(async ({ email, password, fullName }: Credentials & { fullName?: string }) => {
-    const { auth } = getFirebaseServices();
-    const credential = await createUserWithEmailAndPassword(auth, email, password);
-    if (fullName?.trim()) {
-      await updateProfile(credential.user, { displayName: fullName.trim() });
-    }
-    await ensureProfile(credential.user, fullName?.trim());
+    const { error: signUpError } = await createClient().auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: fullName?.trim() || null } },
+    });
+    if (signUpError) throw signUpError;
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
-    const { auth } = getFirebaseServices();
-    await signInWithPopup(auth, new GoogleAuthProvider());
+    const { error: oauthError } = await createClient().auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+    if (oauthError) throw oauthError;
   }, []);
 
   return (
@@ -155,8 +160,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };

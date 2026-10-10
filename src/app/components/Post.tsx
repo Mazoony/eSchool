@@ -44,7 +44,7 @@ export default function Post() {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+    <div id={`post-${post.id}`} className="scroll-mt-24 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
       {error && <p className="mb-3 text-sm text-red-600" role="alert">{error}</p>}
       <div className="flex items-center mb-4">
         <Link href={`/profile/${author.id}`}>
@@ -63,14 +63,14 @@ export default function Post() {
           </Link>
           <p className="text-xs text-gray-500 dark:text-gray-400">{formatTimestamp(post.created_at)}</p>
         </div>
-        {user && user.id === post.user_id && (
+        {user && user.id === post.user_id && !post.lesson_submission_id && (
             <button onClick={handleDeletePost} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
                 <TrashIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             </button>
         )}
       </div>
 
-      <p className="text-gray-800 dark:text-gray-200 mb-4">{post.content}</p>
+      <p className="mb-4 whitespace-pre-wrap break-words text-gray-800 dark:text-gray-200">{post.content}</p>
 
       <div className="flex items-center space-x-4">
         <button onClick={toggleLike} className="flex items-center space-x-1 text-gray-500 hover:text-red-500">

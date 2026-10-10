@@ -1,15 +1,24 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import VideoLessonList, { LessonVideoProps } from '../components/VideoLessonList';
 import { getLessons } from '../lessons/actions';
+import { useAuth } from '../AuthContext';
 
 export default function VideosClient() {
   const [lessons, setLessons] = useState<LessonVideoProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
+    if (!authLoading && !user) router.replace('/login');
+  }, [authLoading, user, router]);
+
+  useEffect(() => {
+    if (authLoading || !user) return;
     let active = true;
     getLessons()
       .then((results) => {
@@ -33,7 +42,11 @@ export default function VideosClient() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [authLoading, user]);
+
+  if (authLoading || !user) {
+    return <p className="p-8 text-center">Checking your sign-in...</p>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-10">

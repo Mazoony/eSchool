@@ -10,7 +10,7 @@ interface ReplyItemProps {
 
 export default function ReplyItem({ reply }: ReplyItemProps) {
   return (
-    <div className="flex items-start space-x-3 mt-3">
+    <div id={`comment-${reply.id}`} className="scroll-mt-24 flex items-start space-x-3 mt-3">
       <Image src={reply.commenter.avatar_url || '/user.svg'} alt={reply.commenter.full_name || 'User'} width={32} height={32} className="w-8 h-8 rounded-full" priority />
       <div className="flex-1">
         <div className="flex items-center">

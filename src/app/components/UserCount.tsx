@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { subscribeUserCount } from '@/utils/firebase/data';
+import { subscribeUserCount } from '@/utils/supabase/data';
 
 export default function UserCount() {
   const [userCount, setUserCount] = useState(0);

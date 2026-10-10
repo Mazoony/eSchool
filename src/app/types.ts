@@ -3,6 +3,7 @@ export interface Profile {
   username?: string | null;
   full_name?: string | null;
   avatar_url?: string | null;
+  cover_url?: string | null;
   bio?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
@@ -20,6 +21,7 @@ export interface Post {
   id: string;
   content: string;
   user_id: string;
+  lesson_submission_id?: string | null;
   author: Profile;
   created_at: string;
   comments: Comment[];
@@ -59,6 +61,7 @@ export interface Notification {
   type: string;
   post_id: string;
   comment_id?: string;
+  content?: string | null;
   is_read: boolean;
   sender: Profile;
 }
@@ -70,4 +73,5 @@ export interface Lesson {
   video_url: string;
   created_at: string;
   slug: string;
+  task_prompt?: string | null;
 }

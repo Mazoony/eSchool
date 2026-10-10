@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { collection, doc, getDocs, writeBatch } from 'firebase/firestore';
 import { useAuth } from '../../AuthContext';
-import { getFirebaseServices } from '@/utils/firebase/client';
+import { createClient } from '@/utils/supabase/client';
 
 const lessons = [
   { title: 'Introduction to Programming', description: 'Learn the fundamentals of programming, including variables, data types, and control structures.' },
@@ -33,23 +32,19 @@ export default function SeedPage() {
     setError(null);
     setMessage(null);
     try {
-      const { db } = getFirebaseServices();
-      const existing = await getDocs(collection(db, 'lessons'));
-      for (let offset = 0; offset < existing.docs.length; offset += 450) {
-        const batch = writeBatch(db);
-        existing.docs.slice(offset, offset + 450).forEach((item) => batch.delete(item.ref));
-        await batch.commit();
-      }
-      const batch = writeBatch(db);
-      lessons.forEach((lesson) => {
-        batch.set(doc(collection(db, 'lessons')), {
+      const { error: insertError } = await createClient().from('lessons').insert(
+        lessons.map((lesson) => ({
           ...lesson,
           video_url: '',
-          created_at: new Date(),
-        });
-      });
-      await batch.commit();
-      setMessage('Lessons seeded successfully.');
+          grade: 'elementary-school',
+          class_number: 1,
+          user_id: user.id,
+        })),
+      );
+      if (insertError) {
+        throw insertError;
+      }
+      setMessage('Sample lessons added to Elementary School, Class 1. Existing lessons were kept.');
     } catch (seedError: unknown) {
       console.error('Error seeding lessons:', seedError);
       setError(seedError instanceof Error ? seedError.message : 'Failed to seed lessons.');
@@ -63,7 +58,7 @@ export default function SeedPage() {
       <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md text-center">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-4">Seed Database</h1>
         <p className="text-gray-600 dark:text-gray-300 mb-6">
-          Click the button below to replace the lesson collection with initial lesson data.
+          Add sample lessons to Elementary School, Class 1. Existing lessons will not be deleted.
         </p>
         {user?.email === 'wadareaf@gmail.com' ? (
           <button

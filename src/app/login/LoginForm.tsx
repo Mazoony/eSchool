@@ -12,12 +12,24 @@ export default function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [callbackError, setCallbackError] = useState<string | null>(null);
   const router = useRouter();
-  const { user, loading, error: authError, signIn, signInWithGoogle } = useAuth();
+  const { user, loading, error: authError, signIn } = useAuth();
+
+  useEffect(() => {
+    const error = new URLSearchParams(window.location.search).get('authError');
+    if (error === 'provider') {
+      setCallbackError('Google sign-in was not completed. Check that Google is enabled in Supabase and that its redirect URL is configured.');
+    } else if (error === 'exchange-failed') {
+      setCallbackError('Google accepted the sign-in, but Supabase could not finish the session. Please try again or check the Supabase callback settings.');
+    } else if (error === 'missing-code') {
+      setCallbackError('Google did not return a sign-in code. Please try again.');
+    }
+  }, []);
 
   useEffect(() => {
     if (user) {
-      router.push(`/social`);
+      router.push('/lessons');
     }
   }, [user, router]);
 
@@ -36,20 +48,6 @@ export default function LoginForm() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setIsSubmitting(true);
-    setFormError(null);
-    try {
-      await signInWithGoogle();
-      // Redirect is handled by the useEffect above
-    } catch (err: any) {
-      setFormError(err.message);
-      console.error(err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
   if (loading) {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -64,22 +62,11 @@ export default function LoginForm() {
       <div className="w-full max-w-md px-8 py-10 bg-white rounded-lg shadow-md dark:bg-gray-800">
         <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-50">Log In to eSchool</h1>
         {authError && <p className="mt-4 text-center text-sm text-red-600">{authError}</p>}
-        <div className="mt-8">
-          <button
-            onClick={handleGoogleSignIn}
-            className="w-full py-2 px-4 font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Signing in...' : 'Sign In with Google'}
-          </button>
-        </div>
-        <div className="flex items-center justify-center my-6">
-          <hr className="w-full border-gray-300 dark:border-gray-600" />
-          <span className="px-4 text-sm text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-400">OR</span>
-          <hr className="w-full border-gray-300 dark:border-gray-600" />
-        </div>
-        <form onSubmit={handleEmailLogin} className="space-y-6">
+        {callbackError && <p className="mt-4 text-center text-sm text-red-600" role="alert">{callbackError}</p>}
+        <form onSubmit={handleEmailLogin} className="mt-8 space-y-6">
+            <label htmlFor="login-email" className="sr-only">Email address</label>
             <input
+              id="login-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -89,7 +76,9 @@ export default function LoginForm() {
               disabled={isSubmitting}
             />
             <div className="relative">
+              <label htmlFor="login-password" className="sr-only">Password</label>
               <input
+                id="login-password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -102,6 +91,8 @@ export default function LoginForm() {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
               >
                 {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
               </button>

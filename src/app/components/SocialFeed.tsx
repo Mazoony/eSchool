@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { subscribePosts } from '@/utils/firebase/data';
+import { useEffect, useRef, useState } from 'react';
+import { subscribePosts } from '@/utils/supabase/data';
 import PostItem from './PostItem';
 import { Post } from '../types';
 import CreatePost from './CreatePost';
@@ -9,6 +9,7 @@ import CreatePost from './CreatePost';
 export default function SocialFeed() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const didScrollToNotification = useRef(false);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -30,6 +31,15 @@ export default function SocialFeed() {
       },
     );
   }, []);
+
+  useEffect(() => {
+    if (loading || didScrollToNotification.current || !window.location.hash) return;
+    const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      didScrollToNotification.current = true;
+    }
+  }, [loading, posts]);
 
   if (loading) {
     return <div className="text-center p-8">Loading posts...</div>;

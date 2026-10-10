@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getProfile } from '@/utils/firebase/data';
+import { getProfile } from '@/utils/supabase/data';
 import { useAuth } from '../../AuthContext';
 import ProfileClient from './ProfileClient';
 import { Profile } from '../../types';
@@ -37,9 +37,24 @@ export default function ProfilePageClient({ profileId }: { profileId: string }) 
     };
   }, [profileId, authLoading]);
 
-  if (authLoading || loading) return <p className="p-8 text-center">Loading profile...</p>;
-  if (error) return <p className="p-8 text-center text-red-600">{error}</p>;
-  if (!profile) return <p className="p-8 text-center">Profile not found.</p>;
+  if (authLoading || loading) {
+    return <h1 className="p-8 text-center text-lg font-semibold" role="status">Loading profile…</h1>;
+  }
+  if (error) {
+    return (
+      <section className="p-8 text-center" role="alert">
+        <h1 className="text-lg font-semibold text-red-700 dark:text-red-300">Could not load profile</h1>
+        <p className="mt-2 text-gray-700 dark:text-gray-300">{error}</p>
+      </section>
+    );
+  }
+  if (!profile) {
+    return (
+      <section className="p-8 text-center">
+        <h1 className="text-lg font-semibold">Profile not found</h1>
+      </section>
+    );
+  }
 
   return (
     <ProfileClient
@@ -47,8 +62,6 @@ export default function ProfilePageClient({ profileId }: { profileId: string }) 
       isOwnProfile={user?.id === profileId}
       currentUserId={user?.id ?? null}
       currentUserEmail={user?.email ?? null}
-      lessonCount={0}
-      recentLessons={[]}
     />
   );
 }

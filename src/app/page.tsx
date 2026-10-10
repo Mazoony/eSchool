@@ -1,12 +1,28 @@
 
 import Link from 'next/link';
-import { GlobeAltIcon, UserGroupIcon, UserCircleIcon, AcademicCapIcon, ChatBubbleLeftRightIcon, BookmarkIcon } from '@heroicons/react/24/outline';
+import { AcademicCapIcon, ChatBubbleLeftRightIcon, BookmarkIcon } from '@heroicons/react/24/outline';
+import { FaWhatsapp } from 'react-icons/fa';
 import Image from 'next/image';
 import { Metadata } from 'next';
+import HomePageRedirect from './HomePageRedirect';
 
 export const metadata: Metadata = {
   title: 'eSchool - Learn English Online in Sudan',
   description: 'eSchool offers online English courses for students in Sudan. Learn spoken English, prepare for IELTS, and improve your English skills with our expert instructors.',
+  openGraph: {
+    title: 'eSchool - Learn English Online in Sudan',
+    description: 'Learn English, build confidence, and grow with your instructor and a supportive student community.',
+    url: '/',
+    siteName: 'eSchool',
+    images: [{ url: '/teacher.jpg', alt: 'Your eSchool teacher' }],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'eSchool - Learn English Online in Sudan',
+    description: 'Learn English, build confidence, and grow with eSchool.',
+    images: [{ url: '/teacher.jpg', alt: 'Your eSchool teacher' }],
+  },
   alternates: {
     canonical: 'https://eschool.com',
   },
@@ -14,6 +30,7 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
+    <HomePageRedirect>
     <div className="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col">
       <main className="flex-grow">
         {/* Hero Section */}
@@ -27,20 +44,46 @@ export default function LandingPage() {
               priority
             />
           </div>
-          <div className="relative container mx-auto px-6">
-            <h1 className="text-4xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-              Unlock Your Potential with eSchool
-            </h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg lg:text-xl text-gray-600 dark:text-gray-400">
-              The premier online platform for English language education in Sudan. Connect, learn, and grow with our vibrant community.
-            </p>
-            <div className="mt-8 flex justify-center gap-4">
-              <Link href="/register" className="inline-block px-8 py-3 rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg transform hover:scale-105 transition-all duration-300 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">
-                Start Your Journey
-              </Link>
-              <Link href="/social" className="inline-block px-8 py-3 rounded-lg text-blue-600 dark:text-blue-400 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 shadow-lg transform hover:scale-105 transition-all duration-300 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">
-                Explore the Community
-              </Link>
+          <div className="relative container mx-auto grid items-center gap-12 px-6 md:grid-cols-2">
+            <div className="text-center md:text-left">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">
+                English learning, with a teacher by your side
+              </p>
+              <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white lg:text-6xl">
+                Unlock Your Potential with eSchool
+              </h1>
+              <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600 dark:text-gray-400 md:mx-0 lg:text-xl">
+                Learn English, build confidence, and grow with your instructor and a supportive student community.
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-4 md:justify-start">
+                <Link href="/register" className="inline-block rounded-lg bg-blue-600 px-8 py-3 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-blue-700 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">
+                  Start Your Journey
+                </Link>
+                <Link href="/social" className="inline-block rounded-lg bg-gray-200 px-8 py-3 text-blue-600 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-gray-300 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75 dark:bg-gray-700 dark:text-blue-400 dark:hover:bg-gray-600">
+                  Explore the Community
+                </Link>
+                <Link href="/lessons" className="inline-block rounded-lg bg-white px-8 py-3 text-gray-800 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-gray-100 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700">
+                  Browse Lessons
+                </Link>
+              </div>
+            </div>
+            <div className="relative mx-auto w-full max-w-md">
+              <div className="absolute -inset-4 rounded-[2rem] bg-blue-200/70 blur-2xl dark:bg-blue-900/40" aria-hidden="true" />
+              <div className="relative overflow-hidden rounded-[2rem] border-4 border-white shadow-2xl dark:border-gray-700">
+                <Image
+                  src="/teacher.jpg"
+                  alt="Your eSchool teacher preparing a lesson"
+                  width={640}
+                  height={640}
+                  priority
+                  className="aspect-square w-full object-cover object-center"
+                  sizes="(max-width: 768px) 100vw, 40vw"
+                />
+              </div>
+              <div className="absolute -bottom-5 left-4 rounded-xl bg-white px-5 py-3 shadow-xl dark:bg-gray-800 sm:left-8">
+                <p className="font-semibold text-gray-900 dark:text-white">Learn with your teacher</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Guidance at every step</p>
+              </div>
             </div>
           </div>
         </section>
@@ -127,6 +170,7 @@ export default function LandingPage() {
                 <li><Link href="/about" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">About Us</Link></li>
                 <li><Link href="/contact" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">Contact</Link></li>
                 <li><Link href="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">Privacy Policy</Link></li>
+                <li><a href="https://wa.me/249127127993" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75" aria-label="Contact eSchool on WhatsApp at +249 127 127 993"><FaWhatsapp aria-hidden="true" className="h-5 w-5 text-green-600" />WhatsApp: +249 127 127 993</a></li>
               </ul>
             </div>
             <div>
@@ -144,5 +188,6 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
+    </HomePageRedirect>
   );
 }

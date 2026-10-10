@@ -4,13 +4,15 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../AuthContext';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { deleteObject, getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
-import { getFirebaseServices } from '@/utils/firebase/client';
+import { createClient } from '@/utils/supabase/client';
+import { GradeId, grades, isGradeId } from '../../lessons/curriculum';
 
 export default function UploadPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [taskPrompt, setTaskPrompt] = useState('');
+  const [grade, setGrade] = useState<GradeId | ''>('');
+  const [classNumber, setClassNumber] = useState('');
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +42,14 @@ export default function UploadPage() {
       setError('Please select a video file.');
       return;
     }
+    if (videoFile.size > 50 * 1024 * 1024) {
+      setError('The video must be 50 MB or smaller to fit the Supabase Free upload limit.');
+      return;
+    }
+    if (!grade || !classNumber) {
+      setError('Please select a grade and class.');
+      return;
+    }
 
     setUploading(true);
     setProgress(0);
@@ -56,37 +66,26 @@ export default function UploadPage() {
 
       if (!user || !isAdmin) throw new Error('Administrator access is required to upload lessons.');
 
-      const { storage, db } = getFirebaseServices();
       const filePath = `lessons/${crypto.randomUUID()}.${fileExt}`;
-      const uploadTask = uploadBytesResumable(ref(storage, filePath), videoFile, {
-        contentType: videoFile.type,
-      });
-      await new Promise<void>((resolve, reject) => {
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            setProgress(Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 75));
-          },
-          reject,
-          resolve,
-        );
-      });
+      const client = createClient();
+      setProgress(10);
+      const { error: uploadError } = await client.storage
+        .from('videos')
+        .upload(filePath, videoFile, { contentType: videoFile.type, cacheControl: '3600' });
+      if (uploadError) throw uploadError;
       setProgress(85);
-      const videoUrl = await getDownloadURL(uploadTask.snapshot.ref);
-      try {
-        await addDoc(collection(db, 'lessons'), {
+      const { error: saveError } = await client.from('lessons').insert({
           title: title.trim(),
           description: description.trim(),
-          video_url: videoUrl,
+          task_prompt: taskPrompt.trim() || null,
+          grade,
+          class_number: Number(classNumber),
+          video_url: filePath,
           user_id: user.id,
-          created_at: serverTimestamp(),
         });
-      } catch (saveError) {
-        try {
-          await deleteObject(uploadTask.snapshot.ref);
-        } catch (cleanupError) {
-          console.error('Failed to remove uploaded video after saving lesson failed:', cleanupError);
-        }
+      if (saveError) {
+        const { error: cleanupError } = await client.storage.from('videos').remove([filePath]);
+        if (cleanupError) console.error('Failed to remove uploaded video after saving lesson failed:', cleanupError);
         throw saveError;
       }
 
@@ -94,6 +93,9 @@ export default function UploadPage() {
       setSuccessMessage('Video uploaded successfully!');
       setTitle('');
       setDescription('');
+      setTaskPrompt('');
+      setGrade('');
+      setClassNumber('');
       setVideoFile(null);
       setUploading(false);
 
@@ -143,7 +145,7 @@ export default function UploadPage() {
         </button>
       </div>
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Upload Video</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Upload Lesson Video</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="title" className="block text-gray-700 font-bold mb-2">
@@ -172,7 +174,57 @@ export default function UploadPage() {
               disabled={uploading}
             />
           </div>
+          <div className="mb-4">
+            <label htmlFor="task-prompt" className="block text-gray-700 font-bold mb-2">
+              Student task (optional)
+            </label>
+            <textarea
+              id="task-prompt"
+              value={taskPrompt}
+              onChange={(event) => setTaskPrompt(event.target.value)}
+              maxLength={5000}
+              rows={4}
+              placeholder="Add a written task for students to complete after watching."
+              className="w-full rounded-lg border px-3 py-2 focus:border-blue-500 focus:outline-none"
+              disabled={uploading}
+            />
+          </div>
           <div className="mb-6">
+            <label htmlFor="grade" className="mb-2 block font-bold text-gray-700">
+              Grade
+            </label>
+            <select
+              id="grade"
+              value={grade}
+              onChange={(e) => {
+                setGrade(isGradeId(e.target.value) ? e.target.value : '');
+                setClassNumber('');
+              }}
+              className="mb-4 w-full rounded-lg border px-3 py-2 focus:border-blue-500 focus:outline-none"
+              required
+              disabled={uploading}
+            >
+              <option value="">Select a grade</option>
+              {grades.map((item) => (
+                <option key={item.id} value={item.id}>{item.title}</option>
+              ))}
+            </select>
+            <label htmlFor="class-number" className="mb-2 block font-bold text-gray-700">
+              Class
+            </label>
+            <select
+              id="class-number"
+              value={classNumber}
+              onChange={(e) => setClassNumber(e.target.value)}
+              className="mb-4 w-full rounded-lg border px-3 py-2 focus:border-blue-500 focus:outline-none"
+              required
+              disabled={uploading || !grade}
+            >
+              <option value="">Select a class</option>
+              {grade && Array.from({ length: grades.find((item) => item.id === grade)?.classCount ?? 0 }, (_, index) => (
+                <option key={index + 1} value={index + 1}>Class {index + 1}</option>
+              ))}
+            </select>
             <label htmlFor="video" className="block text-gray-700 font-bold mb-2">
               Video File
             </label>

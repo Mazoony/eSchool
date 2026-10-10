@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createPost } from '@/utils/firebase/data';
+import { createPost } from '@/utils/supabase/data';
 import { useAuth } from '../AuthContext';
 
 export default function CreatePost() {
