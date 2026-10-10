@@ -21,6 +21,11 @@
   }
 }
 
+.dark {
+  --background: #111827;
+  --foreground: #f9fafb;
+}
+
 html, body {
   height: 100%;
   margin: 0;

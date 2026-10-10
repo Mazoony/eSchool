@@ -11,6 +11,7 @@ import { useTheme } from 'next-themes';
 const navigation = [
   { name: 'Home', href: '/' },
   { name: 'Lessons', href: '/lessons' },
+  { name: 'Leaderboard', href: '/leaderboard' },
   { name: 'Social', href: '/social' },
 ];
 
@@ -67,7 +68,7 @@ export default function Header() {
                         key={item.name}
                         href={item.href}
                         className={classNames(
-                          'text-gray-500 hover:bg-gray-700 hover:text-white',
+                          'text-gray-500 dark:text-gray-300 hover:bg-gray-700 hover:text-white',
                           'rounded-md px-3 py-2 text-sm font-medium'
                         )}
                       >
@@ -139,7 +140,7 @@ export default function Header() {
                     </Menu>
                     ) : (
                     <div className="hidden sm:flex sm:items-center sm:ml-6">
-                        <Link href="/login" className="text-gray-500 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                        <Link href="/login" className="text-gray-500 dark:text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                             Log In
                         </Link>
                         <Link href="/register" className="ml-4 text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">
@@ -159,7 +160,7 @@ export default function Header() {
                   as="a"
                   href={item.href}
                   className={classNames(
-                    'text-gray-500 hover:bg-gray-700 hover:text-white',
+                    'text-gray-500 dark:text-gray-300 hover:bg-gray-700 hover:text-white',
                     'block rounded-md px-3 py-2 text-base font-medium'
                   )}
                 >
@@ -171,7 +172,7 @@ export default function Header() {
                     <Disclosure.Button
                         as="a"
                         href="/login"
-                        className="block rounded-md px-3 py-2 text-base font-medium text-gray-500 hover:bg-gray-700 hover:text-white"
+                        className="block rounded-md px-3 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-700 hover:text-white"
                     >
                         Log In
                     </Disclosure.Button>
