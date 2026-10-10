@@ -11,6 +11,7 @@ export interface Lesson {
   grade: GradeId | null;
   class_number: number | null;
   task_prompt: string | null;
+  task_max_score: number;
 }
 
 const slugify = (value: string) =>
@@ -50,7 +51,7 @@ async function signedVideoUrl(videoUrl: string): Promise<string> {
 async function readLessons(): Promise<Lesson[]> {
   const { data, error } = await createClient()
     .from('lessons')
-    .select('id, title, description, video_url, created_at, grade, class_number, task_prompt')
+    .select('id, title, description, video_url, created_at, grade, class_number, task_prompt, task_max_score')
     .order('created_at', { ascending: false });
   if (error) throw new Error(`Could not load lessons: ${error.message}`);
 
@@ -71,6 +72,7 @@ async function readLessons(): Promise<Lesson[]> {
       grade,
       class_number: grade ? classNumber : null,
       task_prompt: typeof row.task_prompt === 'string' ? row.task_prompt : null,
+      task_max_score: Number(row.task_max_score),
     };
   }));
 }

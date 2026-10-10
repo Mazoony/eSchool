@@ -83,7 +83,11 @@ export default function LessonDetails({ lesson }: LessonDetailsProps) {
           <p className="text-lg text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{lesson.description}</p>
         </section>
         {lesson.task_prompt ? (
-          <LessonTask lessonId={lesson.id} prompt={lesson.task_prompt} />
+          <LessonTask
+            lessonId={lesson.id}
+            prompt={lesson.task_prompt}
+            maxScore={lesson.task_max_score ?? 100}
+          />
         ) : (
           <section
             aria-labelledby="lesson-task-heading"

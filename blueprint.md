@@ -74,3 +74,11 @@ eSchool is a modern social learning platform designed to connect students and ed
 - Let profile owners create posts, update their bio and profile details, and upload profile and cover photos.
 - Keep account email owner-only and remove the public account ID.
 - Subscribe the profile timeline to post and interaction changes in realtime.
+
+## Current Change: Task Marks and Realtime Leaderboard
+
+- Let the admin set a positive maximum mark for each lesson task and award or clear marks on student submissions.
+- Show each student their own mark and percentage, with live updates when an admin grades or changes a task's maximum mark.
+- Rank students by their average percentage across graded tasks; rankings update in realtime and show only each student's aggregate percentage and graded-task count.
+- Keep individual marks private to the student and admin, enforce mark limits and grading permissions in the database, and reset a mark when a student changes their answer.
+- Add a public `/leaderboard` page and navigation links for signed-in and signed-out visitors; students appear after at least one task is graded.

@@ -6,6 +6,7 @@ import Notifications from './Notifications';
 import { 
   HomeIcon, 
   BookOpenIcon,
+  TrophyIcon,
   BellIcon, 
   UserCircleIcon, 
   PlusIcon, 
@@ -40,12 +41,16 @@ export default function Header() {
 
           {user ? (
           <>
-            <nav className="flex flex-grow justify-center items-center space-x-6 sm:space-x-10">
+            <nav className="flex flex-grow flex-wrap justify-center items-center gap-x-3 gap-y-2 sm:gap-x-6">
               <Link href="/social" aria-label="Home feed" className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
                 <HomeIcon className="h-7 w-7" />
               </Link>
               <Link href="/lessons" aria-label="Lessons" className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
                 <BookOpenIcon className="h-7 w-7" />
+              </Link>
+              <Link href="/leaderboard" className="flex flex-col items-center gap-0.5 text-gray-600 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400 sm:flex-row sm:gap-1">
+                <TrophyIcon className="h-6 w-6" />
+                <span className="text-[10px] font-medium sm:text-sm">Leaderboard</span>
               </Link>
               <Notifications />
               <Link href={`/profile/${user.id}`} aria-label="Your profile" className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
@@ -79,7 +84,14 @@ export default function Header() {
             </div>
           </>
         ) : (
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <Link
+              href="/leaderboard"
+              className="flex items-center gap-1 font-semibold text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400"
+            >
+              <TrophyIcon className="h-5 w-5" aria-hidden="true" />
+              <span>Leaderboard</span>
+            </Link>
             <Link
               href="/login"
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"

@@ -64,8 +64,8 @@ export default function Post() {
           <p className="text-xs text-gray-500 dark:text-gray-400">{formatTimestamp(post.created_at)}</p>
         </div>
         {user && user.id === post.user_id && !post.lesson_submission_id && (
-            <button onClick={handleDeletePost} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-                <TrashIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+            <button onClick={handleDeletePost} aria-label="Delete post" className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                <TrashIcon aria-hidden="true" className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             </button>
         )}
       </div>

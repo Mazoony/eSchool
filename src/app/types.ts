@@ -74,4 +74,5 @@ export interface Lesson {
   created_at: string;
   slug: string;
   task_prompt?: string | null;
+  task_max_score?: number;
 }

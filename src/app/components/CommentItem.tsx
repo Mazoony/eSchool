@@ -43,8 +43,8 @@ export default function CommentItem({ comment }: CommentItemProps) {
           </div>
           {user?.id === comment.user_id && (
             <div className="flex items-center space-x-2">
-              <button onClick={() => deleteComment(comment.id)} className="text-gray-400 hover:text-red-500">
-                <TrashIcon className="h-4 w-4" />
+              <button onClick={() => deleteComment(comment.id)} aria-label="Delete comment" className="text-gray-400 hover:text-red-500">
+                <TrashIcon aria-hidden="true" className="h-4 w-4" />
               </button>
             </div>
           )}

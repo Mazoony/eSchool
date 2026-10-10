@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 import { useAuth } from '../../AuthContext';
+import { createClient } from '@/utils/supabase/client';
 import {
   getStudentLessonSubmission,
   saveStudentLessonSubmission,
@@ -10,9 +11,11 @@ import {
 export default function LessonTask({
   lessonId,
   prompt,
+  maxScore,
 }: {
   lessonId: string;
   prompt: string;
+  maxScore: number;
 }) {
   const { user } = useAuth();
   const [answer, setAnswer] = useState('');
@@ -20,6 +23,8 @@ export default function LessonTask({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [savedAnswer, setSavedAnswer] = useState('');
+  const [score, setScore] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -30,6 +35,8 @@ export default function LessonTask({
         if (!active) return;
         if (submission) {
           setAnswer(submission.answer);
+          setSavedAnswer(submission.answer);
+          setScore(submission.score);
           setSavedAt(submission.updated_at);
         }
       })
@@ -46,6 +53,41 @@ export default function LessonTask({
     };
   }, [lessonId, user]);
 
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    const client = createClient();
+    const channel = client
+      .channel(`lesson-submission:${user.id}:${lessonId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lesson_submissions',
+          filter: `student_id=eq.${user.id}`,
+        },
+        () => {
+          getStudentLessonSubmission(lessonId, user.id)
+            .then((submission) => {
+              if (!active) return;
+              setScore(submission?.score ?? null);
+              if (submission) setSavedAt(submission.updated_at);
+            })
+            .catch((loadError: unknown) => {
+              console.error('Could not refresh your task mark:', loadError);
+              if (active) setError(loadError instanceof Error ? loadError.message : 'Could not refresh your mark.');
+            });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      active = false;
+      void client.removeChannel(channel);
+    };
+  }, [lessonId, user]);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!user) return;
@@ -53,7 +95,10 @@ export default function LessonTask({
     setSaving(true);
     setError(null);
     try {
+      const submittedAnswer = answer.trim();
       await saveStudentLessonSubmission(lessonId, user.id, answer);
+      if (submittedAnswer !== savedAnswer) setScore(null);
+      setSavedAnswer(submittedAnswer);
       setSavedAt(new Date().toISOString());
     } catch (saveError: unknown) {
       console.error('Could not save lesson task submission:', saveError);
@@ -69,6 +114,9 @@ export default function LessonTask({
         Your Task
       </h2>
       <p className="mb-5 whitespace-pre-wrap text-gray-700 dark:text-gray-200">{prompt}</p>
+      <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
+        This task is marked out of {maxScore}.
+      </p>
       {loading ? (
         <p role="status" className="text-sm text-gray-600 dark:text-gray-300">Loading your answer...</p>
       ) : (
@@ -101,6 +149,13 @@ export default function LessonTask({
           {savedAt && (
             <p className="mt-3 text-sm text-green-700 dark:text-green-300" role="status">
               Answer saved and shared in the social feed. You can update it any time; your feed post will be updated too.
+            </p>
+          )}
+          {savedAt && (
+            <p className="mt-2 text-sm text-gray-700 dark:text-gray-200" role="status">
+              {score === null
+                ? 'Your answer is waiting to be marked.'
+                : `Your mark: ${score} / ${maxScore} (${((score / maxScore) * 100).toFixed(1)}%).`}
             </p>
           )}
           {error && <p className="mt-3 text-sm text-red-600" role="alert">{error}</p>}

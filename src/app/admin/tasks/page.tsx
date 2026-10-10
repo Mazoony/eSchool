@@ -8,7 +8,8 @@ import {
   getLessonsWithTasks,
   LessonSubmission,
   LessonTask,
-  saveLessonTaskPrompt,
+  saveLessonSubmissionScore,
+  saveLessonTaskSettings,
 } from '@/utils/supabase/lessonTasks';
 
 export default function AdminTasksPage() {
@@ -18,10 +19,13 @@ export default function AdminTasksPage() {
   const [lessons, setLessons] = useState<LessonTask[]>([]);
   const [selectedLessonId, setSelectedLessonId] = useState('');
   const [prompt, setPrompt] = useState('');
+  const [maxScore, setMaxScore] = useState('100');
   const [submissions, setSubmissions] = useState<LessonSubmission[]>([]);
+  const [scoreDrafts, setScoreDrafts] = useState<Record<string, string>>({});
   const [loadingLessons, setLoadingLessons] = useState(true);
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
   const [savingPrompt, setSavingPrompt] = useState(false);
+  const [savingScoreId, setSavingScoreId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -76,6 +80,8 @@ export default function AdminTasksPage() {
       return;
     }
     setPrompt(selectedLesson.task_prompt ?? '');
+    setMaxScore(String(selectedLesson.task_max_score));
+    setScoreDrafts({});
     void loadSubmissions(selectedLessonId);
   }, [lessons, selectedLessonId, loadSubmissions]);
 
@@ -87,17 +93,50 @@ export default function AdminTasksPage() {
     setError(null);
     setMessage(null);
     try {
-      await saveLessonTaskPrompt(selectedLessonId, prompt);
+      const numericMaxScore = Number(maxScore);
+      await saveLessonTaskSettings(selectedLessonId, prompt, numericMaxScore);
       const taskPrompt = prompt.trim() || null;
       setLessons((current) => current.map((lesson) => (
-        lesson.id === selectedLessonId ? { ...lesson, task_prompt: taskPrompt } : lesson
+        lesson.id === selectedLessonId
+          ? { ...lesson, task_prompt: taskPrompt, task_max_score: numericMaxScore }
+          : lesson
       )));
-      setMessage(taskPrompt ? 'Task prompt saved.' : 'Task prompt removed.');
+      setMessage(taskPrompt ? 'Task settings saved.' : 'Task removed; maximum mark saved.');
     } catch (saveError: unknown) {
       console.error('Could not save lesson task prompt:', saveError);
       setError(saveError instanceof Error ? saveError.message : 'Could not save the task prompt.');
     } finally {
       setSavingPrompt(false);
+    }
+  };
+
+  const handleSaveScore = async (
+    event: React.FormEvent<HTMLFormElement>,
+    submission: LessonSubmission,
+  ) => {
+    event.preventDefault();
+    const draft = scoreDrafts[submission.id] ?? '';
+    const score = draft.trim() === '' ? null : Number(draft);
+    if (score !== null && (!Number.isFinite(score) || score < 0 || score > (selectedLesson?.task_max_score ?? 0))) {
+      setError(`Enter a mark from 0 to ${selectedLesson?.task_max_score ?? 0}.`);
+      return;
+    }
+
+    setSavingScoreId(submission.id);
+    setError(null);
+    setMessage(null);
+    try {
+      await saveLessonSubmissionScore(submission.id, score);
+      setSubmissions((current) => current.map((item) => (
+        item.id === submission.id ? { ...item, score } : item
+      )));
+      setScoreDrafts((current) => ({ ...current, [submission.id]: score === null ? '' : String(score) }));
+      setMessage(score === null ? 'Mark cleared.' : 'Mark saved.');
+    } catch (saveError: unknown) {
+      console.error('Could not save the student task mark:', saveError);
+      setError(saveError instanceof Error ? saveError.message : 'Could not save the mark.');
+    } finally {
+      setSavingScoreId(null);
     }
   };
 
@@ -172,16 +211,30 @@ export default function AdminTasksPage() {
                 placeholder="Write the task students should complete after watching the lesson."
                 className="w-full rounded-md border border-gray-300 bg-white p-3 dark:border-gray-600 dark:bg-gray-700"
               />
+              <label htmlFor="task-max-score" className="mb-2 mt-4 block font-semibold">
+                Maximum mark
+              </label>
+              <input
+                id="task-max-score"
+                type="number"
+                min="0.01"
+                max="10000"
+                step="0.01"
+                required
+                value={maxScore}
+                onChange={(event) => setMaxScore(event.target.value)}
+                className="w-full rounded-md border border-gray-300 bg-white p-3 dark:border-gray-600 dark:bg-gray-700"
+              />
               <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Leave blank and save to remove the task.
+                  Leave the prompt blank to remove the task. Existing marks prevent setting a lower maximum.
                 </p>
                 <button
                   type="submit"
                   disabled={savingPrompt}
                   className="rounded-md bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {savingPrompt ? 'Saving...' : 'Save task prompt'}
+                  {savingPrompt ? 'Saving...' : 'Save task settings'}
                 </button>
               </div>
             </form>
@@ -222,6 +275,37 @@ export default function AdminTasksPage() {
                       </p>
                     </div>
                     <p className="whitespace-pre-wrap break-words text-gray-800 dark:text-gray-100">{submission.answer}</p>
+                    <form
+                      onSubmit={(event) => void handleSaveScore(event, submission)}
+                      className="mt-4 flex flex-wrap items-end gap-3 border-t border-gray-200 pt-4 dark:border-gray-700"
+                    >
+                      <div>
+                        <label htmlFor={`score-${submission.id}`} className="mb-1 block text-sm font-medium">
+                          Mark (out of {selectedLesson?.task_max_score ?? 100})
+                        </label>
+                        <input
+                          id={`score-${submission.id}`}
+                          type="number"
+                          min="0"
+                          max={selectedLesson?.task_max_score ?? 100}
+                          step="0.01"
+                          value={scoreDrafts[submission.id] ?? (submission.score === null ? '' : String(submission.score))}
+                          onChange={(event) => setScoreDrafts((current) => ({
+                            ...current,
+                            [submission.id]: event.target.value,
+                          }))}
+                          placeholder="Not graded"
+                          className="w-40 rounded-md border border-gray-300 bg-white p-2 dark:border-gray-600 dark:bg-gray-700"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={savingScoreId === submission.id}
+                        className="rounded-md bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                      >
+                        {savingScoreId === submission.id ? 'Saving...' : 'Save mark'}
+                      </button>
+                    </form>
                   </article>
                 ))}
               </div>
