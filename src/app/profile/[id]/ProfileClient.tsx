@@ -6,6 +6,7 @@ import { subscribeUserPosts, updateProfile, uploadProfileAvatar, uploadProfileCo
 import { Post } from '../../types';
 import PostItem from '../../components/PostItem';
 import CreatePost from '../../components/CreatePost';
+import PaidBadge from '../../components/PaidBadge';
 
 interface ProfileClientProps {
   profile: {
@@ -15,6 +16,7 @@ interface ProfileClientProps {
     avatar_url?: string | null;
     cover_url?: string | null;
     bio?: string | null;
+    is_paid?: boolean;
     created_at?: string | null;
     updated_at?: string | null;
   };
@@ -192,7 +194,10 @@ export default function ProfileClient({
               )}
             </div>
             <div className="mt-3">
-              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{fullName || 'Unnamed User'}</h1>
+              <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight sm:text-3xl">
+                {fullName || 'Unnamed User'}
+                <PaidBadge isPaid={profile.is_paid} />
+              </h1>
               {username && <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">@{username}</p>}
               {bio && <p className="mt-3 max-w-2xl text-sm text-gray-700 dark:text-gray-300">{bio}</p>}
               {createdFallbackProfile && isOwnProfile && (

@@ -31,6 +31,7 @@ interface AuthContextType {
     fullName?: string;
     phoneNumber: string;
     birthDate: string;
+    gender: 'female' | 'male';
   }) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
 }
@@ -142,7 +143,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     fullName,
     phoneNumber,
     birthDate,
-  }: Credentials & { fullName?: string; phoneNumber: string; birthDate: string }) => {
+    gender,
+  }: Credentials & {
+    fullName?: string;
+    phoneNumber: string;
+    birthDate: string;
+    gender: 'female' | 'male';
+  }) => {
     if (password.length < 8) {
       throw new Error('Choose a password with at least 8 characters.');
     }
@@ -163,6 +170,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (birthDate > new Date().toISOString().slice(0, 10)) {
       throw new Error('Birthdate cannot be in the future.');
     }
+    if (gender !== 'female' && gender !== 'male') {
+      throw new Error('Select female or male.');
+    }
 
     const { error: signUpError } = await createClient().auth.signUp({
       email,
@@ -172,6 +182,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           full_name: fullName?.trim() || null,
           phone_number: normalizedPhoneNumber,
           birth_date: birthDate,
+          gender,
         },
       },
     });

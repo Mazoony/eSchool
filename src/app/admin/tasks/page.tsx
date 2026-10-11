@@ -4,37 +4,80 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/AuthContext';
 import {
+  addTaskModerator,
+  canGradeLessonSubmissions,
+  getTaskModerators,
   getLessonSubmissions,
   getLessonsWithTasks,
   LessonSubmission,
   LessonTask,
+  removeTaskModerator,
+  TaskModerator,
   saveLessonSubmissionScore,
   saveLessonTaskSettings,
 } from '@/utils/supabase/lessonTasks';
+import PaidBadge from '@/app/components/PaidBadge';
 
 export default function AdminTasksPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const isAdmin = user?.email === 'wadareaf@gmail.com';
+  const [isModerator, setIsModerator] = useState(false);
+  const [checkingPermissions, setCheckingPermissions] = useState(true);
   const [lessons, setLessons] = useState<LessonTask[]>([]);
   const [selectedLessonId, setSelectedLessonId] = useState('');
   const [prompt, setPrompt] = useState('');
   const [maxScore, setMaxScore] = useState('100');
   const [submissions, setSubmissions] = useState<LessonSubmission[]>([]);
+  const [moderators, setModerators] = useState<TaskModerator[]>([]);
+  const [moderatorEmail, setModeratorEmail] = useState('');
   const [scoreDrafts, setScoreDrafts] = useState<Record<string, string>>({});
   const [loadingLessons, setLoadingLessons] = useState(true);
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
   const [savingPrompt, setSavingPrompt] = useState(false);
   const [savingScoreId, setSavingScoreId] = useState<string | null>(null);
+  const [savingModerator, setSavingModerator] = useState(false);
+  const [loadingModerators, setLoadingModerators] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const canReview = isAdmin || isModerator;
 
   useEffect(() => {
     if (!authLoading && !user) router.replace('/login');
   }, [authLoading, user, router]);
 
   useEffect(() => {
-    if (authLoading || !isAdmin) return;
+    if (authLoading) return;
+    if (!user || isAdmin) {
+      setIsModerator(false);
+      setCheckingPermissions(false);
+      return;
+    }
+
+    let active = true;
+    setCheckingPermissions(true);
+    canGradeLessonSubmissions()
+      .then((allowed) => {
+        if (active) setIsModerator(allowed);
+      })
+      .catch((permissionError: unknown) => {
+        console.error('Could not verify task moderator access:', permissionError);
+        if (active) {
+          setIsModerator(false);
+          setError(permissionError instanceof Error ? permissionError.message : 'Could not verify your permissions.');
+        }
+      })
+      .finally(() => {
+        if (active) setCheckingPermissions(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [authLoading, user, isAdmin]);
+
+  useEffect(() => {
+    if (authLoading || !canReview) return;
     let active = true;
 
     getLessonsWithTasks()
@@ -57,7 +100,25 @@ export default function AdminTasksPage() {
     return () => {
       active = false;
     };
-  }, [authLoading, isAdmin]);
+  }, [authLoading, canReview]);
+
+  const loadModerators = useCallback(async (): Promise<boolean> => {
+    setLoadingModerators(true);
+    try {
+      setModerators(await getTaskModerators());
+      return true;
+    } catch (loadError: unknown) {
+      console.error('Could not load task moderators:', loadError);
+      setError(loadError instanceof Error ? loadError.message : 'Could not load moderators.');
+      return false;
+    } finally {
+      setLoadingModerators(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAdmin) void loadModerators();
+  }, [isAdmin, loadModerators]);
 
   const loadSubmissions = useCallback(async (lessonId: string) => {
     setLoadingSubmissions(true);
@@ -140,8 +201,44 @@ export default function AdminTasksPage() {
     }
   };
 
-  if (authLoading || !user) return <p className="p-8 text-center">Checking your sign-in...</p>;
-  if (!isAdmin) {
+  const handleAddModerator = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!user) return;
+
+    setSavingModerator(true);
+    setError(null);
+    setMessage(null);
+    try {
+      await addTaskModerator(moderatorEmail, user.id);
+      setModeratorEmail('');
+      if (await loadModerators()) setMessage('Teacher added as a task moderator.');
+    } catch (saveError: unknown) {
+      console.error('Could not add task moderator:', saveError);
+      setError(saveError instanceof Error ? saveError.message : 'Could not add this teacher.');
+    } finally {
+      setSavingModerator(false);
+    }
+  };
+
+  const handleRemoveModerator = async (email: string) => {
+    setSavingModerator(true);
+    setError(null);
+    setMessage(null);
+    try {
+      await removeTaskModerator(email);
+      if (await loadModerators()) setMessage(`${email} no longer has task moderator access.`);
+    } catch (removeError: unknown) {
+      console.error('Could not remove task moderator:', removeError);
+      setError(removeError instanceof Error ? removeError.message : 'Could not remove this teacher.');
+    } finally {
+      setSavingModerator(false);
+    }
+  };
+
+  if (authLoading || !user || checkingPermissions) {
+    return <p className="p-8 text-center" role="status">Checking your sign-in and permissions...</p>;
+  }
+  if (!canReview) {
     return (
       <main className="mx-auto max-w-2xl p-8 text-center">
         <h1 className="text-2xl font-bold">Unauthorized</h1>
@@ -157,19 +254,82 @@ export default function AdminTasksPage() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">Lesson Tasks</h1>
-          <p className="mt-1 text-gray-600 dark:text-gray-300">Set prompts and review students’ written answers.</p>
+          <p className="mt-1 text-gray-600 dark:text-gray-300">
+            {isAdmin ? 'Set prompts and review students’ written answers.' : 'Review submissions and mark students’ answers.'}
+          </p>
         </div>
-        <button
-          type="button"
-          onClick={() => router.push('/admin/upload')}
-          className="rounded-md bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
-        >
-          Upload a lesson
-        </button>
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={() => router.push('/admin/upload')}
+            className="rounded-md bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
+          >
+            Upload a lesson
+          </button>
+        )}
       </div>
 
       {error && <p className="mb-4 rounded-md bg-red-50 p-3 text-red-700" role="alert">{error}</p>}
       {message && <p className="mb-4 rounded-md bg-green-50 p-3 text-green-700" role="status">{message}</p>}
+
+      {isAdmin && (
+        <section aria-labelledby="task-moderators-heading" className="mb-8 rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+          <h2 id="task-moderators-heading" className="text-xl font-bold text-gray-900 dark:text-gray-50">
+            Teacher moderators
+          </h2>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+            Add teachers by the email on their eSchool account. Moderators can review and mark submissions, but cannot change tasks or manage other moderators.
+          </p>
+          <form onSubmit={handleAddModerator} className="mt-4 flex flex-wrap items-end gap-3">
+            <div className="min-w-0 flex-1">
+              <label htmlFor="moderator-email" className="mb-1 block text-sm font-semibold">
+                Teacher email
+              </label>
+              <input
+                id="moderator-email"
+                type="email"
+                required
+                maxLength={254}
+                value={moderatorEmail}
+                onChange={(event) => setModeratorEmail(event.target.value)}
+                autoComplete="email"
+                className="w-full rounded-md border border-gray-300 bg-white p-3 dark:border-gray-600 dark:bg-gray-700"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={savingModerator}
+              className="rounded-md bg-blue-700 px-4 py-3 font-semibold text-white hover:bg-blue-800 disabled:opacity-50"
+            >
+              {savingModerator ? 'Adding...' : 'Add moderator'}
+            </button>
+          </form>
+          <div className="mt-4">
+            <h3 className="font-semibold">Current moderators</h3>
+            {loadingModerators ? (
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-300" role="status">Loading moderators...</p>
+            ) : moderators.length === 0 ? (
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">No additional moderators yet.</p>
+            ) : (
+              <ul className="mt-2 divide-y divide-gray-200 dark:divide-gray-700">
+                {moderators.map((moderator) => (
+                  <li key={moderator.email} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                    <span>{moderator.email}</span>
+                    <button
+                      type="button"
+                      onClick={() => void handleRemoveModerator(moderator.email)}
+                      disabled={savingModerator}
+                      className="rounded-md border border-red-300 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
+      )}
 
       {loadingLessons ? (
         <p role="status">Loading lessons...</p>
@@ -198,7 +358,7 @@ export default function AdminTasksPage() {
               ))}
             </select>
 
-            <form onSubmit={handleSavePrompt}>
+            {isAdmin && <form onSubmit={handleSavePrompt}>
               <label htmlFor="task-prompt" className="mb-2 block font-semibold">
                 Task prompt
               </label>
@@ -237,7 +397,7 @@ export default function AdminTasksPage() {
                   {savingPrompt ? 'Saving...' : 'Save task settings'}
                 </button>
               </div>
-            </form>
+            </form>}
           </section>
 
           <section aria-labelledby="submissions-heading" className="mt-8">
@@ -269,6 +429,7 @@ export default function AdminTasksPage() {
                     <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
                       <h3 className="font-semibold">
                         {submission.student.full_name || (submission.student.username ? `@${submission.student.username}` : `Student ${submission.student.id.slice(0, 8)}`)}
+                        <PaidBadge isPaid={submission.student.is_paid} />
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-300">
                         Updated {new Date(submission.updated_at).toLocaleString()}

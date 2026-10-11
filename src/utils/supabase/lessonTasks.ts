@@ -16,7 +16,7 @@ export interface LessonSubmission {
   score: number | null;
   created_at: string;
   updated_at: string;
-  student: Pick<Profile, 'id' | 'full_name' | 'username'>;
+  student: Pick<Profile, 'id' | 'full_name' | 'username' | 'is_paid'>;
 }
 
 export interface LeaderboardEntry {
@@ -24,7 +24,12 @@ export interface LeaderboardEntry {
   rank: number;
   average_percentage: number;
   graded_tasks: number;
-  student: Pick<Profile, 'id' | 'full_name' | 'username' | 'avatar_url'>;
+  student: Pick<Profile, 'id' | 'full_name' | 'username' | 'avatar_url' | 'is_paid'>;
+}
+
+export interface TaskModerator {
+  email: string;
+  created_at: string;
 }
 
 interface PublicLeaderboardRow {
@@ -32,6 +37,7 @@ interface PublicLeaderboardRow {
   full_name: string | null;
   username: string | null;
   avatar_url: string | null;
+  is_paid: boolean;
   average_percentage: number;
   graded_tasks: number;
   rank: number;
@@ -109,6 +115,48 @@ export async function saveLessonSubmissionScore(
   throwIfError(error);
 }
 
+export async function canGradeLessonSubmissions(): Promise<boolean> {
+  const { data, error } = await createClient().rpc('has_task_moderator_access');
+  throwIfError(error);
+  return data === true;
+}
+
+export async function getTaskModerators(): Promise<TaskModerator[]> {
+  const { data, error } = await createClient()
+    .from('task_moderators')
+    .select('email, created_at')
+    .order('email', { ascending: true });
+  throwIfError(error);
+  return (data ?? []).map((row) => ({
+    email: String(row.email),
+    created_at: String(row.created_at),
+  }));
+}
+
+export async function addTaskModerator(email: string, adminUserId: string): Promise<void> {
+  const normalizedEmail = email.trim().toLowerCase();
+  if (
+    normalizedEmail === 'wadareaf@gmail.com'
+    || normalizedEmail.length > 254
+    || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
+  ) {
+    throw new Error('Enter a valid teacher email address.');
+  }
+
+  const { error } = await createClient()
+    .from('task_moderators')
+    .insert({ email: normalizedEmail, added_by: adminUserId });
+  throwIfError(error);
+}
+
+export async function removeTaskModerator(email: string): Promise<void> {
+  const { error } = await createClient()
+    .from('task_moderators')
+    .delete()
+    .eq('email', email.trim().toLowerCase());
+  throwIfError(error);
+}
+
 export async function saveStudentLessonSubmission(
   lessonId: string,
   studentId: string,
@@ -145,7 +193,7 @@ export async function getLessonSubmissions(lessonId: string): Promise<LessonSubm
   const studentIds = [...new Set(data.map((row) => String(row.student_id)))];
   const { data: profiles, error: profilesError } = await client
     .from('profiles')
-    .select('id, full_name, username')
+    .select('id, full_name, username, is_paid')
     .in('id', studentIds);
   throwIfError(profilesError);
 
@@ -168,6 +216,7 @@ export async function getLessonSubmissions(lessonId: string): Promise<LessonSubm
         id: studentId,
         full_name: typeof profile?.full_name === 'string' ? profile.full_name : null,
         username: typeof profile?.username === 'string' ? profile.username : null,
+        is_paid: profile?.is_paid === true,
       },
     };
   });
@@ -192,6 +241,7 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
         full_name: typeof row.full_name === 'string' ? row.full_name : null,
         username: typeof row.username === 'string' ? row.username : null,
         avatar_url: typeof row.avatar_url === 'string' ? row.avatar_url : null,
+        is_paid: row.is_paid === true,
       },
     };
   });

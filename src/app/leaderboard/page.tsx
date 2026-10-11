@@ -6,6 +6,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/app/AuthContext';
 import { createClient } from '@/utils/supabase/client';
 import { getLeaderboard, LeaderboardEntry } from '@/utils/supabase/lessonTasks';
+import PaidBadge from '@/app/components/PaidBadge';
+import SocialShare from '@/app/components/SocialShare';
 
 export default function LeaderboardPage() {
   const { user } = useAuth();
@@ -112,11 +114,15 @@ export default function LeaderboardPage() {
                   />
                   <span className="min-w-0">
                     {user ? (
-                      <Link href={`/profile/${entry.student_id}`} className="block truncate font-semibold text-gray-900 hover:text-blue-600 dark:text-gray-50 dark:hover:text-blue-400">
+                      <Link href={`/profile/${entry.student_id}`} className="inline-flex max-w-full items-center gap-1 truncate font-semibold text-gray-900 hover:text-blue-600 dark:text-gray-50 dark:hover:text-blue-400">
                         {name}
+                        <PaidBadge isPaid={entry.student.is_paid} />
                       </Link>
                     ) : (
-                      <span className="block truncate font-semibold text-gray-900 dark:text-gray-50">{name}</span>
+                      <span className="inline-flex max-w-full items-center gap-1 truncate font-semibold text-gray-900 dark:text-gray-50">
+                        {name}
+                        <PaidBadge isPaid={entry.student.is_paid} />
+                      </span>
                     )}
                     <span className="block text-sm text-gray-500 dark:text-gray-400">
                       {entry.graded_tasks} {entry.graded_tasks === 1 ? 'task' : 'tasks'} graded
@@ -124,12 +130,23 @@ export default function LeaderboardPage() {
                     </span>
                   </span>
                 </div>
-                <span className="shrink-0 text-right">
-                  <span className="block text-xl font-bold text-gray-900 dark:text-gray-50">
-                    {entry.average_percentage.toFixed(1)}%
+                <div className="flex shrink-0 flex-col items-end gap-2">
+                  <span className="text-right">
+                    <span className="block text-xl font-bold text-gray-900 dark:text-gray-50">
+                      {entry.average_percentage.toFixed(1)}%
+                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">average</span>
                   </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">average</span>
-                </span>
+                  {isCurrentUser && (
+                    <SocialShare
+                      href={`/register?ref=leaderboard&student=${encodeURIComponent(entry.student_id)}`}
+                      title="My eSchool leaderboard result"
+                      text={`I'm ranked #${entry.rank} on the eSchool leaderboard with a ${entry.average_percentage.toFixed(1)}% average across ${entry.graded_tasks} graded ${entry.graded_tasks === 1 ? 'task' : 'tasks'}! Join me and start learning English:`}
+                      label="Share success"
+                      className="justify-end"
+                    />
+                  )}
+                </div>
               </li>
             );
           })}

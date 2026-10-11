@@ -71,7 +71,13 @@ export default function VideoPlayer() {
               <div className="p-4">
                  <h2 className="text-lg font-semibold truncate">{video.name}</h2>
               </div>
-              <video controls className="w-full h-auto">
+              <video
+                controls
+                controlsList="nodownload"
+                disablePictureInPicture
+                onContextMenu={(event) => event.preventDefault()}
+                className="w-full h-auto"
+              >
                 <source src={video.publicURL} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>

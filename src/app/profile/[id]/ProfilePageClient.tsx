@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
 import { getProfile } from '@/utils/supabase/data';
 import { useAuth } from '../../AuthContext';
 import ProfileClient from './ProfileClient';
@@ -16,24 +17,49 @@ export default function ProfilePageClient({ profileId }: { profileId: string }) 
     let active = true;
     if (authLoading) return;
 
+    const refreshProfile = () => {
+      void getProfile(profileId)
+        .then((result) => {
+          if (active) {
+            setProfile(result);
+            setError(null);
+          }
+        })
+        .catch((loadError: unknown) => {
+          console.error('Failed to load profile:', loadError);
+          if (active) {
+            setError(loadError instanceof Error ? loadError.message : 'Failed to load profile.');
+          }
+        })
+        .finally(() => {
+          if (active) setLoading(false);
+        });
+    };
+
     setLoading(true);
     setError(null);
-    getProfile(profileId)
-      .then((result) => {
-        if (active) setProfile(result);
-      })
-      .catch((loadError: unknown) => {
-        console.error('Failed to load profile:', loadError);
-        if (active) {
-          setError(loadError instanceof Error ? loadError.message : 'Failed to load profile.');
+    refreshProfile();
+
+    const client = createClient();
+    const channel = client
+      .channel(`profile-${profileId}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${profileId}` },
+        refreshProfile,
+      )
+      .subscribe((status, subscriptionError) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error(
+            'Could not subscribe to profile updates:',
+            subscriptionError ?? new Error(`Profile subscription failed: ${status}`),
+          );
         }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
       });
 
     return () => {
       active = false;
+      void client.removeChannel(channel);
     };
   }, [profileId, authLoading]);
 

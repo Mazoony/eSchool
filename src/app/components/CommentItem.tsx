@@ -8,6 +8,7 @@ import { Comment } from '../types';
 import { HeartIcon, TrashIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
 import { formatDistanceToNow } from 'date-fns';
 import ReplyItem from './ReplyItem'; // Import the ReplyItem component
+import PaidBadge from './PaidBadge';
 
 interface CommentItemProps {
   comment: Comment;
@@ -36,7 +37,10 @@ export default function CommentItem({ comment }: CommentItemProps) {
       <div className="flex-1">
         <div className="flex items-center justify-between">
           <div>
-            <span className="font-semibold text-sm text-gray-900 dark:text-white">{comment.commenter.full_name}</span>
+            <span className="inline-flex items-center gap-1 font-semibold text-sm text-gray-900 dark:text-white">
+              {comment.commenter.full_name}
+              <PaidBadge isPaid={comment.commenter.is_paid} />
+            </span>
             <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
               {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
             </span>

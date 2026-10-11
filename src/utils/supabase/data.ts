@@ -18,6 +18,7 @@ const emptyProfile = (id: string): Profile => ({
   full_name: 'Unknown user',
   avatar_url: null,
   bio: null,
+  is_paid: false,
 });
 
 function profileFromRow(row: Row): Profile {
@@ -28,6 +29,7 @@ function profileFromRow(row: Row): Profile {
     avatar_url: typeof row.avatar_url === 'string' ? row.avatar_url : null,
     cover_url: typeof row.cover_url === 'string' ? row.cover_url : null,
     bio: typeof row.bio === 'string' ? row.bio : null,
+    is_paid: row.is_paid === true,
     created_at: typeof row.created_at === 'string' ? row.created_at : null,
     updated_at: typeof row.updated_at === 'string' ? row.updated_at : null,
   };
@@ -40,7 +42,7 @@ function throwIfError(error: { message: string } | null): void {
 export async function getProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await createClient()
     .from('profiles')
-    .select('id, username, full_name, avatar_url, cover_url, bio, created_at, updated_at')
+    .select('id, username, full_name, avatar_url, cover_url, bio, is_paid, created_at, updated_at')
     .eq('id', userId)
     .maybeSingle();
   throwIfError(error);
@@ -148,7 +150,7 @@ async function loadPosts(postId?: string, authorId?: string): Promise<Post[]> {
     { data: likeRows, error: likesError },
     { data: commentRows, error: commentsError },
   ] = await Promise.all([
-    client.from('profiles').select('id, username, full_name, avatar_url, cover_url, bio, created_at, updated_at').in('id', userIds),
+    client.from('profiles').select('id, username, full_name, avatar_url, cover_url, bio, is_paid, created_at, updated_at').in('id', userIds),
     client.from('likes').select('post_id, user_id').in('post_id', postIds),
     client.from('comments').select('id, post_id, parent_id, user_id, content, created_at').in('post_id', postIds).order('created_at'),
   ]);
@@ -161,7 +163,7 @@ async function loadPosts(postId?: string, authorId?: string): Promise<Post[]> {
   const [{ data: commentProfiles, error: commentProfilesError }, { data: commentLikeRows, error: commentLikesError }] =
     await Promise.all([
       commentUserIds.length
-        ? client.from('profiles').select('id, username, full_name, avatar_url, cover_url, bio, created_at, updated_at').in('id', commentUserIds)
+        ? client.from('profiles').select('id, username, full_name, avatar_url, cover_url, bio, is_paid, created_at, updated_at').in('id', commentUserIds)
         : Promise.resolve({ data: [], error: null }),
       commentIds.length
         ? client.from('comment_likes').select('comment_id, user_id').in('comment_id', commentIds)
@@ -372,7 +374,7 @@ export async function getNotifications(userId: string): Promise<Notification[]> 
   throwIfError(error);
   const senderIds = [...new Set((data ?? []).map((row) => asString(row.triggered_by_user_id)))];
   const { data: profiles, error: profilesError } = senderIds.length
-    ? await createClient().from('profiles').select('id, username, full_name, avatar_url, cover_url, bio').in('id', senderIds)
+    ? await createClient().from('profiles').select('id, username, full_name, avatar_url, cover_url, bio, is_paid').in('id', senderIds)
     : { data: [], error: null };
   throwIfError(profilesError);
   const profilesById = new Map((profiles ?? []).map((row) => {
@@ -410,6 +412,7 @@ export function subscribeNotifications(
   const channel = client
     .channel(`notifications-${userId}`)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` }, refresh)
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, refresh)
     .subscribe((status, error) => {
       if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
         onError(error ?? new Error(`Notification subscription failed: ${status}`));

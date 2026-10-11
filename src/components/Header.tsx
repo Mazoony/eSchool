@@ -7,6 +7,7 @@ import { Fragment, useEffect, useState } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, BellIcon, XMarkIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 import { useTheme } from 'next-themes';
+import { canGradeLessonSubmissions } from '@/utils/supabase/lessonTasks';
 
 const navigation = [
   { name: 'Home', href: '/' },
@@ -23,15 +24,41 @@ export default function Header() {
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [isTaskModerator, setIsTaskModerator] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!user || user.email === 'wadareaf@gmail.com') {
+      setIsTaskModerator(false);
+      return;
+    }
+
+    let active = true;
+    canGradeLessonSubmissions()
+      .then((canGrade) => {
+        if (active) setIsTaskModerator(canGrade);
+      })
+      .catch((permissionError: unknown) => {
+        console.error('Could not check task moderator navigation access:', permissionError);
+        if (active) setIsTaskModerator(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [user]);
+
   const visibleNavigation = [
     ...navigation.filter((item) => item.href !== '/lessons' || user),
+    ...(user && (user.email === 'wadareaf@gmail.com' || isTaskModerator)
+      ? [{ name: 'Task review', href: '/admin/tasks' }]
+      : []),
     ...(user?.email === 'wadareaf@gmail.com'
       ? [
+          { name: 'Admin dashboard', href: '/admin/dashboard' },
           { name: 'Upload', href: '/admin/upload' },
           { name: 'Tasks', href: '/admin/tasks' },
         ]

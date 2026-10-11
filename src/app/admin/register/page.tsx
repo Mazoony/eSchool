@@ -10,6 +10,7 @@ export default function AdminRegister() {
   const [showPassword, setShowPassword] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [gender, setGender] = useState<"female" | "male" | "">("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -19,9 +20,14 @@ export default function AdminRegister() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    if (!gender) {
+      setError("Select female or male.");
+      setLoading(false);
+      return;
+    }
 
     try {
-      await signUp({ email, password, phoneNumber, birthDate });
+      await signUp({ email, password, phoneNumber, birthDate, gender });
       // You might want to automatically sign in the user or redirect them
       // For an admin panel, maybe redirect to a login page or a "check your email" page
       router.push("/auth/login");
@@ -55,6 +61,28 @@ export default function AdminRegister() {
               autoComplete="tel"
               className="w-full px-3 py-2 mt-1 text-gray-900 bg-gray-200 rounded-md focus:outline-none focus:ring focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             />
+          </div>
+          <div>
+            <label
+              htmlFor="gender"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Gender
+            </label>
+            <select
+              id="gender"
+              value={gender}
+              onChange={(e) => {
+                const value = e.target.value;
+                setGender(value === "female" || value === "male" ? value : "");
+              }}
+              required
+              className="w-full px-3 py-2 mt-1 text-gray-900 bg-gray-200 rounded-md focus:outline-none focus:ring focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="" disabled>Select gender</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+            </select>
           </div>
           <div>
             <label

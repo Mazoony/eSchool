@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
+import SocialShare from './SocialShare';
 
 export interface LessonVideoProps {
   id: string;
@@ -65,8 +66,11 @@ function LessonVideoCard({ lesson }: { lesson: LessonVideoProps }) {
               <video
                 ref={videoRef}
                 controls
+                controlsList="nodownload"
+                disablePictureInPicture
                 muted={isMuted}
                 onEnded={handleVideoEnded}
+                onContextMenu={(event) => event.preventDefault()}
                 className="w-full h-auto bg-black"
               >
                 <source src={lesson.video_url} type="video/mp4" />
@@ -97,12 +101,20 @@ function LessonVideoCard({ lesson }: { lesson: LessonVideoProps }) {
         </div>
       )}
       <div className="p-6 border-t border-gray-200 dark:border-gray-700">
-        <Link
-          href={`/lessons/${lesson.id || lesson.slug}`}
-          className="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
-        >
-          View Lesson Details
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href={`/lessons/${lesson.id || lesson.slug}`}
+            className="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+          >
+            View Lesson Details
+          </Link>
+          <SocialShare
+            href={`/register?ref=video&lesson=${encodeURIComponent(lesson.id)}`}
+            title={`Join me on eSchool: ${lesson.title}`}
+            text={`I'm learning with the "${lesson.title}" video lesson on eSchool. Join me and start learning English:`}
+            label="Share video"
+          />
+        </div>
       </div>
     </div>
   );

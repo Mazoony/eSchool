@@ -12,6 +12,7 @@ export default function RegisterForm() {
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [birthDate, setBirthDate] = useState('');
+  const [gender, setGender] = useState<'female' | 'male' | ''>('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { signUp } = useAuth();
@@ -19,6 +20,10 @@ export default function RegisterForm() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    if (!gender) {
+      setError('Select female or male.');
+      return;
+    }
 
     try {
       await signUp({
@@ -27,6 +32,7 @@ export default function RegisterForm() {
         fullName,
         phoneNumber,
         birthDate,
+        gender,
       });
       router.push('/lessons');
     } catch (error: unknown) {
@@ -78,6 +84,26 @@ export default function RegisterForm() {
             </p>
           </div>
           <div className="mb-4">
+            <label htmlFor="gender" className="block text-gray-700 font-bold mb-2 dark:text-gray-200">
+              Gender
+            </label>
+            <select
+              id="gender"
+              value={gender}
+              onChange={(e) => {
+                const value = e.target.value;
+                setGender(value === 'female' || value === 'male' ? value : '');
+              }}
+              className="w-full px-3 py-2 border rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
+              required
+              aria-describedby={error ? 'error-message privacy-note' : 'privacy-note'}
+            >
+              <option value="" disabled>Select gender</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+            </select>
+          </div>
+          <div className="mb-4">
             <label htmlFor="birthDate" className="block text-gray-700 font-bold mb-2 dark:text-gray-200">
               Birthdate
             </label>
@@ -93,7 +119,7 @@ export default function RegisterForm() {
               aria-describedby={error ? 'error-message privacy-note' : 'privacy-note'}
             />
             <p id="privacy-note" className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-              Your phone number and birthdate are private and are not shown on your public profile.
+              Your phone number, birthdate, and gender are private and are not shown on your public profile.
             </p>
           </div>
           <div className="mb-4">

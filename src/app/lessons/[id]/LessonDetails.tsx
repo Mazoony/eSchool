@@ -69,6 +69,9 @@ export default function LessonDetails({ lesson }: LessonDetailsProps) {
           ) : (
             <video
               controls
+              controlsList="nodownload"
+              disablePictureInPicture
+              onContextMenu={(event) => event.preventDefault()}
               className="w-full h-full rounded-lg shadow-lg bg-black"
               aria-label="Lesson video content"
             >

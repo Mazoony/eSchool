@@ -5,6 +5,7 @@ export interface Profile {
   avatar_url?: string | null;
   cover_url?: string | null;
   bio?: string | null;
+  is_paid?: boolean;
   created_at?: string | null;
   updated_at?: string | null;
 }
