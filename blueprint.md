@@ -82,3 +82,20 @@ eSchool is a modern social learning platform designed to connect students and ed
 - Rank students by their average percentage across graded tasks; rankings update in realtime and show only each student's aggregate percentage and graded-task count.
 - Keep individual marks private to the student and admin, enforce mark limits and grading permissions in the database, and reset a mark when a student changes their answer.
 - Add a public `/leaderboard` page and navigation links for signed-in and signed-out visitors; students appear after at least one task is graded.
+
+## Current Change: Required Sign-Up Contact Details
+
+- Collect and validate a required phone number and birthdate on account registration.
+- Store those personal details in a dedicated private table, accessible only to the account owner and site admin.
+- Validate required metadata during Supabase user creation and keep the fields out of public profile queries and the social feed.
+
+## Current Change: Registration Accessibility and Validation
+
+- Use a browser-compatible phone input without a malformed HTML regular-expression pattern; enforce the phone format in the sign-up handler.
+- Keep registration pages within a single top-level main landmark by using a neutral layout wrapper.
+- Meet text contrast requirements for the registration submit button.
+
+## Current Change: Password Guidance
+
+- Explain the minimum password length and recommend longer unique passwords without requiring rigid character composition.
+- Enforce the displayed eight-character minimum in the registration form and sign-up handler.

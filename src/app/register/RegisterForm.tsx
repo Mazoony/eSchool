@@ -3,11 +3,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../AuthContext';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 export default function RegisterForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState(''); // New state for the user's full name
+  const [showPassword, setShowPassword] = useState(false);
+  const [fullName, setFullName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [birthDate, setBirthDate] = useState('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { signUp } = useAuth();
@@ -21,6 +25,8 @@ export default function RegisterForm() {
         email,
         password,
         fullName,
+        phoneNumber,
+        birthDate,
       });
       router.push('/lessons');
     } catch (error: unknown) {
@@ -32,12 +38,12 @@ export default function RegisterForm() {
     }
   };
   return (
-    <main className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Create an Account</h1>
+    <main className="min-h-screen bg-gray-100 px-4 py-10 flex flex-col items-center justify-center dark:bg-gray-900">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md dark:bg-gray-800">
+        <h1 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-gray-50">Create an Account</h1>
         <form onSubmit={handleSignUp}>
           <div className="mb-4">
-            <label htmlFor="fullName" className="block text-gray-700 font-bold mb-2">
+            <label htmlFor="fullName" className="block text-gray-700 font-bold mb-2 dark:text-gray-200">
               Full Name
             </label>
             <input
@@ -45,13 +51,53 @@ export default function RegisterForm() {
               id="fullName"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2 border rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
               required
-              aria-describedby="error-message"
+              autoComplete="name"
+              aria-describedby={error ? 'error-message' : undefined}
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 font-bold mb-2">
+            <label htmlFor="phoneNumber" className="block text-gray-700 font-bold mb-2 dark:text-gray-200">
+              Phone number
+            </label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              maxLength={25}
+              title="Use 7 to 15 digits. You may include a country code, spaces, parentheses, dots, or hyphens."
+              autoComplete="tel"
+              className="w-full px-3 py-2 border rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
+              required
+              aria-describedby={error ? 'error-message phone-help' : 'phone-help'}
+            />
+            <p id="phone-help" className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+              Include your country code if needed (for example, +249).
+            </p>
+          </div>
+          <div className="mb-4">
+            <label htmlFor="birthDate" className="block text-gray-700 font-bold mb-2 dark:text-gray-200">
+              Birthdate
+            </label>
+            <input
+              type="date"
+              id="birthDate"
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
+              max={new Date().toISOString().slice(0, 10)}
+              autoComplete="bday"
+              className="w-full px-3 py-2 border rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
+              required
+              aria-describedby={error ? 'error-message privacy-note' : 'privacy-note'}
+            />
+            <p id="privacy-note" className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+              Your phone number and birthdate are private and are not shown on your public profile.
+            </p>
+          </div>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-gray-700 font-bold mb-2 dark:text-gray-200">
               Email
             </label>
             <input
@@ -59,29 +105,48 @@ export default function RegisterForm() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2 border rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
               required
-              aria-describedby="error-message"
+              autoComplete="email"
+              aria-describedby={error ? 'error-message' : undefined}
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="password" className="block text-gray-700 font-bold mb-2">
+            <label htmlFor="password" className="block text-gray-700 font-bold mb-2 dark:text-gray-200">
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
-              required
-              aria-describedby="error-message"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+                minLength={8}
+                className="w-full px-3 py-2 pr-12 border rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
+                required
+                aria-describedby={error ? 'password-help error-message' : 'password-help'}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((visible) => !visible)}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-300 dark:hover:text-white"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
+              >
+                {showPassword
+                  ? <EyeSlashIcon aria-hidden="true" className="h-5 w-5" />
+                  : <EyeIcon aria-hidden="true" className="h-5 w-5" />}
+              </button>
+            </div>
+            <p id="password-help" className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+              Use at least 8 characters. A longer, unique password that mixes words, numbers, and symbols is easier to keep secure. Avoid personal information or passwords you use elsewhere.
+            </p>
           </div>
           {error && <p id="error-message" className="text-red-600 dark:text-red-400 text-sm mb-4" role="alert">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+            className="w-full bg-blue-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-800 transition duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
           >
             Sign Up
           </button>

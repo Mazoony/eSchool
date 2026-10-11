@@ -27,7 +27,11 @@ interface AuthContextType {
   toastMessage: string | null;
   signOut: () => Promise<void>;
   signIn: (credentials: Credentials) => Promise<void>;
-  signUp: (credentials: Credentials & { fullName?: string }) => Promise<void>;
+  signUp: (credentials: Credentials & {
+    fullName?: string;
+    phoneNumber: string;
+    birthDate: string;
+  }) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
 }
 
@@ -132,11 +136,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (signInError) throw signInError;
   }, []);
 
-  const signUp = useCallback(async ({ email, password, fullName }: Credentials & { fullName?: string }) => {
+  const signUp = useCallback(async ({
+    email,
+    password,
+    fullName,
+    phoneNumber,
+    birthDate,
+  }: Credentials & { fullName?: string; phoneNumber: string; birthDate: string }) => {
+    if (password.length < 8) {
+      throw new Error('Choose a password with at least 8 characters.');
+    }
+
+    const normalizedPhoneNumber = phoneNumber.trim();
+    const digits = normalizedPhoneNumber.replace(/\D/g, '');
+    if (!/^\+?[0-9 ().-]{7,25}$/.test(normalizedPhoneNumber) || digits.length < 7 || digits.length > 15) {
+      throw new Error('Enter a valid phone number with 7 to 15 digits.');
+    }
+    const parsedBirthDate = new Date(`${birthDate}T00:00:00.000Z`);
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(birthDate)
+      || Number.isNaN(parsedBirthDate.getTime())
+      || parsedBirthDate.toISOString().slice(0, 10) !== birthDate
+    ) {
+      throw new Error('Enter a valid birthdate.');
+    }
+    if (birthDate > new Date().toISOString().slice(0, 10)) {
+      throw new Error('Birthdate cannot be in the future.');
+    }
+
     const { error: signUpError } = await createClient().auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName?.trim() || null } },
+      options: {
+        data: {
+          full_name: fullName?.trim() || null,
+          phone_number: normalizedPhoneNumber,
+          birth_date: birthDate,
+        },
+      },
     });
     if (signUpError) throw signUpError;
   }, []);

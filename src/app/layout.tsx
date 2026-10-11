@@ -65,10 +65,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             <Header />
-            <main className="p-4 sm:p-6 lg:p-8">
+            <div className="p-4 sm:p-6 lg:p-8">
                 <Breadcrumbs />
                 {children}
-            </main>
+            </div>
           </AuthProvider>
         </ThemeProvider>
       </body>
