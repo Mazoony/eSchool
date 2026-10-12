@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../AuthContext';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { GradeId, grades, isGradeId } from '../lessons/curriculum';
 
 export default function RegisterForm() {
   const [email, setEmail] = useState('');
@@ -13,6 +14,7 @@ export default function RegisterForm() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [gender, setGender] = useState<'female' | 'male' | ''>('');
+  const [preferredGrade, setPreferredGrade] = useState<GradeId | ''>('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { signUp } = useAuth();
@@ -33,6 +35,7 @@ export default function RegisterForm() {
         phoneNumber,
         birthDate,
         gender,
+        preferredGrade: preferredGrade || null,
       });
       router.push('/lessons');
     } catch (error: unknown) {
@@ -120,6 +123,26 @@ export default function RegisterForm() {
             />
             <p id="privacy-note" className="mt-1 text-sm text-gray-600 dark:text-gray-300">
               Your phone number, birthdate, and gender are private and are not shown on your public profile.
+            </p>
+          </div>
+          <div className="mb-4">
+            <label htmlFor="preferredGrade" className="block text-gray-700 font-bold mb-2 dark:text-gray-200">
+              Preferred learning path <span className="font-normal">(optional)</span>
+            </label>
+            <select
+              id="preferredGrade"
+              value={preferredGrade}
+              onChange={(event) => setPreferredGrade(isGradeId(event.target.value) ? event.target.value : '')}
+              className="w-full rounded-lg border bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
+              aria-describedby="preferred-grade-help"
+            >
+              <option value="">I’ll choose later</option>
+              {grades.map((item) => (
+                <option key={item.id} value={item.id}>{item.title}</option>
+              ))}
+            </select>
+            <p id="preferred-grade-help" className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+              We’ll highlight this path on your lessons page. You can change it anytime.
             </p>
           </div>
           <div className="mb-4">

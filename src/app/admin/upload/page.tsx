@@ -46,8 +46,8 @@ export default function UploadPage() {
       setError('The video must be 50 MB or smaller to fit the Supabase Free upload limit.');
       return;
     }
-    if (!grade || !classNumber) {
-      setError('Please select a grade and class.');
+    if (!grade || (grade !== 'english-foundation' && !classNumber)) {
+      setError('Please select a learning path and class.');
       return;
     }
 
@@ -79,7 +79,7 @@ export default function UploadPage() {
           description: description.trim(),
           task_prompt: taskPrompt.trim() || null,
           grade,
-          class_number: Number(classNumber),
+          class_number: grade === 'english-foundation' ? null : Number(classNumber),
           video_url: filePath,
           user_id: user.id,
         });
@@ -196,7 +196,7 @@ export default function UploadPage() {
           </div>
           <div className="mb-6">
             <label htmlFor="grade" className="mb-2 block font-bold text-gray-700">
-              Grade
+              Learning path
             </label>
             <select
               id="grade"
@@ -209,7 +209,7 @@ export default function UploadPage() {
               required
               disabled={uploading}
             >
-              <option value="">Select a grade</option>
+              <option value="">Select a learning path</option>
               {grades.map((item) => (
                 <option key={item.id} value={item.id}>{item.title}</option>
               ))}
@@ -222,10 +222,10 @@ export default function UploadPage() {
               value={classNumber}
               onChange={(e) => setClassNumber(e.target.value)}
               className="mb-4 w-full rounded-lg border px-3 py-2 focus:border-blue-500 focus:outline-none"
-              required
-              disabled={uploading || !grade}
+              required={grade !== 'english-foundation'}
+              disabled={uploading || !grade || grade === 'english-foundation'}
             >
-              <option value="">Select a class</option>
+              <option value="">{grade === 'english-foundation' ? 'No class needed' : 'Select a class'}</option>
               {grade && Array.from({ length: grades.find((item) => item.id === grade)?.classCount ?? 0 }, (_, index) => (
                 <option key={index + 1} value={index + 1}>Class {index + 1}</option>
               ))}

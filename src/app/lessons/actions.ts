@@ -84,7 +84,13 @@ async function readLessons(): Promise<Lesson[]> {
 
 export async function getLessons(grade?: GradeId, classNumber?: number): Promise<Lesson[]> {
   const lessons = await readLessons();
-  if (!grade || classNumber === undefined) return lessons;
+  if (!grade) return lessons;
+  if (grade === 'english-foundation') {
+    return lessons.filter((lesson) =>
+      lesson.grade === grade && lesson.class_number === null,
+    );
+  }
+  if (classNumber === undefined) return lessons;
   return lessons.filter((lesson) => lesson.grade === grade && lesson.class_number === classNumber);
 }
 

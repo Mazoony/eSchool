@@ -1,5 +1,12 @@
 export const grades = [
   {
+    id: 'english-foundation',
+    title: 'English Foundation',
+    description: 'Build essential English skills with foundation lessons.',
+    classCount: 0,
+    accent: 'from-amber-500 to-orange-700',
+  },
+  {
     id: 'elementary-school',
     title: 'Elementary School',
     description: 'Build strong foundations across six classes.',

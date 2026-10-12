@@ -1,6 +1,7 @@
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { Comment, Like, Notification, Post, Profile, Reply } from '@/app/types';
 import { createClient } from './client';
+import { isGradeId } from '@/app/lessons/curriculum';
 
 type Row = Record<string, unknown>;
 
@@ -19,6 +20,7 @@ const emptyProfile = (id: string): Profile => ({
   avatar_url: null,
   bio: null,
   is_paid: false,
+  preferred_grade: null,
 });
 
 function profileFromRow(row: Row): Profile {
@@ -29,6 +31,9 @@ function profileFromRow(row: Row): Profile {
     avatar_url: typeof row.avatar_url === 'string' ? row.avatar_url : null,
     cover_url: typeof row.cover_url === 'string' ? row.cover_url : null,
     bio: typeof row.bio === 'string' ? row.bio : null,
+    preferred_grade: typeof row.preferred_grade === 'string' && isGradeId(row.preferred_grade)
+      ? row.preferred_grade
+      : null,
     is_paid: row.is_paid === true,
     created_at: typeof row.created_at === 'string' ? row.created_at : null,
     updated_at: typeof row.updated_at === 'string' ? row.updated_at : null,
@@ -42,7 +47,7 @@ function throwIfError(error: { message: string } | null): void {
 export async function getProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await createClient()
     .from('profiles')
-    .select('id, username, full_name, avatar_url, cover_url, bio, is_paid, created_at, updated_at')
+    .select('id, username, full_name, avatar_url, cover_url, bio, is_paid, preferred_grade, created_at, updated_at')
     .eq('id', userId)
     .maybeSingle();
   throwIfError(error);
@@ -62,6 +67,9 @@ export async function ensureProfile(
     full_name: asString(metadata?.full_name, asString(metadata?.name)) || null,
     avatar_url: asString(metadata?.avatar_url, asString(metadata?.picture)) || null,
     bio: null,
+    preferred_grade: typeof metadata?.preferred_grade === 'string' && isGradeId(metadata.preferred_grade)
+      ? metadata.preferred_grade
+      : null,
   };
   const { error } = await createClient().from('profiles').upsert(profile, { onConflict: 'id' });
   throwIfError(error);
@@ -70,23 +78,32 @@ export async function ensureProfile(
 
 export async function updateProfile(
   userId: string,
-  updates: Pick<Profile, 'username' | 'full_name' | 'bio'>,
+  updates: Partial<Pick<Profile, 'username' | 'full_name' | 'bio' | 'preferred_grade'>>,
 ): Promise<void> {
-  const username = updates.username?.trim().toLowerCase() || null;
-  if (username && !/^[a-z0-9_]{3,20}$/.test(username)) {
-    throw new Error('Username must be 3-20 characters and contain only lowercase letters, numbers, or underscores.');
+  if (updates.preferred_grade && !isGradeId(updates.preferred_grade)) {
+    throw new Error('Select a valid learning path.');
   }
 
-  const { error } = await createClient()
+  const profileUpdates: Record<string, string | null> = { updated_at: new Date().toISOString() };
+  if ('username' in updates) {
+    const username = updates.username?.trim().toLowerCase() || null;
+    if (username && !/^[a-z0-9_]{3,20}$/.test(username)) {
+      throw new Error('Username must be 3-20 characters and contain only lowercase letters, numbers, or underscores.');
+    }
+    profileUpdates.username = username;
+  }
+  if ('full_name' in updates) profileUpdates.full_name = updates.full_name?.trim() || null;
+  if ('bio' in updates) profileUpdates.bio = updates.bio?.trim() || null;
+  if ('preferred_grade' in updates) profileUpdates.preferred_grade = updates.preferred_grade ?? null;
+
+  const { data, error } = await createClient()
     .from('profiles')
-    .update({
-      username,
-      full_name: updates.full_name?.trim() || null,
-      bio: updates.bio?.trim() || null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', userId);
+    .update(profileUpdates)
+    .eq('id', userId)
+    .select('id')
+    .maybeSingle();
   throwIfError(error);
+  if (!data) throw new Error('Could not find your profile to update.');
 }
 
 export async function uploadProfileAvatar(userId: string, file: File): Promise<string> {

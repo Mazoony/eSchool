@@ -198,3 +198,13 @@ eSchool is a modern social learning platform designed to connect students and ed
 
 - Add a positive-integer display order scoped independently to each grade/class, initialize each class in its current relative order, and assign new lessons the next order in their class.
 - Let the site admin set a lesson's order and display catalog/class/video lesson lists grouped by class and ordered within each class.
+
+## Current Change: English Foundation Lessons
+
+- Add a separate English Foundation card and lesson list that does not require class selection.
+- Allow admins to assign lessons to English Foundation while uploading or editing; its lesson ordering is independent from school grade classes.
+
+## Current Change: Student Learning Preferences
+
+- Let students optionally choose a preferred learning path at sign-up and update it later from the lessons page.
+- Save the preference on the student profile and highlight the chosen path without hiding the other available paths.

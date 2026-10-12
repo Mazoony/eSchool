@@ -92,25 +92,25 @@ export default function LeaderboardPage() {
             return (
               <li
                 key={entry.student_id}
-                className={`flex items-center gap-4 rounded-xl border bg-white p-4 shadow-sm dark:bg-gray-800 ${
+                className={`flex min-w-0 items-center gap-2 rounded-xl border bg-white p-3 shadow-sm dark:bg-gray-800 sm:gap-4 sm:p-4 ${
                   isCurrentUser
                     ? 'border-blue-400 ring-2 ring-blue-200 dark:border-blue-500 dark:ring-blue-900'
                     : 'border-gray-200 dark:border-gray-700'
                 }`}
               >
                 <span
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-50 text-lg font-extrabold text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-base font-extrabold text-blue-700 dark:bg-blue-950 dark:text-blue-300 sm:h-12 sm:w-12 sm:text-lg"
                   aria-label={`Rank ${entry.rank}`}
                 >
                   {entry.rank}
                 </span>
-                <div className="flex min-w-0 flex-1 items-center gap-3">
+                <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
                   <Image
                     src={entry.student.avatar_url || '/user.svg'}
                     alt=""
                     width={48}
                     height={48}
-                    className="h-12 w-12 rounded-full object-cover"
+                    className="h-10 w-10 shrink-0 rounded-full object-cover sm:h-12 sm:w-12"
                   />
                   <span className="min-w-0">
                     {user ? (
@@ -144,6 +144,7 @@ export default function LeaderboardPage() {
                       text={`I'm ranked #${entry.rank} on the eSchool leaderboard with a ${entry.average_percentage.toFixed(1)}% average across ${entry.graded_tasks} graded ${entry.graded_tasks === 1 ? 'task' : 'tasks'}! Join me and start learning English:`}
                       label="Share success"
                       className="justify-end"
+                      iconOnly
                     />
                   )}
                 </div>

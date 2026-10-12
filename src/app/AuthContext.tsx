@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { ensureProfile } from '@/utils/supabase/data';
 import { Profile, User } from './types';
+import { GradeId, isGradeId } from './lessons/curriculum';
 
 interface Credentials {
   email: string;
@@ -32,6 +33,7 @@ interface AuthContextType {
     phoneNumber: string;
     birthDate: string;
     gender: 'female' | 'male';
+    preferredGrade?: GradeId | null;
   }) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
 }
@@ -144,11 +146,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     phoneNumber,
     birthDate,
     gender,
+    preferredGrade,
   }: Credentials & {
     fullName?: string;
     phoneNumber: string;
     birthDate: string;
     gender: 'female' | 'male';
+    preferredGrade?: GradeId | null;
   }) => {
     if (password.length < 8) {
       throw new Error('Choose a password with at least 8 characters.');
@@ -173,6 +177,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (gender !== 'female' && gender !== 'male') {
       throw new Error('Select female or male.');
     }
+    if (preferredGrade && !isGradeId(preferredGrade)) {
+      throw new Error('Select a valid learning path.');
+    }
 
     const { error: signUpError } = await createClient().auth.signUp({
       email,
@@ -183,6 +190,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           phone_number: normalizedPhoneNumber,
           birth_date: birthDate,
           gender,
+          preferred_grade: preferredGrade || null,
         },
       },
     });

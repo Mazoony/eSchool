@@ -1,3 +1,5 @@
+import type { GradeId } from './lessons/curriculum';
+
 export interface Profile {
   id: string;
   username?: string | null;
@@ -5,6 +7,7 @@ export interface Profile {
   avatar_url?: string | null;
   cover_url?: string | null;
   bio?: string | null;
+  preferred_grade?: GradeId | null;
   is_paid?: boolean;
   created_at?: string | null;
   updated_at?: string | null;

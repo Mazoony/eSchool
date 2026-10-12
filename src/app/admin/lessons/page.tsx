@@ -99,11 +99,22 @@ export default function AdminLessonsPage() {
       setError('The lesson order must be a positive whole number.');
       return;
     }
-    if ((grade && !classNumber) || (!grade && classNumber)) {
-      setError('Select both a grade and class, or leave both unassigned.');
+    if (
+      (grade && grade !== 'english-foundation' && !classNumber)
+      || (!grade && classNumber)
+      || (grade === 'english-foundation' && classNumber)
+    ) {
+      setError('Select a class for school grades. English Foundation does not use classes.');
       return;
     }
-    if (grade && (!isGradeId(grade) || Number(classNumber) > (grades.find((item) => item.id === grade)?.classCount ?? 0))) {
+    if (
+      grade
+      && (
+        !isGradeId(grade)
+        || (grade !== 'english-foundation'
+          && Number(classNumber) > (grades.find((item) => item.id === grade)?.classCount ?? 0))
+      )
+    ) {
       setError('Select a valid class for the chosen grade.');
       return;
     }
@@ -150,7 +161,7 @@ export default function AdminLessonsPage() {
         task_max_score: numericMaxScore,
         display_order: numericDisplayOrder,
         grade: grade || null,
-        class_number: grade ? Number(classNumber) : null,
+        class_number: grade && grade !== 'english-foundation' ? Number(classNumber) : null,
         ...(uploadedPath ? { video_url: uploadedPath } : {}),
       };
       const { error: updateError } = await client
@@ -281,8 +292,10 @@ export default function AdminLessonsPage() {
             />
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Lower numbers appear first within {grade
-                ? `${grades.find((item) => item.id === grade)?.title}, Class ${classNumber || '—'}`
-                : 'the unassigned lessons group'}. Each class has its own order.
+                ? grade === 'english-foundation'
+                  ? 'English Foundation'
+                  : `${grades.find((item) => item.id === grade)?.title}, Class ${classNumber || '—'}`
+                : 'the unassigned lessons group'}. Each class or learning path has its own order.
             </p>
           </div>
 
@@ -320,7 +333,7 @@ export default function AdminLessonsPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="edit-grade" className="mb-2 block font-semibold">Grade</label>
+              <label htmlFor="edit-grade" className="mb-2 block font-semibold">Learning path</label>
               <select
                 id="edit-grade"
                 value={grade}
@@ -331,7 +344,7 @@ export default function AdminLessonsPage() {
                 disabled={saving}
                 className="w-full rounded-md border border-gray-300 bg-white p-3 dark:border-gray-600 dark:bg-gray-700"
               >
-                <option value="">Not assigned</option>
+                <option value="">{grade === 'english-foundation' ? 'No class needed' : 'Not assigned'}</option>
                 {grades.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}
               </select>
             </div>
@@ -341,10 +354,10 @@ export default function AdminLessonsPage() {
                 id="edit-class-number"
                 value={classNumber}
                 onChange={(event) => setClassNumber(event.target.value)}
-                disabled={saving || !grade}
+                disabled={saving || !grade || grade === 'english-foundation'}
                 className="w-full rounded-md border border-gray-300 bg-white p-3 dark:border-gray-600 dark:bg-gray-700"
               >
-                <option value="">Not assigned</option>
+                <option value="">{grade === 'english-foundation' ? 'No class needed' : 'Not assigned'}</option>
                 {grade && Array.from(
                   { length: grades.find((item) => item.id === grade)?.classCount ?? 0 },
                   (_, index) => <option key={index + 1} value={index + 1}>Class {index + 1}</option>,

@@ -16,9 +16,10 @@ export default function ClassLessonsClient({
   classNumber,
 }: {
   gradeId: GradeId;
-  classNumber: number;
+  classNumber?: number;
 }) {
   const grade = getGrade(gradeId);
+  const isFoundation = gradeId === 'english-foundation';
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [completedLessonIds, setCompletedLessonIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,7 +73,9 @@ export default function ClassLessonsClient({
         </Link>
         <div className="mb-8 mt-6">
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400">{grade?.title}</p>
-          <h1 className="mt-2 text-4xl font-black text-gray-950 dark:text-white">Class {classNumber} lessons</h1>
+          <h1 className="mt-2 text-4xl font-black text-gray-950 dark:text-white">
+            {isFoundation ? 'English Foundation lessons' : `Class ${classNumber} lessons`}
+          </h1>
         </div>
 
         {loading ? (
@@ -84,7 +87,9 @@ export default function ClassLessonsClient({
             <BookOpenIcon className="mx-auto h-12 w-12 text-gray-400" aria-hidden="true" />
             <h2 className="mt-4 text-xl font-bold text-gray-900 dark:text-white">No lessons here yet</h2>
             <p className="mx-auto mt-2 max-w-md text-gray-600 dark:text-gray-400">
-              Lessons assigned to {grade?.title}, Class {classNumber} will appear here when they are uploaded.
+              {isFoundation
+                ? 'Foundation lessons will appear here when they are added.'
+                : `Lessons assigned to ${grade?.title}, Class ${classNumber} will appear here when they are uploaded.`}
             </p>
           </div>
         ) : (
@@ -97,8 +102,11 @@ export default function ClassLessonsClient({
                   className="rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"
                 >
                   <div className="flex items-center justify-between">
-                    <span className={`inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${grade?.accent} text-white`}>
-                      <BookOpenIcon className="h-6 w-6" aria-hidden="true" />
+                    <span
+                      aria-label={`Lesson ${lesson.display_order}`}
+                      className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${grade?.accent} text-lg font-extrabold text-white`}
+                    >
+                      {lesson.display_order}
                     </span>
                     {isCompleted && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-800 dark:bg-green-900/40 dark:text-green-300">

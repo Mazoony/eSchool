@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { ShareIcon } from '@heroicons/react/24/outline';
+import { FaFacebookF, FaWhatsapp } from 'react-icons/fa';
 
 interface SocialShareProps {
   href: string;
@@ -9,9 +10,17 @@ interface SocialShareProps {
   text: string;
   label: string;
   className?: string;
+  iconOnly?: boolean;
 }
 
-export default function SocialShare({ href, title, text, label, className = '' }: SocialShareProps) {
+export default function SocialShare({
+  href,
+  title,
+  text,
+  label,
+  className = '',
+  iconOnly = false,
+}: SocialShareProps) {
   const [shareUrl, setShareUrl] = useState('');
   const [message, setMessage] = useState('');
 
@@ -54,10 +63,14 @@ export default function SocialShare({ href, title, text, label, className = '' }
         type="button"
         onClick={() => void share()}
         disabled={!shareUrl}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60"
+        aria-label={label}
+        title={label}
+        className={`inline-flex shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 ${
+          iconOnly ? 'h-9 w-9' : 'gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold'
+        }`}
       >
         <ShareIcon className="h-4 w-4" aria-hidden="true" />
-        {label}
+        {!iconOnly && label}
       </button>
       <a
         href={shareUrl ? `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedMessage}` : undefined}
@@ -66,9 +79,12 @@ export default function SocialShare({ href, title, text, label, className = '' }
         aria-label={`Share on Facebook: ${title}`}
         aria-disabled={!shareUrl}
         tabIndex={shareUrl ? 0 : -1}
-        className="rounded-lg bg-[#1877F2] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#166FE5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 aria-disabled:pointer-events-none aria-disabled:opacity-60"
+        title="Share on Facebook"
+        className={`inline-flex shrink-0 items-center justify-center bg-[#1877F2] text-white transition hover:bg-[#166FE5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 aria-disabled:pointer-events-none aria-disabled:opacity-60 ${
+          iconOnly ? 'h-9 w-9 rounded-lg' : 'rounded-lg px-3 py-2 text-sm font-semibold'
+        }`}
       >
-        Facebook
+        {iconOnly ? <FaFacebookF className="h-4 w-4" aria-hidden="true" /> : 'Facebook'}
       </a>
       <a
         href={shareUrl ? `https://wa.me/?text=${whatsappMessage}` : undefined}
@@ -77,9 +93,12 @@ export default function SocialShare({ href, title, text, label, className = '' }
         aria-label={`Share on WhatsApp: ${title}`}
         aria-disabled={!shareUrl}
         tabIndex={shareUrl ? 0 : -1}
-        className="rounded-lg bg-[#25D366] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#1EBE5D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 aria-disabled:pointer-events-none aria-disabled:opacity-60"
+        title="Share on WhatsApp"
+        className={`inline-flex shrink-0 items-center justify-center bg-[#25D366] text-white transition hover:bg-[#1EBE5D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 aria-disabled:pointer-events-none aria-disabled:opacity-60 ${
+          iconOnly ? 'h-9 w-9 rounded-lg' : 'rounded-lg px-3 py-2 text-sm font-semibold'
+        }`}
       >
-        WhatsApp
+        {iconOnly ? <FaWhatsapp className="h-5 w-5" aria-hidden="true" /> : 'WhatsApp'}
       </a>
       {message && (
         <span className="basis-full text-sm text-gray-600 dark:text-gray-300" role="status">
