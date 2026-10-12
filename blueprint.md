@@ -170,9 +170,10 @@ eSchool is a modern social learning platform designed to connect students and ed
 - Mark task prompt authoring and student task-answer fields as not translatable, so browser translation does not change lesson task text.
 - Task prompts are authored and displayed right-to-left in Arabic; English vocabulary within prompts remains supported for the Arabic meaning lookup.
 
-## Current Change: Right-to-Left Arabic Task Text
+## Current Change: Right-to-Left Lesson Descriptions
 
-- Set Arabic language and right-to-left alignment on task prompt inputs, student task editing, and task word meanings while retaining left-to-right handling for individual English vocabulary words.
+- Set Arabic language and right-to-left alignment on lesson description inputs and the student-facing lesson description.
+- Keep task prompts and student task-answer editing left-to-right; Arabic translations in the optional vocabulary tooltip remain right-to-left.
 
 ## Current Change: Expandable Long Text Across the App
 
@@ -195,5 +196,5 @@ eSchool is a modern social learning platform designed to connect students and ed
 
 ## Current Change: Admin Lesson Ordering
 
-- Add a global positive-integer display order to lessons, initialize existing lessons in their current newest-first order, and assign new lessons the next sequence value.
-- Let the site admin set a lesson's order and display all catalog/class/video lesson lists in ascending order.
+- Add a positive-integer display order scoped independently to each grade/class, initialize each class in its current relative order, and assign new lessons the next order in their class.
+- Let the site admin set a lesson's order and display catalog/class/video lesson lists grouped by class and ordered within each class.

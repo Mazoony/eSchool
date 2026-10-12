@@ -4,6 +4,8 @@ import { createClient } from './client';
 export interface LessonTask {
   id: string;
   title: string;
+  grade: string | null;
+  class_number: number | null;
   display_order: number;
   task_prompt: string | null;
   task_max_score: number;
@@ -51,13 +53,17 @@ function throwIfError(error: { message: string } | null): void {
 export async function getLessonsWithTasks(): Promise<LessonTask[]> {
   const { data, error } = await createClient()
     .from('lessons')
-    .select('id, title, display_order, task_prompt, task_max_score')
+    .select('id, title, grade, class_number, display_order, task_prompt, task_max_score')
+    .order('grade', { ascending: true, nullsFirst: true })
+    .order('class_number', { ascending: true, nullsFirst: true })
     .order('display_order', { ascending: true })
     .order('created_at', { ascending: false });
   throwIfError(error);
   return (data ?? []).map((row) => ({
     id: String(row.id),
     title: typeof row.title === 'string' ? row.title : 'Untitled lesson',
+    grade: typeof row.grade === 'string' ? row.grade : null,
+    class_number: typeof row.class_number === 'number' ? row.class_number : null,
     display_order: Number(row.display_order),
     task_prompt: typeof row.task_prompt === 'string' ? row.task_prompt : null,
     task_max_score: Number(row.task_max_score),

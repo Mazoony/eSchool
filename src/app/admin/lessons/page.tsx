@@ -176,7 +176,9 @@ export default function AdminLessonsPage() {
           ? { ...lesson, ...updates, video_url: uploadedPath ?? lesson.video_url }
           : lesson)
         .sort((first, second) =>
-          first.display_order - second.display_order
+          (first.grade ?? '').localeCompare(second.grade ?? '')
+          || (first.class_number ?? 0) - (second.class_number ?? 0)
+          || first.display_order - second.display_order
           || new Date(second.created_at).getTime() - new Date(first.created_at).getTime(),
         ));
       setVideoFile(null);
@@ -252,13 +254,15 @@ export default function AdminLessonsPage() {
             <label htmlFor="edit-description" className="mb-2 block font-semibold">Description</label>
             <textarea
               id="edit-description"
+              lang="ar"
+              dir="rtl"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               maxLength={10000}
               rows={5}
               required
               disabled={saving}
-              className="w-full rounded-md border border-gray-300 bg-white p-3 dark:border-gray-600 dark:bg-gray-700"
+              className="w-full rounded-md border border-gray-300 bg-white p-3 text-right dark:border-gray-600 dark:bg-gray-700"
             />
           </div>
 
@@ -276,23 +280,25 @@ export default function AdminLessonsPage() {
               className="w-full rounded-md border border-gray-300 bg-white p-3 dark:border-gray-600 dark:bg-gray-700"
             />
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Lower numbers appear first across the lesson catalog. Lessons with the same number are ordered newest first.
+              Lower numbers appear first within {grade
+                ? `${grades.find((item) => item.id === grade)?.title}, Class ${classNumber || '—'}`
+                : 'the unassigned lessons group'}. Each class has its own order.
             </p>
           </div>
 
           <div>
-            <label htmlFor="edit-task-prompt" className="mb-2 block font-semibold">Task prompt (Arabic)</label>
+            <label htmlFor="edit-task-prompt" className="mb-2 block font-semibold">Task prompt (English)</label>
             <textarea
               id="edit-task-prompt"
-              lang="ar"
-              dir="rtl"
+              lang="en"
+              dir="ltr"
               translate="no"
               value={taskPrompt}
               onChange={(event) => setTaskPrompt(event.target.value)}
               maxLength={5000}
               rows={5}
               disabled={saving}
-              className="w-full rounded-md border border-gray-300 bg-white p-3 text-right dark:border-gray-600 dark:bg-gray-700"
+              className="w-full rounded-md border border-gray-300 bg-white p-3 text-left dark:border-gray-600 dark:bg-gray-700"
             />
           </div>
 

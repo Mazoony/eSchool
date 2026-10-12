@@ -84,10 +84,12 @@ export default function LessonDetails({ lesson }: LessonDetailsProps) {
         </div>
         <section aria-labelledby="lesson-description-heading" className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
           <h2 id="lesson-description-heading" className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">Description</h2>
-          <ExpandableText
-            text={lesson.description}
-            className="text-lg text-gray-600 dark:text-gray-300"
-          />
+          <div lang="ar" dir="rtl">
+            <ExpandableText
+              text={lesson.description}
+              className="text-right text-lg text-gray-600 dark:text-gray-300"
+            />
+          </div>
         </section>
         {lesson.task_prompt ? (
           <LessonTask

@@ -174,10 +174,12 @@ export default function LessonTask({
       ) : savedAt && !editing ? (
         <div>
           <h3 className="mb-2 font-medium text-gray-800 dark:text-gray-100">Your answers</h3>
-          <ExpandableText
-            text={visibleAnswers}
-            className="rounded-md border border-gray-200 bg-gray-50 p-4 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-          />
+          <div lang="en" dir="ltr">
+            <ExpandableText
+              text={visibleAnswers}
+              className="rounded-md border border-gray-200 bg-gray-50 p-4 text-left text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            />
+          </div>
           <button
             type="button"
             onClick={() => setEditing(true)}
@@ -215,8 +217,8 @@ export default function LessonTask({
           </p>
           <textarea
             id="lesson-task-answer"
-            lang="ar"
-            dir="rtl"
+            lang="en"
+            dir="ltr"
             translate="no"
             value={answer}
             onChange={(event) => setAnswer(event.target.value)}
@@ -224,7 +226,7 @@ export default function LessonTask({
             rows={6}
             required
             disabled={saving}
-            className="w-full rounded-md border border-gray-300 bg-white p-3 text-right text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            className="w-full rounded-md border border-gray-300 bg-white p-3 text-left text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
           />
           <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-gray-600 dark:text-gray-300">

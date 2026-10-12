@@ -361,19 +361,19 @@ export default function AdminTasksPage() {
 
             {isAdmin && <form onSubmit={handleSavePrompt}>
               <label htmlFor="task-prompt" className="mb-2 block font-semibold">
-                Task prompt (Arabic)
+                Task prompt (English)
               </label>
               <textarea
                 id="task-prompt"
-                lang="ar"
-                dir="rtl"
+                lang="en"
+                dir="ltr"
                 translate="no"
                 value={prompt}
                 onChange={(event) => setPrompt(event.target.value)}
                 maxLength={5000}
                 rows={5}
                 placeholder="Write the task students should complete after watching the lesson."
-                className="w-full rounded-md border border-gray-300 bg-white p-3 text-right dark:border-gray-600 dark:bg-gray-700"
+                className="w-full rounded-md border border-gray-300 bg-white p-3 text-left dark:border-gray-600 dark:bg-gray-700"
               />
               <label htmlFor="task-max-score" className="mb-2 mt-4 block font-semibold">
                 Maximum mark

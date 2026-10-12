@@ -53,6 +53,8 @@ async function readLessons(): Promise<Lesson[]> {
   const { data, error } = await createClient()
     .from('lessons')
     .select('id, title, description, video_url, created_at, grade, class_number, display_order, task_prompt, task_max_score')
+    .order('grade', { ascending: true, nullsFirst: true })
+    .order('class_number', { ascending: true, nullsFirst: true })
     .order('display_order', { ascending: true })
     .order('created_at', { ascending: false });
   if (error) throw new Error(`Could not load lessons: ${error.message}`);

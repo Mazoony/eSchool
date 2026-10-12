@@ -110,8 +110,8 @@ export default function TaskPromptMeanings({ prompt }: { prompt: string }) {
 
   return (
     <p
-      lang="ar"
-      dir="rtl"
+      lang="en"
+      dir="ltr"
       translate="no"
       className="whitespace-pre-wrap break-words text-sm leading-7 text-gray-800 dark:text-gray-100"
     >
