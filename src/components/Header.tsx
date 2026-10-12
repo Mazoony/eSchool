@@ -60,6 +60,7 @@ export default function Header() {
       ? [
           { name: 'Admin dashboard', href: '/admin/dashboard' },
           { name: 'Upload', href: '/admin/upload' },
+          { name: 'Edit lessons', href: '/admin/lessons' },
           { name: 'Tasks', href: '/admin/tasks' },
         ]
       : []),

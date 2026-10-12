@@ -58,6 +58,16 @@ export default function AdminDashboardPage() {
           </p>
           <span className="mt-4 inline-block font-semibold text-blue-700 dark:text-blue-300">Review tasks</span>
         </Link>
+        <Link
+          href="/admin/lessons"
+          className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-blue-400 hover:shadow dark:border-gray-700 dark:bg-gray-800"
+        >
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-50">Edit lesson details</h2>
+          <p className="mt-2 text-gray-700 dark:text-gray-300">
+            Update lesson titles, descriptions, task settings, class placement, or videos.
+          </p>
+          <span className="mt-4 inline-block font-semibold text-blue-700 dark:text-blue-300">Manage lessons</span>
+        </Link>
       </section>
     </main>
   );
