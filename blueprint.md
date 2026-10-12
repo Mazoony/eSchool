@@ -11,7 +11,7 @@ eSchool is a modern social learning platform designed to connect students and ed
 - **Responsive Header:** A new, responsive `Header` component provides consistent navigation across all pages. It includes navigation links, a dark mode toggle, and a user menu for authenticated users with links to their profile and a logout button. Unauthenticated users are shown login and register links.
 - **Improved Landing Page:** The landing page has been redesigned with a compelling hero section, a section highlighting key features of the platform, a testimonials section to build trust, and an improved footer with links to the `About`, `Contact`, `Privacy`, and `Terms` pages.
 - **`About`, `Contact`, `Privacy`, and `Terms` Pages:** New pages have been created to provide users with more information about the eSchool platform, how to contact the team, how their data is used, and the terms of service.
-- **Public Landing Page:** The main entry point for signed-out visitors, featuring a compelling hero section, a summary of key features, and clear calls-to-action. Authenticated users are redirected to the social feed after their session loads.
+- **Public Landing Page:** The main entry point for signed-out visitors, featuring a compelling hero section, a summary of key features, and clear calls-to-action. Authenticated users are redirected to the lessons page after their session loads.
 - **Instructor Hero Portrait:** The home page features `public/teacher.jpg` alongside the welcome message and learning calls-to-action, with a responsive layout and descriptive alt text.
 - **Social Share Previews:** Open Graph and Twitter metadata use `public/teacher.jpg` as the default social sharing image, including the homepage.
 - **WhatsApp Contact:** The home-page footer displays a clickable WhatsApp link with the WhatsApp icon for +249 127 127 993.
@@ -24,7 +24,7 @@ eSchool is a modern social learning platform designed to connect students and ed
 - **Post Creation & Interaction:** Authenticated users can create posts, leave comments, and engage with content from others.
 - **Custom User Profiles:** Every user has a personal profile page where they can set their full name and upload a custom avatar.
 - **Authentication:** Supabase email/password sign-up and login are available. Google sign-in is temporarily hidden from login and registration until its provider configuration is working.
-- **Correct Login Redirect:** Users are now correctly redirected to the `/social` page upon successful sign-in, ensuring a seamless user experience.
+- **Correct Login Redirect:** Users are redirected to the `/lessons` page after successful sign-in, OAuth callback, or return to the site while authenticated.
 - **Refactored Layout:** The layout has been refactored to use a single `Header` component and unused layout components have been removed.
 - **SEO and Structured Data:** The application now includes comprehensive SEO and structured data to improve its visibility in search results. This includes:
     - A `sitemap.xml` file to help search engines discover all the pages on the site.
@@ -159,3 +159,41 @@ eSchool is a modern social learning platform designed to connect students and ed
 
 - Add native device sharing plus Facebook and WhatsApp links for video lessons and a student's own leaderboard result.
 - Point shared links directly to registration, adding referral context for the video lesson or leaderboard student without exposing protected or expiring video URLs.
+
+## Current Change: Complete Lessons on Task Submission
+
+- Treat a student's saved task submission as completion for that lesson.
+- Show a completion status on submitted tasks and in the student's class lesson list, using the existing per-student submission record.
+
+## Current Change: Keep Task Text Untranslated
+
+- Mark task prompt authoring and student task-answer fields as not translatable, so browser translation does not change lesson task text.
+- Task prompts are authored and displayed right-to-left in Arabic; English vocabulary within prompts remains supported for the Arabic meaning lookup.
+
+## Current Change: Right-to-Left Arabic Task Text
+
+- Set Arabic language and right-to-left alignment on task prompt inputs, student task editing, and task word meanings while retaining left-to-right handling for individual English vocabulary words.
+
+## Current Change: Expandable Long Text Across the App
+
+- Reuse a responsive Show more/Show less component for overflowing text with a five-line default and a shorter option for lesson cards.
+- Apply it to posts, comments, replies, bios, lesson descriptions, FAQs, and submitted answers; leave editable inputs fully visible.
+
+## Current Change: Arabic Task Word Meanings
+
+- Provide an optional glossary for task prompts where students can hover, focus, or tap an English word to look up its Arabic meaning.
+- Fetch meanings on demand and cache successful/in-flight word lookups, without modifying the editable task or saved answers.
+
+## Current Change: Admin Lesson Editing
+
+- Add a site-admin-only lesson editor for title, description, task prompt/mark, grade/class placement, and optional video replacement.
+- Reuse existing admin-only lesson and video-storage policies, preserve existing videos unless explicitly replaced, and avoid deleting task submissions.
+
+## Current Change: Student Login Destination
+
+- Route students to `/lessons` after sign-in and when returning to the site root or dashboard while authenticated.
+
+## Current Change: Admin Lesson Ordering
+
+- Add a global positive-integer display order to lessons, initialize existing lessons in their current newest-first order, and assign new lessons the next sequence value.
+- Let the site admin set a lesson's order and display all catalog/class/video lesson lists in ascending order.

@@ -4,6 +4,7 @@ import { createClient } from './client';
 export interface LessonTask {
   id: string;
   title: string;
+  display_order: number;
   task_prompt: string | null;
   task_max_score: number;
 }
@@ -50,12 +51,14 @@ function throwIfError(error: { message: string } | null): void {
 export async function getLessonsWithTasks(): Promise<LessonTask[]> {
   const { data, error } = await createClient()
     .from('lessons')
-    .select('id, title, task_prompt, task_max_score')
+    .select('id, title, display_order, task_prompt, task_max_score')
+    .order('display_order', { ascending: true })
     .order('created_at', { ascending: false });
   throwIfError(error);
   return (data ?? []).map((row) => ({
     id: String(row.id),
     title: typeof row.title === 'string' ? row.title : 'Untitled lesson',
+    display_order: Number(row.display_order),
     task_prompt: typeof row.task_prompt === 'string' ? row.task_prompt : null,
     task_max_score: Number(row.task_max_score),
   }));
@@ -98,6 +101,21 @@ export async function getStudentLessonSubmission(
     created_at: String(data.created_at),
     updated_at: String(data.updated_at),
   };
+}
+
+export async function getCompletedLessonIds(
+  lessonIds: string[],
+  studentId: string,
+): Promise<string[]> {
+  if (lessonIds.length === 0) return [];
+
+  const { data, error } = await createClient()
+    .from('lesson_submissions')
+    .select('lesson_id')
+    .eq('student_id', studentId)
+    .in('lesson_id', lessonIds);
+  throwIfError(error);
+  return (data ?? []).map((row) => String(row.lesson_id));
 }
 
 export async function saveLessonSubmissionScore(

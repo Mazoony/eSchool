@@ -8,7 +8,7 @@ export default function DashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.push('/social');
+    router.replace('/lessons');
   }, [router]);
 
   return null; 

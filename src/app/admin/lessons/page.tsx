@@ -33,6 +33,7 @@ export default function AdminLessonsPage() {
   const [description, setDescription] = useState('');
   const [taskPrompt, setTaskPrompt] = useState('');
   const [maxScore, setMaxScore] = useState('100');
+  const [displayOrder, setDisplayOrder] = useState('1');
   const [grade, setGrade] = useState<GradeId | ''>('');
   const [classNumber, setClassNumber] = useState('');
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -74,6 +75,7 @@ export default function AdminLessonsPage() {
     setDescription(selectedLesson.description);
     setTaskPrompt(selectedLesson.task_prompt ?? '');
     setMaxScore(String(selectedLesson.task_max_score));
+    setDisplayOrder(String(selectedLesson.display_order));
     setGrade(selectedLesson.grade ?? '');
     setClassNumber(selectedLesson.class_number === null ? '' : String(selectedLesson.class_number));
     setVideoFile(null);
@@ -90,6 +92,11 @@ export default function AdminLessonsPage() {
     }
     if (!Number.isInteger(numericMaxScore * 100)) {
       setError('The maximum mark can have up to two decimal places.');
+      return;
+    }
+    const numericDisplayOrder = Number(displayOrder);
+    if (!Number.isSafeInteger(numericDisplayOrder) || numericDisplayOrder < 1) {
+      setError('The lesson order must be a positive whole number.');
       return;
     }
     if ((grade && !classNumber) || (!grade && classNumber)) {
@@ -141,6 +148,7 @@ export default function AdminLessonsPage() {
         description: description.trim(),
         task_prompt: taskPrompt.trim() || null,
         task_max_score: numericMaxScore,
+        display_order: numericDisplayOrder,
         grade: grade || null,
         class_number: grade ? Number(classNumber) : null,
         ...(uploadedPath ? { video_url: uploadedPath } : {}),
@@ -163,9 +171,14 @@ export default function AdminLessonsPage() {
         }
       }
 
-      setLessons((current) => current.map((lesson) => lesson.id === selectedLesson.id
-        ? { ...lesson, ...updates, video_url: uploadedPath ?? lesson.video_url }
-        : lesson));
+      setLessons((current) => current
+        .map((lesson) => lesson.id === selectedLesson.id
+          ? { ...lesson, ...updates, video_url: uploadedPath ?? lesson.video_url }
+          : lesson)
+        .sort((first, second) =>
+          first.display_order - second.display_order
+          || new Date(second.created_at).getTime() - new Date(first.created_at).getTime(),
+        ));
       setVideoFile(null);
       setMessage(`Lesson details saved.${cleanupWarning}`);
     } catch (saveError: unknown) {
@@ -247,6 +260,24 @@ export default function AdminLessonsPage() {
               disabled={saving}
               className="w-full rounded-md border border-gray-300 bg-white p-3 dark:border-gray-600 dark:bg-gray-700"
             />
+          </div>
+
+          <div>
+            <label htmlFor="edit-display-order" className="mb-2 block font-semibold">Display order</label>
+            <input
+              id="edit-display-order"
+              type="number"
+              min="1"
+              step="1"
+              value={displayOrder}
+              onChange={(event) => setDisplayOrder(event.target.value)}
+              required
+              disabled={saving}
+              className="w-full rounded-md border border-gray-300 bg-white p-3 dark:border-gray-600 dark:bg-gray-700"
+            />
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Lower numbers appear first across the lesson catalog. Lessons with the same number are ordered newest first.
+            </p>
           </div>
 
           <div>

@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import ExpandableText from '../components/ExpandableText';
 
 const faqs = [
     {
@@ -52,9 +53,10 @@ const FAQPage = () => {
                             id={`faq-answer-${index}`}
                             className={`overflow-hidden transition-max-height duration-500 ease-in-out ${open === index ? 'max-h-screen' : 'max-h-0'}`}
                         >
-                            <p className="text-lg text-gray-600 dark:text-gray-300 mt-2">
-                                {faq.answer}
-                            </p>
+                            <ExpandableText
+                                text={faq.answer}
+                                className="mt-2 text-lg text-gray-600 dark:text-gray-300"
+                            />
                         </div>
                     </div>
                 ))}

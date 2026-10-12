@@ -7,6 +7,8 @@ import {
   getStudentLessonSubmission,
   saveStudentLessonSubmission,
 } from '@/utils/supabase/lessonTasks';
+import ExpandableText from '../../components/ExpandableText';
+import TaskPromptMeanings from '../../components/TaskPromptMeanings';
 
 function createTaskDraft(prompt: string, answer = ''): string {
   if (!answer) return prompt;
@@ -172,9 +174,10 @@ export default function LessonTask({
       ) : savedAt && !editing ? (
         <div>
           <h3 className="mb-2 font-medium text-gray-800 dark:text-gray-100">Your answers</h3>
-          <p className="whitespace-pre-wrap rounded-md border border-gray-200 bg-gray-50 p-4 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
-            {visibleAnswers}
-          </p>
+          <ExpandableText
+            text={visibleAnswers}
+            className="rounded-md border border-gray-200 bg-gray-50 p-4 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+          />
           <button
             type="button"
             onClick={() => setEditing(true)}
@@ -183,7 +186,7 @@ export default function LessonTask({
             Edit answer
           </button>
           <p className="mt-3 text-sm text-green-700 dark:text-green-300" role="status">
-            Submitted and shared in the social feed. You can edit your answer, but cannot delete it.
+            Lesson completed. Your answer is submitted and shared in the social feed. You can edit your answer, but cannot delete it.
           </p>
           <p className="mt-2 text-sm text-gray-700 dark:text-gray-200" role="status">
             {score === null
@@ -196,18 +199,32 @@ export default function LessonTask({
           <label htmlFor="lesson-task-answer" className="mb-2 block font-medium text-gray-800 dark:text-gray-100">
             Task and your answers
           </label>
+          <details className="mb-3 rounded-lg border border-blue-200 bg-blue-50/70 p-3 dark:border-blue-900 dark:bg-blue-950/30">
+            <summary className="cursor-pointer font-semibold text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-200">
+              Arabic meanings (hover over or tap a word)
+            </summary>
+            <div className="mt-3 border-t border-blue-200 pt-3 dark:border-blue-900">
+              <TaskPromptMeanings prompt={prompt} />
+              <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                Meanings are automatic translations and may depend on context.
+              </p>
+            </div>
+          </details>
           <p className="mb-2 text-sm text-gray-600 dark:text-gray-300">
             Edit the prefilled task directly, fill in the blanks, then submit. There is no separate answer section.
           </p>
           <textarea
             id="lesson-task-answer"
+            lang="ar"
+            dir="rtl"
+            translate="no"
             value={answer}
             onChange={(event) => setAnswer(event.target.value)}
             maxLength={10000}
             rows={6}
             required
             disabled={saving}
-            className="w-full rounded-md border border-gray-300 bg-white p-3 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            className="w-full rounded-md border border-gray-300 bg-white p-3 text-right text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
           />
           <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-gray-600 dark:text-gray-300">

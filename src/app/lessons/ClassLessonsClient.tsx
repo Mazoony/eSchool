@@ -7,6 +7,9 @@ import { ArrowLeftIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 import { getLessons, Lesson } from './actions';
 import { GradeId, getGrade } from './curriculum';
 import { useAuth } from '../AuthContext';
+import { getCompletedLessonIds } from '@/utils/supabase/lessonTasks';
+import { CheckCircleIcon } from '@heroicons/react/24/solid';
+import ExpandableText from '../components/ExpandableText';
 
 export default function ClassLessonsClient({
   gradeId,
@@ -17,6 +20,7 @@ export default function ClassLessonsClient({
 }) {
   const grade = getGrade(gradeId);
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [completedLessonIds, setCompletedLessonIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user, loading: authLoading } = useAuth();
@@ -30,8 +34,15 @@ export default function ClassLessonsClient({
     if (authLoading || !user) return;
     let active = true;
     getLessons(gradeId, classNumber)
-      .then((results) => {
-        if (active) setLessons(results);
+      .then(async (results) => {
+        const completedIds = await getCompletedLessonIds(
+          results.map((lesson) => lesson.id),
+          user.id,
+        );
+        if (active) {
+          setLessons(results);
+          setCompletedLessonIds(completedIds);
+        }
       })
       .catch((loadError: unknown) => {
         console.error('Failed to load class lessons:', loadError);
@@ -78,21 +89,44 @@ export default function ClassLessonsClient({
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {lessons.map((lesson) => (
-              <Link
-                href={`/lessons/${lesson.slug}`}
-                key={lesson.id}
-                className="group rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-200 transition hover:-translate-y-1 hover:shadow-xl dark:bg-gray-800 dark:ring-gray-700"
-              >
-                <span className={`inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${grade?.accent} text-white`}>
-                  <BookOpenIcon className="h-6 w-6" aria-hidden="true" />
-                </span>
-                <h2 className="mt-5 text-xl font-bold text-gray-900 group-hover:text-blue-700 dark:text-white dark:group-hover:text-blue-300">
-                  {lesson.title}
-                </h2>
-                <p className="mt-2 line-clamp-3 text-gray-600 dark:text-gray-300">{lesson.description}</p>
-              </Link>
-            ))}
+            {lessons.map((lesson) => {
+              const isCompleted = completedLessonIds.includes(lesson.id);
+              return (
+                <article
+                  key={lesson.id}
+                  className="rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className={`inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${grade?.accent} text-white`}>
+                      <BookOpenIcon className="h-6 w-6" aria-hidden="true" />
+                    </span>
+                    {isCompleted && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-800 dark:bg-green-900/40 dark:text-green-300">
+                        <CheckCircleIcon className="h-4 w-4" aria-hidden="true" />
+                        Completed
+                      </span>
+                    )}
+                  </div>
+                  <Link
+                    href={`/lessons/${lesson.slug}`}
+                    className="mt-5 block text-xl font-bold text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-300"
+                  >
+                    {lesson.title}
+                  </Link>
+                  <ExpandableText
+                    text={lesson.description}
+                    collapsedLines={3}
+                    className="mt-2 text-gray-600 dark:text-gray-300"
+                  />
+                  <Link
+                    href={`/lessons/${lesson.slug}`}
+                    className="mt-4 inline-block text-sm font-semibold text-blue-700 hover:underline dark:text-blue-300"
+                  >
+                    Open lesson
+                  </Link>
+                </article>
+              );
+            })}
           </div>
         )}
       </div>

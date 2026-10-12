@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { Lesson } from '../../types';
 import LessonTask from './LessonTask';
+import ExpandableText from '../../components/ExpandableText';
 
 const getVideoMimeType = (url: string) => {
   const extension = url.split('?')[0].split('.').pop()?.toLowerCase();
@@ -83,7 +84,10 @@ export default function LessonDetails({ lesson }: LessonDetailsProps) {
         </div>
         <section aria-labelledby="lesson-description-heading" className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
           <h2 id="lesson-description-heading" className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">Description</h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{lesson.description}</p>
+          <ExpandableText
+            text={lesson.description}
+            className="text-lg text-gray-600 dark:text-gray-300"
+          />
         </section>
         {lesson.task_prompt ? (
           <LessonTask

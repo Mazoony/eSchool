@@ -176,16 +176,19 @@ export default function UploadPage() {
           </div>
           <div className="mb-4">
             <label htmlFor="task-prompt" className="block text-gray-700 font-bold mb-2">
-              Student task (optional)
+              Student task in Arabic (optional)
             </label>
             <textarea
               id="task-prompt"
+              lang="ar"
+              dir="rtl"
+              translate="no"
               value={taskPrompt}
               onChange={(event) => setTaskPrompt(event.target.value)}
               maxLength={5000}
               rows={4}
               placeholder="Add a written task for students to complete after watching."
-              className="w-full rounded-lg border px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border px-3 py-2 text-right focus:border-blue-500 focus:outline-none"
               disabled={uploading}
             />
           </div>

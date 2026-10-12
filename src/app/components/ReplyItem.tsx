@@ -4,6 +4,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Reply } from '../types';
 import Image from 'next/image';
 import PaidBadge from './PaidBadge';
+import ExpandableText from './ExpandableText';
 
 interface ReplyItemProps {
   reply: Reply;
@@ -23,7 +24,10 @@ export default function ReplyItem({ reply }: ReplyItemProps) {
             {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
           </span>
         </div>
-        <p className="text-sm text-gray-800 dark:text-gray-300 mt-1">{reply.content}</p>
+        <ExpandableText
+          text={reply.content}
+          className="mt-1 text-sm text-gray-800 dark:text-gray-300"
+        />
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { usePost } from './PostContext';
 import { useAuth } from '../AuthContext';
 import { Comment as CommentType } from '../types';
 import { formatTimestamp } from '../utils/formatTimestamp';
+import ExpandableText from './ExpandableText';
 
 interface CommentProps {
   comment: CommentType;
@@ -51,7 +52,7 @@ export default function Comment({ comment, postId }: CommentProps) {
           <p className="font-semibold text-gray-900 dark:text-gray-50">{profile?.full_name}</p>
           <p className="text-sm text-gray-500">{formatTimestamp(comment.created_at)}</p>
         </div>
-        <p className="text-gray-700 dark:text-gray-300">{comment.content}</p>
+        <ExpandableText text={comment.content} className="text-gray-700 dark:text-gray-300" />
         <div className="flex items-center space-x-4 mt-2">
           <button onClick={handleLike} className={`flex items-center space-x-1 ${userHasLiked ? 'text-red-500' : 'text-gray-500'} hover:text-red-500`}>
             <FiHeart />

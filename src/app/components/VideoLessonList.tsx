@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import SocialShare from './SocialShare';
+import ExpandableText from './ExpandableText';
 
 export interface LessonVideoProps {
   id: string;
@@ -47,7 +48,11 @@ function LessonVideoCard({ lesson }: { lesson: LessonVideoProps }) {
       <div className="p-6">
         <div className="mb-4 text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">Video Lesson</div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">{lesson.title}</h2>
-        <p className="text-gray-600 dark:text-gray-300 mb-5 line-clamp-3">{lesson.description}</p>
+        <ExpandableText
+          text={lesson.description}
+          collapsedLines={3}
+          className="mb-5 text-gray-600 dark:text-gray-300"
+        />
       </div>
       {lesson.video_url ? (
         <div className="bg-black/5 dark:bg-white/5 relative">

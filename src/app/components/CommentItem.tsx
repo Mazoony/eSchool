@@ -9,6 +9,7 @@ import { HeartIcon, TrashIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/so
 import { formatDistanceToNow } from 'date-fns';
 import ReplyItem from './ReplyItem'; // Import the ReplyItem component
 import PaidBadge from './PaidBadge';
+import ExpandableText from './ExpandableText';
 
 interface CommentItemProps {
   comment: Comment;
@@ -53,7 +54,10 @@ export default function CommentItem({ comment }: CommentItemProps) {
             </div>
           )}
         </div>
-        <p className="text-sm text-gray-800 dark:text-gray-300 mt-1">{comment.content}</p>
+        <ExpandableText
+          text={comment.content}
+          className="mt-1 text-sm text-gray-800 dark:text-gray-300"
+        />
         <div className="flex items-center space-x-4 mt-2 text-xs">
           <button 
             onClick={() => likeComment(comment.id)} 

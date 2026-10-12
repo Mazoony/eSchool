@@ -10,19 +10,13 @@ import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import CommentItem from './CommentItem';
 import { formatTimestamp } from '../utils/formatTimestamp';
 import PaidBadge from './PaidBadge';
+import ExpandableText from './ExpandableText';
 
 export default function Post() {
   const { user } = useAuth();
   const { post, comments, likesCount, userHasLiked, error, addComment, toggleLike, deletePost, replyToComment } = usePost();
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [showFullContent, setShowFullContent] = useState(false);
-  const [contentHasMore, setContentHasMore] = useState(false);
-
-  const measureContent = (element: HTMLParagraphElement | null) => {
-    if (!element) return;
-    if (element.scrollHeight > element.clientHeight) setContentHasMore(true);
-  };
 
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,22 +75,10 @@ export default function Post() {
         )}
       </div>
 
-      <p
-        ref={measureContent}
-        className={`mb-1 whitespace-pre-wrap break-words text-gray-800 dark:text-gray-200 ${showFullContent ? '' : 'line-clamp-5'}`}
-      >
-        {post.content}
-      </p>
-      {contentHasMore && (
-        <button
-          type="button"
-          onClick={() => setShowFullContent((shown) => !shown)}
-          aria-expanded={showFullContent}
-          className="mb-4 text-sm font-semibold text-blue-700 hover:underline dark:text-blue-300"
-        >
-          {showFullContent ? 'Show less' : 'Show more'}
-        </button>
-      )}
+      <ExpandableText
+        text={post.content}
+        className="mb-1 text-gray-800 dark:text-gray-200"
+      />
 
       <div className="flex items-center space-x-4">
         <button onClick={toggleLike} className="flex items-center space-x-1 text-gray-500 hover:text-red-500">

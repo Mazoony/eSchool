@@ -9,13 +9,13 @@ export default function HomePageRedirect({ children }: { children: ReactNode }) 
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) router.replace('/social');
+    if (!loading && user) router.replace('/lessons');
   }, [loading, user, router]);
 
   if (loading || user) {
     return (
       <p className="p-8 text-center text-gray-600 dark:text-gray-300" role="status">
-        {user ? 'Redirecting to your feed...' : 'Loading...'}
+        {user ? 'Redirecting to your lessons...' : 'Loading...'}
       </p>
     );
   }

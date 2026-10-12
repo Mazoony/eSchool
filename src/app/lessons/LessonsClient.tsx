@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { AcademicCapIcon, ArrowLeftIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 import { GradeId, grades } from './curriculum';
 import { useAuth } from '../AuthContext';
+import ExpandableText from '../components/ExpandableText';
 
 export default function LessonsClient() {
   const [selectedGrade, setSelectedGrade] = useState<GradeId | null>(null);
@@ -56,7 +57,10 @@ export default function LessonsClient() {
                   <h2 className="mt-10 text-2xl font-extrabold">{item.title}</h2>
                 </div>
                 <div className="p-7">
-                  <p className="text-gray-600 dark:text-gray-300">{item.description}</p>
+                  <ExpandableText
+                    text={item.description}
+                    className="text-gray-600 dark:text-gray-300"
+                  />
                   <div className="mt-6 flex items-center justify-between border-t border-gray-100 pt-5 dark:border-gray-700">
                     <span className="font-semibold text-gray-800 dark:text-gray-100">
                       {item.classCount} classes

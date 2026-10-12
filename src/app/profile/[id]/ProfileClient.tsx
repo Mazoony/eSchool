@@ -7,6 +7,7 @@ import { Post } from '../../types';
 import PostItem from '../../components/PostItem';
 import CreatePost from '../../components/CreatePost';
 import PaidBadge from '../../components/PaidBadge';
+import ExpandableText from '../../components/ExpandableText';
 
 interface ProfileClientProps {
   profile: {
@@ -199,7 +200,12 @@ export default function ProfileClient({
                 <PaidBadge isPaid={profile.is_paid} />
               </h1>
               {username && <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">@{username}</p>}
-              {bio && <p className="mt-3 max-w-2xl text-sm text-gray-700 dark:text-gray-300">{bio}</p>}
+              {bio && (
+                <ExpandableText
+                  text={bio}
+                  className="mt-3 max-w-2xl text-sm text-gray-700 dark:text-gray-300"
+                />
+              )}
               {createdFallbackProfile && isOwnProfile && (
                 <p className="mt-3 text-sm text-amber-600 dark:text-amber-400">Your profile is ready. Add a username and bio to help classmates find you.</p>
               )}
