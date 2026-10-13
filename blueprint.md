@@ -213,3 +213,112 @@ eSchool is a modern social learning platform designed to connect students and ed
 
 - After nine seconds on a student's first authenticated visit, ask them to choose a daily lesson reminder time in their local time zone.
 - Use opt-in Web Push subscriptions and a scheduled Supabase Edge Function to notify registered devices, with reminder controls in Settings.
+
+## Current Change: Automatic AI Task Grading
+
+### Overview
+
+- Automatically grade student written task submissions with Google Gemini using the lesson prompt, maximum mark, and an optional private teacher-authored grading guide.
+- Apply the same automatic grading flow to every lesson task; no per-task Gemini setting or private guide is required. Use the prompt and maximum mark by default.
+- Show students the result and feedback when the grader is confident; leave low-confidence answers unscored and clearly marked for teacher review.
+- Preserve teacher review and manual score overrides. Editing an answer clears its previous score and starts grading again.
+- Keep the Gemini API key and grading guide off the student-facing lesson records, and protect grading state from student-written database updates.
+
+### Plan
+
+1. Add rubric and grading-state fields with database constraints, a guarded server-only grading claim/result flow, and safe RLS-compatible score updates.
+2. Add server-side Gemini grading with authenticated ownership checks, bounded inputs, structured output validation, and confidence-based review.
+3. Extend task administration so the admin can write a rubric and teachers can see automatic-grading status and feedback.
+4. Update student submissions to request grading and display pending, successful, and teacher-review outcomes; automatically retry previously submitted answers still marked pending when students reopen them.
+5. Document the private Gemini key configuration and verify with targeted diagnostics, database migration status, and a production build.
+
+## Current Change: Simplify Home-Page Sign-Up and Login
+
+### Overview
+
+- Put an interactive sign-up/login form directly on the home page, reusing the existing account validation and authentication flows.
+- After successful sign-up, default future home-page visits to login.
+- Remember the last successfully used login email on the device and use browser-standard autocomplete so students can use the browser's password manager; never store passwords in eSchool.
+
+### Plan
+
+1. Embed the existing login and registration forms on the home page with accessible switching between them.
+2. Mark successful sign-up in a non-sensitive local preference so subsequent signed-out visits open login by default.
+3. Remember the login email locally, add semantic username/current-password form hints, and preserve existing standalone login/register routes.
+4. Verify with diagnostics, relevant tests, and a production build.
+
+## Current Change: Desktop Class Lesson Player
+
+### Overview
+
+- Keep the current lesson-card grid on mobile.
+- On desktop, show the class lesson list in a sidebar and display the selected lesson beside it.
+- Remember the last selected lesson separately for each signed-in student and class so the class resumes where that student left off.
+
+### Plan
+
+1. Reuse the existing lesson details/player inside a desktop class layout without changing the standalone lesson page.
+2. Add a desktop sidebar with selection and completion state; choose the student's last lesson on return, falling back to the first incomplete lesson.
+3. Keep the current mobile cards and lesson links unchanged.
+4. Validate with diagnostics, responsive browser preview, build, and whitespace checks.
+
+## Current Change: Faster Class Lesson Loading
+
+### Overview
+
+- Query only the selected grade and class instead of downloading every lesson.
+- Cache unsigned lesson metadata in the browser briefly and refresh it in the background.
+- Load completion status alongside cached metadata where possible.
+- Create a signed video URL only for the selected desktop lesson; standalone lesson pages sign only their own video.
+
+### Plan
+
+1. Add class-filtered lesson metadata fetching and defer video signing.
+2. Reuse fresh browser-cached metadata while revalidating from Supabase.
+3. Fetch completion status concurrently with cached metadata and surface refresh failures.
+4. Validate diagnostics, production build, and browser behavior.
+
+## Current Change: Dynamic Student Progress
+
+### Overview
+
+- Replace sample progress statistics with students' task submissions and current lesson maximum marks.
+- Calculate an earned-points-weighted percentage from graded lessons only; report submitted work awaiting marks separately.
+- Show score breakdowns by class and lesson, updating from realtime submission, grading, and lesson changes.
+
+### Plan
+
+1. Load task lessons and the signed-in student's submissions from Supabase.
+2. Derive dynamic overall and class-level earned/possible scores and pending-mark counts.
+3. Subscribe to lesson/submission changes so progress refreshes when tasks are completed or graded.
+4. Validate diagnostics and production build.
+
+## Current Change: Easier Fill-in-the-Blank Tasks
+
+### Overview
+
+- For prompts containing underscore blanks, show one answer input inline for each blank so students only enter answers.
+- Keep the existing full-answer text area for prompts without blanks.
+- Save completed answers in the existing prompt-filled format so current submission, social post, and AI grading workflows remain compatible.
+
+### Plan
+
+1. Derive input fields from the teacher-authored task prompt and restore existing submitted answers into their matching fields.
+2. Require every blank to be answered, then submit the completed prompt through the existing grading flow.
+3. Preserve the current layout for free-response prompts and validate with diagnostics, browser behavior, and a production build.
+
+## Current Change: Student Feedback Carousel
+
+### Overview
+
+- Replace the homepage's placeholder testimonials with the consented student-feedback screenshots in `public/Testimonials`.
+- Display one screenshot at a time with previous/next controls, keyboard access, slide position, and touch swipe support.
+- Zoom screenshots on hover-capable devices and respect reduced-motion preferences without leaving a touch-hover state on phones.
+- Include new supported image files from the folder automatically when the homepage is rebuilt.
+
+### Plan
+
+1. Enumerate supported testimonial screenshots on the server and render them through a responsive client carousel.
+2. Replace the existing static quote cards with the screenshot carousel near the bottom of the homepage.
+3. Add hover zoom that is limited to hover-capable pointers, with reduced-motion support.
+4. Validate desktop/mobile interaction, accessibility labels, diagnostics, and production build.

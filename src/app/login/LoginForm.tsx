@@ -6,7 +6,13 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from "../AuthContext";
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
-export default function LoginForm() {
+export default function LoginForm({
+  embedded = false,
+  onSwitchToSignUp,
+}: {
+  embedded?: boolean;
+  onSwitchToSignUp?: () => void;
+} = {}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -15,6 +21,15 @@ export default function LoginForm() {
   const [callbackError, setCallbackError] = useState<string | null>(null);
   const router = useRouter();
   const { user, loading, error: authError, signIn } = useAuth();
+
+  useEffect(() => {
+    try {
+      const savedEmail = window.localStorage.getItem('eschool:login-email');
+      if (savedEmail) setEmail(savedEmail);
+    } catch (storageError: unknown) {
+      console.error('Could not restore the saved login email:', storageError);
+    }
+  }, []);
 
   useEffect(() => {
     const error = new URLSearchParams(window.location.search).get('authError');
@@ -39,6 +54,11 @@ export default function LoginForm() {
     setFormError(null);
     try {
       await signIn({ email, password });
+      try {
+        window.localStorage.setItem('eschool:login-email', email.trim());
+      } catch (storageError: unknown) {
+        console.error('Could not save the login email:', storageError);
+      }
       // Redirect is handled by the useEffect above
     } catch (err: any) {
       setFormError(err.message);
@@ -50,7 +70,10 @@ export default function LoginForm() {
 
   if (loading) {
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className={embedded
+          ? 'flex flex-col items-center justify-center py-8'
+          : 'flex min-h-screen flex-col items-center justify-center bg-gray-50 dark:bg-gray-900'}
+        >
             <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-50">Loading...</h1>
             {authError && <p className="mt-4 text-sm text-red-600">{authError}</p>}
         </div>
@@ -58,16 +81,21 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="w-full max-w-md px-8 py-10 bg-white rounded-lg shadow-md dark:bg-gray-800">
+    <div className={embedded ? 'w-full' : 'flex min-h-screen flex-col items-center justify-center bg-gray-50 dark:bg-gray-900'}>
+      <div className={embedded
+        ? 'mx-auto w-full max-w-md'
+        : 'w-full max-w-md rounded-lg bg-white px-8 py-10 shadow-md dark:bg-gray-800'}
+      >
         <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-50">Log In to eSchool</h1>
         {authError && <p className="mt-4 text-center text-sm text-red-600">{authError}</p>}
         {callbackError && <p className="mt-4 text-center text-sm text-red-600" role="alert">{callbackError}</p>}
-        <form onSubmit={handleEmailLogin} className="mt-8 space-y-6">
+        <form onSubmit={handleEmailLogin} autoComplete="on" className="mt-8 space-y-6">
             <label htmlFor="login-email" className="sr-only">Email address</label>
             <input
               id="login-email"
+              name="username"
               type="email"
+              autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
@@ -79,7 +107,9 @@ export default function LoginForm() {
               <label htmlFor="login-password" className="sr-only">Password</label>
               <input
                 id="login-password"
+                name="password"
                 type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
@@ -108,9 +138,15 @@ export default function LoginForm() {
         {formError && <p className="mt-4 text-sm text-red-600">{formError}</p>}
         <p className="mt-4 text-sm text-center text-gray-500 dark:text-gray-400">
           Don't have an account?{" "}
-          <Link href="/register" className="font-medium text-blue-600 hover:underline">
-            Sign up
-          </Link>
+          {embedded && onSwitchToSignUp ? (
+            <button type="button" onClick={onSwitchToSignUp} className="font-medium text-blue-600 hover:underline">
+              Sign up
+            </button>
+          ) : (
+            <Link href="/register" className="font-medium text-blue-600 hover:underline">
+              Sign up
+            </Link>
+          )}
         </p>
       </div>
     </div>

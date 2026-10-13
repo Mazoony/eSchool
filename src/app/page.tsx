@@ -4,7 +4,18 @@ import { AcademicCapIcon, ChatBubbleLeftRightIcon, BookmarkIcon } from '@heroico
 import { FaWhatsapp } from 'react-icons/fa';
 import Image from 'next/image';
 import { Metadata } from 'next';
+import { readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import HomePageRedirect from './HomePageRedirect';
+import HomeAuthPanel from './components/HomeAuthPanel';
+import TestimonialsCarousel from './components/TestimonialsCarousel';
+
+const testimonialImages = readdirSync(join(process.cwd(), 'public', 'Testimonials'), {
+  withFileTypes: true,
+})
+  .filter((file) => file.isFile() && /\.(avif|gif|jpe?g|png|webp)$/i.test(file.name))
+  .sort((first, second) => first.name.localeCompare(second.name, undefined, { numeric: true }))
+  .map((file) => `/Testimonials/${encodeURIComponent(file.name)}`);
 
 export const metadata: Metadata = {
   title: 'eSchool - Learn English Online in Sudan',
@@ -33,6 +44,8 @@ export default function LandingPage() {
     <HomePageRedirect>
     <div className="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col">
       <main className="flex-grow">
+        <HomeAuthPanel />
+
         {/* Hero Section */}
         <section className="relative text-center py-20 lg:py-32 bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
           <div className="absolute inset-0 opacity-10">
@@ -56,7 +69,7 @@ export default function LandingPage() {
                 Learn English, build confidence, and grow with your instructor and a supportive student community.
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-4 md:justify-start">
-                <Link href="/register" className="inline-block rounded-lg bg-blue-600 px-8 py-3 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-blue-700 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">
+                <Link href="#get-started" className="inline-block rounded-lg bg-blue-600 px-8 py-3 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-blue-700 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">
                   Start Your Journey
                 </Link>
                 <Link href="/social" className="inline-block rounded-lg bg-gray-200 px-8 py-3 text-blue-600 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-gray-300 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75 dark:bg-gray-700 dark:text-blue-400 dark:hover:bg-gray-600">
@@ -118,41 +131,18 @@ export default function LandingPage() {
         {/* Testimonials Section */}
         <section className="py-16 bg-gray-50 dark:bg-gray-900">
           <div className="container mx-auto px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">From Our Community</h2>
+            <div className="mb-10 text-center">
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">
+                Real voices, real progress
+              </p>
+              <h2 className="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white lg:text-4xl">
+                What Students Are Saying
+              </h2>
+              <p className="mx-auto mt-3 max-w-2xl text-gray-600 dark:text-gray-300">
+                A few kind words from our learning community, shared with permission.
+              </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                <p className="text-gray-600 dark:text-gray-300 italic">"eSchool has been a game-changer for my IELTS preparation. The instructors are amazing and the community is so supportive."</p>
-                <div className="mt-4 flex items-center">
-                  <Image src="/avatar1.jpeg" alt="User Avatar" width={40} height={40} className="rounded-full" priority/>
-                  <div className="ml-4">
-                    <p className="font-semibold text-gray-900 dark:text-white">Fatima A.</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">IELTS Student</p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                <p className="text-gray-600 dark:text-gray-300 italic">"I love the social feed! It's a great way to practice my English every day and make new friends who are also learning."</p>
-                <div className="mt-4 flex items-center">
-                  <Image src="/avatar2.jpeg" alt="User Avatar" width={40} height={40} className="rounded-full" priority/>
-                  <div className="ml-4">
-                    <p className="font-semibold text-gray-900 dark:text-white">Mohammed H.</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">University Student</p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                <p className="text-gray-600 dark:text-gray-300 italic">"As an instructor, eSchool provides the tools I need to effectively teach and engage with my students in a modern way."</p>
-                <div className="mt-4 flex items-center">
-                  <Image src="/avatar3.jpeg" alt="User Avatar" width={40} height={40} className="rounded-full" priority/>
-                  <div className="ml-4">
-                    <p className="font-semibold text-gray-900 dark:text-white">Ahmed I.</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">English Instructor</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <TestimonialsCarousel images={testimonialImages} />
           </div>
         </section>
       </main>

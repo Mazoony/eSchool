@@ -1,12 +1,19 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../AuthContext';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { GradeId, grades, isGradeId } from '../lessons/curriculum';
 
-export default function RegisterForm() {
+export default function RegisterForm({
+  embedded = false,
+  onSwitchToLogin,
+}: {
+  embedded?: boolean;
+  onSwitchToLogin?: () => void;
+} = {}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -16,6 +23,7 @@ export default function RegisterForm() {
   const [gender, setGender] = useState<'female' | 'male' | ''>('');
   const [preferredGrade, setPreferredGrade] = useState<GradeId | ''>('');
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { signUp } = useAuth();
 
@@ -27,6 +35,7 @@ export default function RegisterForm() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       await signUp({
         email,
@@ -44,11 +53,16 @@ export default function RegisterForm() {
       } else {
         setError('An unexpected error occurred.');
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
   return (
-    <main className="min-h-screen bg-gray-100 px-4 py-10 flex flex-col items-center justify-center dark:bg-gray-900">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md dark:bg-gray-800">
+    <div className={embedded ? 'w-full' : 'flex min-h-screen flex-col items-center justify-center bg-gray-100 px-4 py-10 dark:bg-gray-900'}>
+      <div className={embedded
+        ? 'mx-auto w-full max-w-md'
+        : 'w-full max-w-md rounded-lg bg-white p-8 shadow-md dark:bg-gray-800'}
+      >
         <h1 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-gray-50">Create an Account</h1>
         <form onSubmit={handleSignUp}>
           <div className="mb-4">
@@ -60,6 +74,7 @@ export default function RegisterForm() {
               id="fullName"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
+              disabled={isSubmitting}
               className="w-full px-3 py-2 border rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
               required
               autoComplete="name"
@@ -80,6 +95,7 @@ export default function RegisterForm() {
               autoComplete="tel"
               className="w-full px-3 py-2 border rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
               required
+              disabled={isSubmitting}
               aria-describedby={error ? 'error-message phone-help' : 'phone-help'}
             />
             <p id="phone-help" className="mt-1 text-sm text-gray-600 dark:text-gray-300">
@@ -97,11 +113,12 @@ export default function RegisterForm() {
                 const value = e.target.value;
                 setGender(value === 'female' || value === 'male' ? value : '');
               }}
+              disabled={isSubmitting}
               className="w-full px-3 py-2 border rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
               required
               aria-describedby={error ? 'error-message privacy-note' : 'privacy-note'}
             >
-              <option value="" disabled>Select gender</option>
+              <option value="" >Select gender</option>
               <option value="female">Female</option>
               <option value="male">Male</option>
             </select>
@@ -119,6 +136,7 @@ export default function RegisterForm() {
               autoComplete="bday"
               className="w-full px-3 py-2 border rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
               required
+              disabled={isSubmitting}
               aria-describedby={error ? 'error-message privacy-note' : 'privacy-note'}
             />
             <p id="privacy-note" className="mt-1 text-sm text-gray-600 dark:text-gray-300">
@@ -133,6 +151,7 @@ export default function RegisterForm() {
               id="preferredGrade"
               value={preferredGrade}
               onChange={(event) => setPreferredGrade(isGradeId(event.target.value) ? event.target.value : '')}
+              disabled={isSubmitting}
               className="w-full rounded-lg border bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
               aria-describedby="preferred-grade-help"
             >
@@ -156,7 +175,8 @@ export default function RegisterForm() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
               required
-              autoComplete="email"
+              autoComplete="username"
+              disabled={isSubmitting}
               aria-describedby={error ? 'error-message' : undefined}
             />
           </div>
@@ -172,6 +192,7 @@ export default function RegisterForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="new-password"
                 minLength={8}
+                disabled={isSubmitting}
                 className="w-full px-3 py-2 pr-12 border rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
                 required
                 aria-describedby={error ? 'password-help error-message' : 'password-help'}
@@ -195,12 +216,25 @@ export default function RegisterForm() {
           {error && <p id="error-message" className="text-red-600 dark:text-red-400 text-sm mb-4" role="alert">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-blue-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-800 transition duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+            disabled={isSubmitting}
+            className="w-full rounded-lg bg-blue-700 px-4 py-2 font-bold text-white transition duration-300 hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 disabled:cursor-wait disabled:opacity-60"
           >
-            Sign Up
+            {isSubmitting ? 'Creating account...' : 'Sign Up'}
           </button>
         </form>
+        <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-300">
+          Already have an account?{' '}
+          {embedded && onSwitchToLogin ? (
+            <button type="button" onClick={onSwitchToLogin} className="font-medium text-blue-600 hover:underline">
+              Log in
+            </button>
+          ) : (
+            <Link href="/login" className="font-medium text-blue-600 hover:underline">
+              Log in
+            </Link>
+          )}
+        </p>
       </div>
-    </main>
+    </div>
   );
 }

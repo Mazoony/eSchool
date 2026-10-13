@@ -28,6 +28,7 @@ export default function AdminTasksPage() {
   const [lessons, setLessons] = useState<LessonTask[]>([]);
   const [selectedLessonId, setSelectedLessonId] = useState('');
   const [prompt, setPrompt] = useState('');
+  const [gradingRubric, setGradingRubric] = useState('');
   const [maxScore, setMaxScore] = useState('100');
   const [submissions, setSubmissions] = useState<LessonSubmission[]>([]);
   const [moderators, setModerators] = useState<TaskModerator[]>([]);
@@ -142,6 +143,7 @@ export default function AdminTasksPage() {
       return;
     }
     setPrompt(selectedLesson.task_prompt ?? '');
+    setGradingRubric(selectedLesson.task_grading_rubric ?? '');
     setMaxScore(String(selectedLesson.task_max_score));
     setScoreDrafts({});
     void loadSubmissions(selectedLessonId);
@@ -156,11 +158,17 @@ export default function AdminTasksPage() {
     setMessage(null);
     try {
       const numericMaxScore = Number(maxScore);
-      await saveLessonTaskSettings(selectedLessonId, prompt, numericMaxScore);
+      await saveLessonTaskSettings(selectedLessonId, prompt, numericMaxScore, gradingRubric);
       const taskPrompt = prompt.trim() || null;
+      const taskGradingRubric = gradingRubric.trim() || null;
       setLessons((current) => current.map((lesson) => (
         lesson.id === selectedLessonId
-          ? { ...lesson, task_prompt: taskPrompt, task_max_score: numericMaxScore }
+          ? {
+            ...lesson,
+            task_prompt: taskPrompt,
+            task_max_score: numericMaxScore,
+            task_grading_rubric: taskGradingRubric,
+          }
           : lesson
       )));
       setMessage(taskPrompt ? 'Task settings saved.' : 'Task removed; maximum mark saved.');
@@ -190,7 +198,13 @@ export default function AdminTasksPage() {
     try {
       await saveLessonSubmissionScore(submission.id, score);
       setSubmissions((current) => current.map((item) => (
-        item.id === submission.id ? { ...item, score } : item
+        item.id === submission.id
+          ? {
+            ...item,
+            score,
+            grading_status: score === null ? 'pending' : 'teacher_reviewed',
+          }
+          : item
       )));
       setScoreDrafts((current) => ({ ...current, [submission.id]: score === null ? '' : String(score) }));
       setMessage(score === null ? 'Mark cleared.' : 'Mark saved.');
@@ -375,6 +389,23 @@ export default function AdminTasksPage() {
                 placeholder="Write the task students should complete after watching the lesson."
                 className="w-full rounded-md border border-gray-300 bg-white p-3 text-left dark:border-gray-600 dark:bg-gray-700"
               />
+              <label htmlFor="task-grading-rubric" className="mb-2 mt-4 block font-semibold">
+                Private AI grading guide (English, optional)
+              </label>
+              <textarea
+                id="task-grading-rubric"
+                lang="en"
+                dir="ltr"
+                value={gradingRubric}
+                onChange={(event) => setGradingRubric(event.target.value)}
+                maxLength={5000}
+                rows={4}
+                placeholder="Add expected answers and explain how marks should be awarded."
+                className="w-full rounded-md border border-gray-300 bg-white p-3 text-left dark:border-gray-600 dark:bg-gray-700"
+              />
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                Gemini automatically grades every student submission using the task prompt and maximum mark. This optional guide adds expected answers or marking rules; it is visible only to reviewers, never students.
+              </p>
               <label htmlFor="task-max-score" className="mb-2 mt-4 block font-semibold">
                 Maximum mark
               </label>
@@ -402,6 +433,15 @@ export default function AdminTasksPage() {
                 </button>
               </div>
             </form>}
+            {!isAdmin && gradingRubric && (
+              <div className="mt-5 border-t border-gray-200 pt-4 dark:border-gray-700">
+                <h3 className="mb-2 font-semibold">Private AI grading guide</h3>
+                <ExpandableText
+                  text={gradingRubric}
+                  className="text-gray-700 dark:text-gray-200"
+                />
+              </div>
+            )}
           </section>
 
           <section aria-labelledby="submissions-heading" className="mt-8">
@@ -443,6 +483,19 @@ export default function AdminTasksPage() {
                       text={submission.answer}
                       className="text-gray-800 dark:text-gray-100"
                     />
+                    <p className="mt-3 text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      {submission.grading_status === 'ai_graded' && 'AI graded'}
+                      {submission.grading_status === 'teacher_reviewed' && 'Teacher reviewed'}
+                      {submission.grading_status === 'needs_review' && 'Needs teacher review'}
+                      {submission.grading_status === 'grading' && 'AI is grading'}
+                      {submission.grading_status === 'grading_failed' && 'Automatic grading failed'}
+                      {submission.grading_status === 'pending' && 'Waiting for grading'}
+                    </p>
+                    {submission.grading_feedback && (
+                      <p className="mt-1 whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">
+                        {submission.grading_feedback}
+                      </p>
+                    )}
                     <form
                       onSubmit={(event) => void handleSaveScore(event, submission)}
                       className="mt-4 flex flex-wrap items-end gap-3 border-t border-gray-200 pt-4 dark:border-gray-700"

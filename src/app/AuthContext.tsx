@@ -213,6 +213,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       },
     });
     if (signUpError) throw signUpError;
+    try {
+      window.localStorage.setItem('eschool-has-account', 'true');
+    } catch (storageError: unknown) {
+      console.error('Could not save the home-page sign-in preference:', storageError);
+    }
   }, []);
 
   const signInWithGoogle = useCallback(async () => {

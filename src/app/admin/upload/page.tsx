@@ -193,6 +193,9 @@ export default function UploadPage() {
               className="w-full rounded-lg border px-3 py-2 text-left focus:border-blue-500 focus:outline-none"
               disabled={uploading}
             />
+            <p className="mt-1 text-sm text-gray-600">
+              Every task is automatically sent to Gemini when a student submits it. Add underscore blanks (____) to create answer fields; tasks without blanks use a written-answer box.
+            </p>
           </div>
           <div className="mb-6">
             <label htmlFor="grade" className="mb-2 block font-bold text-gray-700">

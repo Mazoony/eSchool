@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+.testimonial-screenshot {
+  transform: scale(1);
+  transition: transform 350ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .testimonial-screenshot-frame:hover .testimonial-screenshot {
+    transform: scale(1.65);
+    cursor: zoom-in;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-screenshot {
+    transition: none;
+  }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

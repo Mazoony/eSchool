@@ -2,3 +2,6 @@ project_id = "sjziagprpoqlrtgzfdsy"
 
 [functions.send-lesson-reminders]
 verify_jwt = false
+
+[functions.grade-lesson-submission]
+verify_jwt = true

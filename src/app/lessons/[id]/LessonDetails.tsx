@@ -22,9 +22,10 @@ const getVideoMimeType = (url: string) => {
 
 interface LessonDetailsProps {
   lesson: Lesson;
+  embedded?: boolean;
 }
 
-export default function LessonDetails({ lesson }: LessonDetailsProps) {
+export default function LessonDetails({ lesson, embedded = false }: LessonDetailsProps) {
 
   if (!lesson) {
     return (
@@ -39,25 +40,27 @@ export default function LessonDetails({ lesson }: LessonDetailsProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      <header className="px-4 lg:px-6 h-16 flex items-center bg-white dark:bg-gray-800 shadow-md">
-        <Link href="/" className="flex items-center justify-center" aria-label="eSchool Home">
-          <span className="text-2xl font-bold text-blue-600 dark:text-blue-500">eAfrica</span>
-        </Link>
-        <nav className="ml-auto flex gap-6 sm:gap-8">
-          <Link href="/lessons" className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75" aria-label="View all lessons">
-            Lessons
+    <div className={embedded ? '' : 'min-h-screen bg-gray-100 dark:bg-gray-900'}>
+      {!embedded && (
+        <header className="flex h-16 items-center bg-white px-4 shadow-md dark:bg-gray-800 lg:px-6">
+          <Link href="/" className="flex items-center justify-center" aria-label="eSchool Home">
+            <span className="text-2xl font-bold text-blue-600 dark:text-blue-500">eAfrica</span>
           </Link>
-          <Link href="/social" className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75" aria-label="eSchool Social Feed">
-            Social
-          </Link>
-          <Link href="/profile" className="text-lg font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75" aria-label="Your eSchool profile">
-            Profile
-          </Link>
-        </nav>
-      </header>
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-extrabold text-center text-gray-900 dark:text-gray-50 mb-12">{lesson.title}</h1>
+          <nav className="ml-auto flex gap-6 sm:gap-8">
+            <Link href="/lessons" className="text-lg font-medium transition-colors hover:text-blue-600 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75 dark:hover:text-blue-500" aria-label="View all lessons">
+              Lessons
+            </Link>
+            <Link href="/social" className="text-lg font-medium transition-colors hover:text-blue-600 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75 dark:hover:text-blue-500" aria-label="eSchool Social Feed">
+              Social
+            </Link>
+            <Link href="/profile" className="text-lg font-medium transition-colors hover:text-blue-600 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75 dark:hover:text-blue-500" aria-label="Your eSchool profile">
+              Profile
+            </Link>
+          </nav>
+        </header>
+      )}
+      <main className={embedded ? 'px-1 py-1' : 'container mx-auto px-4 py-8'}>
+        <h1 className={`font-extrabold text-gray-900 dark:text-gray-50 ${embedded ? 'mb-5 text-2xl sm:text-3xl' : 'mb-12 text-center text-4xl'}`}>{lesson.title}</h1>
         <div className="aspect-w-16 aspect-h-9 mb-8">
           {lesson.video_url.includes('youtube.com') || lesson.video_url.includes('youtu.be') ? (
             <iframe
@@ -82,7 +85,7 @@ export default function LessonDetails({ lesson }: LessonDetailsProps) {
             </video>
           )}
         </div>
-        <section aria-labelledby="lesson-description-heading" className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
+        <section aria-labelledby="lesson-description-heading" className="rounded-lg bg-white p-5 shadow-md dark:bg-gray-800 sm:p-8">
           <h2 id="lesson-description-heading" className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">Description</h2>
           <div lang="ar" dir="rtl">
             <ExpandableText

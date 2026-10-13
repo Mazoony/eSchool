@@ -65,6 +65,19 @@ Students are asked to choose a local reminder time nine seconds after their firs
 
 The SQL migration creates the private push-subscription table and daily delivery claims. The sender uses each student's saved time zone and sends at most one reminder per local day. iOS browsers may require the student to install the site to the home screen before enabling web push.
 
+## Automatic task grading
+
+Task submissions are graded by Google Gemini using the task prompt and the optional private grading guide entered by the admin at `/admin/tasks`. The guide can include expected answers and scoring criteria; it is visible only to task reviewers and the grading service. High-confidence results receive a score and feedback immediately; lower-confidence answers remain unscored until a teacher reviews them. Teachers can always override a mark. Changing an answer clears its previous mark and triggers grading again.
+
+To enable grading, set a Gemini API key as a **Supabase Edge Function secret** and deploy the grading function:
+
+```bash
+npx supabase secrets set GEMINI_API_KEY="<your-gemini-api-key>"
+npx supabase functions deploy grade-lesson-submission
+```
+
+The function uses `gemini-2.5-flash` by default. To choose another supported Gemini model, set the optional `GEMINI_MODEL` Edge Function secret before deployment. Never expose the Gemini key in a `NEXT_PUBLIC_*` variable or commit it to the repository. Student task prompts and answers are sent to Google Gemini for grading.
+
 Admins can add or edit written lesson prompts at `/admin/tasks` and review student answers there. Students can submit one written answer per lesson and revise it later. Each submission is also shared as a post in the social feed, where other students can like and comment; revisions update the existing post. Row Level Security restricts students to their own submissions.
 
 Authenticated users can read profiles needed for the social feed, while profile creation and updates are restricted to the owner by Row Level Security.
