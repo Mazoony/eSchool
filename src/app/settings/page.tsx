@@ -1,33 +1,18 @@
-import Link from "next/link";
+import Link from 'next/link';
+import LessonReminderSettings from '../components/LessonReminderSettings';
 
 export default function Settings() {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-      <header className="px-4 lg:px-6 h-14 flex items-center bg-white dark:bg-gray-800">
-        <Link href="#" className="flex items-center justify-center">
-          <span className="text-lg font-semibold text-gray-900 dark:text-gray-50">eAfrica</span>
-        </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link href="/" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Home
-          </Link>
-          <Link href="/lessons" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Lessons
-          </Link>
-          <Link href="/social" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Social
-          </Link>
-          <Link href="/profile" className="text-sm font-medium hover:underline underline-offset-4 dark:text-gray-400">
-            Profile
-          </Link>
-        </nav>
+    <main className="mx-auto min-h-screen max-w-3xl space-y-6 py-8">
+      <header>
+        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">Settings</h1>
+        <p className="mt-2 text-gray-600 dark:text-gray-300">Manage your learning and notification preferences.</p>
       </header>
-      <main className="flex-1 p-4 md:p-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">Settings</h1>
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm bg-white dark:bg-gray-800 p-6">
-          <p className="text-gray-500 dark:text-gray-400">This is where you&apos;ll be able to manage your account settings, notification preferences, and other app settings. The settings page is coming soon!</p>
-        </div>
-      </main>
-    </div>
+      <LessonReminderSettings />
+      <div className="flex flex-wrap gap-4 text-sm font-semibold">
+        <Link href="/lessons" className="text-blue-700 hover:underline dark:text-blue-300">Lessons</Link>
+        <Link href="/social" className="text-blue-700 hover:underline dark:text-blue-300">Social</Link>
+      </div>
+    </main>
   );
 }

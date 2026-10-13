@@ -84,7 +84,7 @@ export async function updateProfile(
     throw new Error('Select a valid learning path.');
   }
 
-  const profileUpdates: Record<string, string | null> = { updated_at: new Date().toISOString() };
+  const profileUpdates: Record<string, string | boolean | null> = { updated_at: new Date().toISOString() };
   if ('username' in updates) {
     const username = updates.username?.trim().toLowerCase() || null;
     if (username && !/^[a-z0-9_]{3,20}$/.test(username)) {
@@ -95,7 +95,6 @@ export async function updateProfile(
   if ('full_name' in updates) profileUpdates.full_name = updates.full_name?.trim() || null;
   if ('bio' in updates) profileUpdates.bio = updates.bio?.trim() || null;
   if ('preferred_grade' in updates) profileUpdates.preferred_grade = updates.preferred_grade ?? null;
-
   const { data, error } = await createClient()
     .from('profiles')
     .update(profileUpdates)
@@ -104,6 +103,78 @@ export async function updateProfile(
     .maybeSingle();
   throwIfError(error);
   if (!data) throw new Error('Could not find your profile to update.');
+}
+
+export interface LessonReminderSettings {
+  lesson_reminder_time: string | null;
+  lesson_reminder_timezone: string | null;
+  lesson_reminders_enabled: boolean;
+  lesson_reminder_prompted_at: string | null;
+}
+
+const emptyLessonReminderSettings: LessonReminderSettings = {
+  lesson_reminder_time: null,
+  lesson_reminder_timezone: null,
+  lesson_reminders_enabled: false,
+  lesson_reminder_prompted_at: null,
+};
+
+export async function getLessonReminderSettings(userId: string): Promise<LessonReminderSettings> {
+  const { data, error } = await createClient()
+    .from('lesson_reminder_settings')
+    .select('reminder_time, timezone, enabled, prompted_at')
+    .eq('user_id', userId)
+    .maybeSingle();
+  throwIfError(error);
+  if (!data) return { ...emptyLessonReminderSettings };
+  return {
+    lesson_reminder_time: typeof data.reminder_time === 'string' ? data.reminder_time : null,
+    lesson_reminder_timezone: typeof data.timezone === 'string' ? data.timezone : null,
+    lesson_reminders_enabled: data.enabled === true,
+    lesson_reminder_prompted_at: typeof data.prompted_at === 'string' ? data.prompted_at : null,
+  };
+}
+
+export async function updateLessonReminderSettings(
+  userId: string,
+  updates: Partial<LessonReminderSettings>,
+): Promise<void> {
+  const current = await getLessonReminderSettings(userId);
+  const next = { ...current, ...updates };
+  if (next.lesson_reminder_time && !/^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(next.lesson_reminder_time)) {
+    throw new Error('Choose a valid reminder time.');
+  }
+  if (next.lesson_reminder_timezone) {
+    try {
+      new Intl.DateTimeFormat('en', { timeZone: next.lesson_reminder_timezone });
+    } catch {
+      throw new Error('Choose a valid time zone.');
+    }
+  }
+  if (
+    next.lesson_reminders_enabled
+    && (!next.lesson_reminder_time || !next.lesson_reminder_timezone)
+  ) {
+    throw new Error('Choose a reminder time and time zone before enabling reminders.');
+  }
+  if (
+    !next.lesson_reminders_enabled
+    && (next.lesson_reminder_time || next.lesson_reminder_timezone)
+  ) {
+    throw new Error('Turn off reminders without leaving an active reminder time.');
+  }
+
+  const { error } = await createClient()
+    .from('lesson_reminder_settings')
+    .upsert({
+      user_id: userId,
+      reminder_time: next.lesson_reminder_time,
+      timezone: next.lesson_reminder_timezone,
+      enabled: next.lesson_reminders_enabled,
+      prompted_at: next.lesson_reminder_prompted_at,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id' });
+  throwIfError(error);
 }
 
 export async function uploadProfileAvatar(userId: string, file: File): Promise<string> {

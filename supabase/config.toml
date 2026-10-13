@@ -1,1 +1,4 @@
 project_id = "sjziagprpoqlrtgzfdsy"
+
+[functions.send-lesson-reminders]
+verify_jwt = false

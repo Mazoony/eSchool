@@ -7,6 +7,7 @@ import { Metadata } from 'next';
 import { ThemeProvider } from 'next-themes';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Axe from './Axe';
+import LessonReminderPrompt from './components/LessonReminderPrompt';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             <Header />
+            <LessonReminderPrompt />
             <div className="p-4 sm:p-6 lg:p-8">
                 <Breadcrumbs />
                 {children}

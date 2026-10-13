@@ -208,3 +208,8 @@ eSchool is a modern social learning platform designed to connect students and ed
 
 - Let students optionally choose a preferred learning path at sign-up and update it later from the lessons page.
 - Save the preference on the student profile and highlight the chosen path without hiding the other available paths.
+
+## Current Change: Daily Lesson Reminders
+
+- After nine seconds on a student's first authenticated visit, ask them to choose a daily lesson reminder time in their local time zone.
+- Use opt-in Web Push subscriptions and a scheduled Supabase Edge Function to notify registered devices, with reminder controls in Settings.

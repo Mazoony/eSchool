@@ -11,7 +11,7 @@ import {
 import { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import { ensureProfile } from '@/utils/supabase/data';
+import { ensureProfile, getLessonReminderSettings } from '@/utils/supabase/data';
 import { Profile, User } from './types';
 import { GradeId, isGradeId } from './lessons/curriculum';
 
@@ -26,6 +26,7 @@ interface AuthContextType {
   loading: boolean;
   error: string | null;
   toastMessage: string | null;
+  refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
   signIn: (credentials: Credentials) => Promise<void>;
   signUp: (credentials: Credentials & {
@@ -73,11 +74,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       try {
-        const profile = await ensureProfile(
-          nextSession.user.id,
-          nextSession.user.user_metadata as Record<string, unknown>,
-        );
-        if (mounted) setUser(toAppUser(nextSession.user, profile));
+        const [profile, reminderSettings] = await Promise.all([
+          ensureProfile(
+            nextSession.user.id,
+            nextSession.user.user_metadata as Record<string, unknown>,
+          ),
+          getLessonReminderSettings(nextSession.user.id),
+        ]);
+        if (mounted) setUser(toAppUser(nextSession.user, { ...profile, ...reminderSettings }));
       } catch (profileError: unknown) {
         console.error('Failed to load Supabase profile:', profileError);
         if (mounted) {
@@ -126,6 +130,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToastMessage(message);
     window.setTimeout(() => setToastMessage(null), 3000);
   }, []);
+
+  const refreshProfile = useCallback(async () => {
+    const authUser = session?.user;
+    if (!authUser) return;
+    const [profile, reminderSettings] = await Promise.all([
+      ensureProfile(authUser.id, authUser.user_metadata as Record<string, unknown>),
+      getLessonReminderSettings(authUser.id),
+    ]);
+    setUser((currentUser) =>
+      currentUser?.id === authUser.id
+        ? toAppUser(authUser, { ...profile, ...reminderSettings })
+        : currentUser,
+    );
+  }, [session]);
 
   const signOut = useCallback(async () => {
     const { error: signOutError } = await createClient().auth.signOut();
@@ -207,7 +225,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ session, user, loading, error, toastMessage, signOut, signIn, signUp, signInWithGoogle }}
+      value={{
+        session,
+        user,
+        loading,
+        error,
+        toastMessage,
+        refreshProfile,
+        signOut,
+        signIn,
+        signUp,
+        signInWithGoogle,
+      }}
     >
       {children}
     </AuthContext.Provider>

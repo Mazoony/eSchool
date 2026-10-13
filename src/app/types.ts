@@ -8,6 +8,10 @@ export interface Profile {
   cover_url?: string | null;
   bio?: string | null;
   preferred_grade?: GradeId | null;
+  lesson_reminder_time?: string | null;
+  lesson_reminder_timezone?: string | null;
+  lesson_reminders_enabled?: boolean;
+  lesson_reminder_prompted_at?: string | null;
   is_paid?: boolean;
   created_at?: string | null;
   updated_at?: string | null;
